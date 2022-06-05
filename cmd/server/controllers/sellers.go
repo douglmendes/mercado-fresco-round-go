@@ -142,7 +142,7 @@ func (c *SellerController) Delete() gin.HandlerFunc {
 			return
 		}
 
-		ctx.JSON(200, gin.H{"data": fmt.Sprintf("o vendedor %d foi removido", id)})
+		ctx.JSON(200, gin.H{"data": fmt.Sprintf("seller %d was removed", id)})
 	}
 	
 }

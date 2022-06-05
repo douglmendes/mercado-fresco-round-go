@@ -43,7 +43,7 @@ func (r *repository) GetById(id int) (Seller, error) {
 	}
 
 	
-	return Seller{}, fmt.Errorf("vendedor %d não encontrado", id)
+	return Seller{}, fmt.Errorf("seller %d not found", id)
 }
 
 func (r *repository) LastID() (int, error) {
@@ -92,7 +92,7 @@ func (r *repository) Update(id, cid int, commpanyName, address, telephone string
 		return Seller{}, err
 	}
 	if !updated {
-		return Seller{}, fmt.Errorf("vendedor %d não encontrado", id)
+		return Seller{}, fmt.Errorf("seller %d not found", id)
 	}
 	return s, nil
 	
@@ -114,7 +114,7 @@ func (r *repository) Delete(id int) error {
 	}
 
 	if !deleted {
-		return fmt.Errorf("vendedor %d não encontrado", id)
+		return fmt.Errorf("seller %d not found", id)
 	}
 
 	sl = append(sl[:index], sl[index+1:]...)

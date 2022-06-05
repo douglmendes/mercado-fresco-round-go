@@ -19,5 +19,12 @@
   "company_name": "Mercado Fresco 2",
   "address": "Rua nove",
   "telephone": "23442345"
+ },
+ {
+  "id": 5,
+  "cid": 5,
+  "company_name": "Mercado Fresco 4",
+  "address": "Rua nove",
+  "telephone": "23442345"
  }
 ]
