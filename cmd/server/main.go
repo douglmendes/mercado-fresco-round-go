@@ -27,7 +27,7 @@ func main()  {
 
 	r := gin.Default()
 
-	sl := r.Group("/sellers")
+	sl := r.Group("/api/v1/sellers")
 	{
 		sl.GET("/", s.GetAll())
 		sl.GET("/:id", s.GetById())
