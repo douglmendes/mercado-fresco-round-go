@@ -1,6 +1,6 @@
 package sections
 
-var database []Section
+import "github.com/douglmendes/mercado-fresco-round-go/pkg/store"
 
 type Repository interface {
 	GetAll() ([]Section, error)
@@ -17,14 +17,26 @@ type Repository interface {
 }
 
 type repository struct {
+	database store.Store
 }
 
 func (r *repository) GetAll() ([]Section, error) {
-	return database, nil
+	var data []Section
+
+	if err := r.database.Read(&data); err != nil {
+		return []Section{}, err
+	}
+
+	return data, nil
 }
 
 func (r *repository) GetById(id int) (Section, error) {
-	for _, section := range database {
+	data, err := r.GetAll()
+	if err != nil {
+		return Section{}, err
+	}
+
+	for _, section := range data {
 		if section.Id == id {
 			return section, nil
 		}
@@ -34,12 +46,17 @@ func (r *repository) GetById(id int) (Section, error) {
 }
 
 func (r *repository) LastID() (int, error) {
-	count := len(database)
+	data, err := r.GetAll()
+	if err != nil {
+		return 0, err
+	}
+
+	count := len(data)
 	if count == 0 {
 		return 0, nil
 	}
 
-	return database[count-1].Id, nil
+	return data[count-1].Id, nil
 }
 
 func (r *repository) Create(
@@ -48,6 +65,11 @@ func (r *repository) Create(
 	currentTemperature, minimumTemperature int,
 ) (Section, error) {
 	lastID, err := r.LastID()
+	if err != nil {
+		return Section{}, err
+	}
+
+	data, err := r.GetAll()
 	if err != nil {
 		return Section{}, err
 	}
@@ -64,15 +86,25 @@ func (r *repository) Create(
 		ProductTypeId:      productTypeId,
 	}
 
-	database = append(database, section)
+	data = append(data, section)
+
+	if err := r.database.Write(data); err != nil {
+		return Section{}, err
+	}
+
 	return section, nil
 }
 
 func (r *repository) Delete(id int) error {
-	for i, section := range database {
+	data, err := r.GetAll()
+	if err != nil {
+		return err
+	}
+
+	for i, section := range data {
 		if section.Id == id {
-			database = append(database[:i], database[i+1:]...)
-			return nil
+			data = append(data[:i], data[i+1:]...)
+			return r.database.Write(data)
 		}
 	}
 
@@ -80,20 +112,20 @@ func (r *repository) Delete(id int) error {
 }
 
 func (r *repository) Exists(id int) error {
-	for _, section := range database {
-		if section.Id == id {
-			return nil
-		}
-	}
-
-	return &ErrorNotFound{id}
+	_, err := r.GetById(id)
+	return err
 }
 
 func (r *repository) Update(id int, args map[string]int) (Section, error) {
+	data, err := r.GetAll()
+	if err != nil {
+		return Section{}, err
+	}
+
 	var selectedSection *Section
-	for i, section := range database {
+	for i, section := range data {
 		if section.Id == id {
-			selectedSection = &database[i]
+			selectedSection = &data[i]
 			break
 		}
 	}
@@ -119,9 +151,13 @@ func (r *repository) Update(id int, args map[string]int) (Section, error) {
 		}
 	}
 
+	if err := r.database.Write(data); err != nil {
+		return Section{}, err
+	}
+
 	return *selectedSection, nil
 }
 
-func NewRepository() Repository {
-	return &repository{}
+func NewRepository(s store.Store) Repository {
+	return &repository{s}
 }

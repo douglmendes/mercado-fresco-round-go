@@ -3,13 +3,14 @@ package main
 import (
 	"github.com/douglmendes/mercado-fresco-round-go/cmd/server/controllers"
 	"github.com/douglmendes/mercado-fresco-round-go/internal/sections"
+	"github.com/douglmendes/mercado-fresco-round-go/pkg/store"
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
 	router := gin.Default()
 
-	sectionsRepository := sections.NewRepository()
+	sectionsRepository := sections.NewRepository(store.New("../../sections.json"))
 	sectionsService := sections.NewService(sectionsRepository)
 	sectionsController := controllers.NewSectionsController(sectionsService)
 
