@@ -6,48 +6,44 @@ import (
 	"os"
 )
 
+type Store interface {
+	Read(data interface{}) error
+	Write(data interface{}) error
+}
+
 type Type string
 
 const (
 	FileType Type = "file"
 )
 
-type Store interface {
-	Read(data interface{}) error
-	Write(data interface{}) error
+type FileStore struct {
+	FileName string
 }
 
 func New(store Type, fileName string) Store {
 	switch store {
 	case FileType:
 		return &FileStore{fileName}
-	}
 
+	}
 	return nil
 }
 
-type FileStore struct {
-	FileName string
-}
-
-func (f *FileStore) Write(data interface{}) error {
-	jsonContent, err := json.MarshalIndent(data, "", "  ")
+func (fs *FileStore) Write(data interface{}) error {
+	fileData, err := json.MarshalIndent(data, "", " ")
 	if err != nil {
-		log.Println("failed to parse memory data into JSON on store.Write")
-		log.Println(err)
+		log.Println("failed to write. err:", err)
 		return err
 	}
-
-	return os.WriteFile(f.FileName, jsonContent, 0644)
+	return os.WriteFile(fs.FileName, fileData, 0644)
 }
 
-func (f *FileStore) Read(data interface{}) error {
-	jsonContent, err := os.ReadFile(f.FileName)
+func (fs *FileStore) Read(data interface{}) error {
+	file, err := os.ReadFile(fs.FileName)
 	if err != nil {
-		log.Println("failed to read file on store.Read")
-		log.Println(err)
+		log.Println("failed to read. err:", err)
 		return err
 	}
-
-	return json.Unmarshal(jsonContent, &data)
+	return json.Unmarshal(file, &data)
 }
