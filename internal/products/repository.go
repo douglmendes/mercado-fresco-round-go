@@ -7,6 +7,7 @@ import (
 type Repository interface {
 	GetAll() ([]Product, error)
 	Store(id int, productCode, description string, width, height, length, netWeight, expirationRate, recommendedFreezingTemperature, freezingRate float64, productTypeId, sellerId int) (Product, error)
+	LastID() (int, error)
 }
 
 type repository struct {
@@ -43,4 +44,18 @@ func (r *repository) Store(id int, productCode, description string, width, heigh
 	}
 
 	return newProduct, nil
+}
+
+func (r *repository) LastID() (int, error) {
+	var products []Product
+
+	if err := r.db.Read(&products); err != nil {
+		return 0, err
+	}
+
+	if len(products) == 0 {
+		return 0, nil
+	}
+
+	return products[len(products)-1].Id, nil
 }
