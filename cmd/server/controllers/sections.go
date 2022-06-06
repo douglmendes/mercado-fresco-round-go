@@ -54,7 +54,7 @@ func (s *SectionsController) GetById(c *gin.Context) {
 }
 
 func (s *SectionsController) Create(c *gin.Context) {
-	var req request
+	var req sectionsRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusUnprocessableEntity, gin.H{
@@ -153,7 +153,7 @@ func NewSectionsController(s sections.Service) *SectionsController {
 	return &SectionsController{s}
 }
 
-type request struct {
+type sectionsRequest struct {
 	SectionNumber      int `json:"section_number" binding:"required"`
 	CurrentTemperature int `json:"current_temperature" binding:"required"`
 	MinimumTemperature int `json:"minimum_temperature" binding:"required"`

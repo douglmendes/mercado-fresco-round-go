@@ -6,13 +6,24 @@ import (
 	"os"
 )
 
+type Type string
+
+const (
+	FileType Type = "file"
+)
+
 type Store interface {
 	Read(data interface{}) error
 	Write(data interface{}) error
 }
 
-func New(fileName string) Store {
-	return &FileStore{fileName}
+func New(store Type, fileName string) Store {
+	switch store {
+	case FileType:
+		return &FileStore{fileName}
+	}
+
+	return nil
 }
 
 type FileStore struct {
