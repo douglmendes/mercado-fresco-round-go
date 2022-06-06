@@ -52,7 +52,7 @@ func (s *SectionsController) GetById(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": section})
 }
 
-func (s SectionsController) Create(c *gin.Context) {
+func (s *SectionsController) Create(c *gin.Context) {
 	var req request
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -77,6 +77,28 @@ func (s SectionsController) Create(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, gin.H{"data": section})
+}
+
+func (s *SectionsController) Delete(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error":   err.Error(),
+			"message": "O ID informado não é válido",
+		})
+		return
+	}
+
+	err = s.service.Delete(id)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error":   err.Error(),
+			"message": "Não foi possível remover a seção procurada",
+		})
+		return
+	}
+
+	c.JSON(http.StatusNoContent, gin.H{})
 }
 
 func NewSectionsController(s sections.Service) *SectionsController {

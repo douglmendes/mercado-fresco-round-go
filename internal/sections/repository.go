@@ -13,6 +13,7 @@ type Repository interface {
 		maximumCapacity, warehouseId, productTypeId int,
 		currentTemperature, minimumTemperature float64,
 	) (Section, error)
+	Delete(id int) error
 }
 
 type repository struct {
@@ -65,6 +66,17 @@ func (r *repository) Create(
 
 	database = append(database, section)
 	return section, nil
+}
+
+func (r *repository) Delete(id int) error {
+	for i, section := range database {
+		if section.Id == id {
+			database = append(database[:i], database[i+1:]...)
+			return nil
+		}
+	}
+
+	return fmt.Errorf("section %d not found in database", id)
 }
 
 func NewRepository() Repository {

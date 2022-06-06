@@ -10,6 +10,7 @@ type Service interface {
 		maximumCapacity, warehouseId, productTypeId int,
 		currentTemperature, minimumTemperature float64,
 	) (Section, error)
+	Delete(id int) error
 }
 
 type service struct {
@@ -45,6 +46,10 @@ func (s *service) Create(
 		maximumCapacity, warehouseId, productTypeId,
 		currentTemperature, minimumTemperature,
 	)
+}
+
+func (s *service) Delete(id int) error {
+	return s.repository.Delete(id)
 }
 
 func NewService(r Repository) Service {
