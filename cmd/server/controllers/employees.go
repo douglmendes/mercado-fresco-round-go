@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/douglmendes/mercado-fresco-round-go/internal/employees"
 	"github.com/douglmendes/mercado-fresco-round-go/pkg/response"
 	"github.com/gin-gonic/gin"
 )
@@ -14,11 +15,11 @@ type EmployeesController struct {
 }
 
 type request struct {
-	Id           int
-	CardNumberId int
-	FirstName    string
-	LastName     string
-	WarehouseId  int
+	Id           int    `json:"id"`
+	CardNumberId string `json:"card_number_id"`
+	FirstName    string `json:"first_name"`
+	LastName     string `json:"last_name"`
+	WarehouseId  int    `json:"warehouse_id"`
 }
 
 func NewEmployees(e employees.Service) *EmployeesController {
@@ -31,7 +32,7 @@ func (c *EmployeesController) GetAll() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		e, err := c.service.GetAll()
 		if err != nil {
-			ctx.JSON(404, gin.H{
+			ctx.JSON(http.StatusNotFound, gin.H{
 				"error": err.Error(),
 			})
 			return
@@ -68,7 +69,7 @@ func (c *EmployeesController) Store() gin.HandlerFunc {
 				})
 			return
 		}
-		e, err := c.service.Store(req.Id, req.FirstName, req.LastName, req.CardNumberId, req.WarehouseId)
+		e, err := c.service.Store(req.Id, req.CardNumberId, req.FirstName, req.LastName, req.WarehouseId)
 		if err != nil {
 			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 			return
@@ -91,7 +92,7 @@ func (c *EmployeesController) Update() gin.HandlerFunc {
 			ctx.JSON(400, gin.H{"error": err.Error})
 			return
 		}
-		e, err := c.service.Update(int(id), req.FirstName, req.LastName, req.CardNumberId, req.WarehouseId)
+		e, err := c.service.Update(int(id), req.CardNumberId, req.FirstName, req.LastName, req.WarehouseId)
 		if err != nil {
 			ctx.JSON(404, gin.H{"error": err.Error()})
 			return
