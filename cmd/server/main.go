@@ -12,7 +12,7 @@ import (
 
 func main() {
 	router := gin.Default()
-	sellersDb := store.New(store.FileType, "sellers.json")
+	sellersDb := store.New(store.FileType, "../../sellers.json")
 	sellersRepo := sellers.NewRepository(sellersDb)
 	sellersService := sellers.NewService(sellersRepo)
 
@@ -40,7 +40,7 @@ func main() {
 		sectionsRoutes.DELETE("/:id", sectionsController.Delete)
 	}
 
-	warehousesDB := store.New(store.FileType, "warehouses.json")
+	warehousesDB := store.New(store.FileType, "../../warehouses.json")
 	warehousesRepo := warehouses.NewRepository(warehousesDB)
 	warehousesService := warehouses.NewService(warehousesRepo)
 	whController := controllers.NewWareHouse(warehousesService)

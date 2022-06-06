@@ -40,6 +40,17 @@ func (s service) GetById(id int) (Employee, error) {
 }
 
 func (s service) Store(id int, cardNumberId string, firstName string, lastName string, warehouseId int) (Employee, error) {
+	emp, err := s.repository.GetAll()
+
+	if err != nil {
+		return Employee{}, err
+	}
+
+	for e := range emp {
+		if emp[e].CardNumberId == cardNumberId {
+			return Employee{}, fmt.Errorf("this card number id already exists")
+		}
+	}
 	lastID, err := s.repository.LastID()
 	if err != nil {
 		return Employee{}, err
@@ -52,7 +63,7 @@ func (s service) Store(id int, cardNumberId string, firstName string, lastName s
 
 	for i := range sl {
 		if sl[i].Id == id {
-			return Employee{}, fmt.Errorf("this employee already exists")
+			return Employee{}, fmt.Errorf("this card number id already exists")
 		}
 	}
 
