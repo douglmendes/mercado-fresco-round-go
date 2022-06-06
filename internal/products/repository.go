@@ -11,6 +11,7 @@ type Repository interface {
 	GetById(id int) (Product, error)
 	Store(id int, productCode, description string, width, height, length, netWeight, expirationRate, recommendedFreezingTemperature, freezingRate float64, productTypeId, sellerId int) (Product, error)
 	LastID() (int, error)
+	Update(id int, productCode, description string, width, height, length, netWeight, expirationRate, recommendedFreezingTemperature, freezingRate float64, productTypeId, sellerId int) (Product, error)
 }
 
 type repository struct {
@@ -78,4 +79,97 @@ func (r *repository) LastID() (int, error) {
 	}
 
 	return products[len(products)-1].Id, nil
+}
+
+func (r *repository) productCodeExists(productCode string) bool {
+	var products []Product
+
+	r.db.Read(&products)
+
+	for _, product := range products {
+		if product.ProductCode == productCode {
+			return true
+		}
+	}
+
+	return false
+}
+
+func (r *repository) updateProduct(product *Product, id int, productCode, description string, width, height, length, netWeight, expirationRate, recommendedFreezingTemperature, freezingRate float64, productTypeId, sellerId int) error {
+	if productCode != "" {
+		if r.productCodeExists(productCode) {
+			return fmt.Errorf("the product with code \"%s\" already exists", productCode)
+		}
+
+		product.ProductCode = productCode
+	}
+
+	if description != "" {
+		product.Description = description
+	}
+
+	if width != 0 {
+		product.Width = width
+	}
+
+	if height != 0 {
+		product.Height = height
+	}
+
+	if length != 0 {
+		product.Length = length
+	}
+
+	if netWeight != 0 {
+		product.NetWeight = netWeight
+	}
+
+	if expirationRate != 0 {
+		product.ExpirationRate = expirationRate
+	}
+
+	if recommendedFreezingTemperature != 0 {
+		product.RecommendedFreezingTemperature = recommendedFreezingTemperature
+	}
+
+	if freezingRate != 0 {
+		product.FreezingRate = freezingRate
+	}
+
+	if productTypeId != 0 {
+		product.ProductTypeId = productTypeId
+	}
+
+	if sellerId != 0 {
+		product.SellerId = sellerId
+	}
+
+	return nil
+}
+
+func (r *repository) Update(id int, productCode, description string, width, height, length, netWeight, expirationRate, recommendedFreezingTemperature, freezingRate float64, productTypeId, sellerId int) (Product, error) {
+	var products []Product
+	var updatedProduct Product
+	updated := false
+
+	if err := r.db.Read(&products); err != nil {
+		return Product{}, err
+	}
+
+	for _, product := range products {
+		if product.Id == id {
+			if err := r.updateProduct(&product, id, productCode, description, width, height, length, netWeight, expirationRate, recommendedFreezingTemperature, freezingRate, productTypeId, sellerId); err != nil {
+				return Product{}, err
+			}
+
+			updated = true
+			updatedProduct = product
+		}
+	}
+
+	if !updated {
+		return Product{}, fmt.Errorf("product (%d) not found", id)
+	}
+
+	return updatedProduct, nil
 }
