@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/douglmendes/mercado-fresco-round-go/cmd/server/controllers"
+	"github.com/douglmendes/mercado-fresco-round-go/internal/employees"
 	"github.com/douglmendes/mercado-fresco-round-go/internal/sections"
 	"github.com/douglmendes/mercado-fresco-round-go/internal/sellers"
 	"github.com/douglmendes/mercado-fresco-round-go/internal/warehouses"
@@ -9,20 +10,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// @title MELI Bootcamp API
-// @version 1.0
-// @description This API Handle MELI Products.
-// @termsOfService https://developers.mercadolibre.com.ar/es_ar/terminos-y-condiciones
-
-// @contact.name API Support
-// @contact.url https://developers.mercadolibre.com.ar/support
-
-// @license.name Apache 2.0
-// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 func main() {
 	router := gin.Default()
-
-	sellersDb := store.New(store.FileType, "sellers.json")
+	sellersDb := store.New(store.FileType, "../../sellers.json")
 	sellersRepo := sellers.NewRepository(sellersDb)
 	sellersService := sellers.NewService(sellersRepo)
 
@@ -50,7 +40,7 @@ func main() {
 		sectionsRoutes.DELETE("/:id", sectionsController.Delete)
 	}
 
-	warehousesDB := store.New(store.FileType, "warehouses.json")
+	warehousesDB := store.New(store.FileType, "../../warehouses.json")
 	warehousesRepo := warehouses.NewRepository(warehousesDB)
 	warehousesService := warehouses.NewService(warehousesRepo)
 	whController := controllers.NewWareHouse(warehousesService)
@@ -62,6 +52,21 @@ func main() {
 		wh.GET("/:id", whController.GetById())
 		wh.PATCH("/:id", whController.Update())
 		wh.DELETE("/:id", whController.Delete())
+	}
+
+	employeesDb := store.New(store.FileType, "../../employees.json")
+	employeesRepo := employees.NewRepository(employeesDb)
+	employeesService := employees.NewService(employeesRepo)
+
+	e := controllers.NewEmployees(employeesService)
+
+	emp := router.Group("/api/v1/employees")
+	{
+		emp.GET("/", e.GetAll())
+		emp.GET("/:id", e.GetById())
+		emp.POST("/", e.Store())
+		emp.PATCH("/:id", e.Update())
+		emp.DELETE("/:id", e.Delete())
 	}
 
 	router.Run()
