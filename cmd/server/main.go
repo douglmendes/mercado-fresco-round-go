@@ -73,6 +73,7 @@ func main() {
 	productsRoutes := router.Group("/api/v1/products")
 	{
 		productsRoutes.GET("/", productsController.GetAll())
+		productsRoutes.GET("/:id", productsController.GetById())
 		productsRoutes.POST("/", productsController.Store())
 	}
 
