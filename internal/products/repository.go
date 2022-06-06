@@ -95,10 +95,10 @@ func (r *repository) productCodeExists(productCode string) bool {
 	return false
 }
 
-func (r *repository) updateProduct(product *Product, id int, productCode, description string, width, height, length, netWeight, expirationRate, recommendedFreezingTemperature, freezingRate float64, productTypeId, sellerId int) error {
+func (r *repository) updateProduct(product Product, id int, productCode, description string, width, height, length, netWeight, expirationRate, recommendedFreezingTemperature, freezingRate float64, productTypeId, sellerId int) (Product, error) {
 	if productCode != "" {
 		if r.productCodeExists(productCode) {
-			return fmt.Errorf("the product with code \"%s\" already exists", productCode)
+			return Product{}, fmt.Errorf("the product with code \"%s\" already exists", productCode)
 		}
 
 		product.ProductCode = productCode
@@ -144,7 +144,7 @@ func (r *repository) updateProduct(product *Product, id int, productCode, descri
 		product.SellerId = sellerId
 	}
 
-	return nil
+	return product, nil
 }
 
 func (r *repository) Update(id int, productCode, description string, width, height, length, netWeight, expirationRate, recommendedFreezingTemperature, freezingRate float64, productTypeId, sellerId int) (Product, error) {
@@ -156,12 +156,14 @@ func (r *repository) Update(id int, productCode, description string, width, heig
 		return Product{}, err
 	}
 
-	for _, product := range products {
+	for index, product := range products {
 		if product.Id == id {
-			if err := r.updateProduct(&product, id, productCode, description, width, height, length, netWeight, expirationRate, recommendedFreezingTemperature, freezingRate, productTypeId, sellerId); err != nil {
+			patchedProduct, err := r.updateProduct(product, id, productCode, description, width, height, length, netWeight, expirationRate, recommendedFreezingTemperature, freezingRate, productTypeId, sellerId)
+			if err != nil {
 				return Product{}, err
 			}
 
+			products[index] = patchedProduct
 			updated = true
 			updatedProduct = product
 		}
@@ -170,6 +172,8 @@ func (r *repository) Update(id int, productCode, description string, width, heig
 	if !updated {
 		return Product{}, fmt.Errorf("product (%d) not found", id)
 	}
+
+	r.db.Write(products)
 
 	return updatedProduct, nil
 }
