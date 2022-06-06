@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/douglmendes/mercado-fresco-round-go/cmd/server/controllers"
+	"github.com/douglmendes/mercado-fresco-round-go/internal/sections"
 	"github.com/douglmendes/mercado-fresco-round-go/internal/sellers"
 	"github.com/douglmendes/mercado-fresco-round-go/pkg/store"
 	"github.com/gin-gonic/gin"
@@ -17,17 +18,16 @@ import (
 
 // @license.name Apache 2.0
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
-func main()  {
-	
-	sellersDb := store.New(store.FileType, "sellers.json")
+func main() {
+	router := gin.Default()
+
+	sellersDb := store.New(store.FileType, "../../sellers.json")
 	sellersRepo := sellers.NewRepository(sellersDb)
 	sellersService := sellers.NewService(sellersRepo)
 
 	s := controllers.NewSeller(sellersService)
 
-	r := gin.Default()
-
-	sl := r.Group("/api/v1/sellers")
+	sl := router.Group("/api/v1/sellers")
 	{
 		sl.GET("/", s.GetAll())
 		sl.GET("/:id", s.GetById())
@@ -36,5 +36,18 @@ func main()  {
 		sl.DELETE("/:id", s.Delete())
 	}
 
-	r.Run()
+	sectionsRepository := sections.NewRepository(store.New(store.FileType, "../../sections.json"))
+	sectionsService := sections.NewService(sectionsRepository)
+	sectionsController := controllers.NewSectionsController(sectionsService)
+
+	sectionsRoutes := router.Group("/api/v1/sections")
+	{
+		sectionsRoutes.GET("/", sectionsController.GetAll)
+		sectionsRoutes.GET("/:id", sectionsController.GetById)
+		sectionsRoutes.POST("/", sectionsController.Create)
+		sectionsRoutes.PATCH("/:id", sectionsController.Update)
+		sectionsRoutes.DELETE("/:id", sectionsController.Delete)
+	}
+
+	router.Run()
 }
