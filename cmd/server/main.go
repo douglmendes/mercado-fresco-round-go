@@ -76,6 +76,7 @@ func main() {
 		productsRoutes.GET("/:id", productsController.GetById())
 		productsRoutes.POST("/", productsController.Store())
 		productsRoutes.PATCH("/:id", productsController.Update())
+		productsRoutes.DELETE("/:id", productsController.Delete())
 	}
 
 	router.Run()
