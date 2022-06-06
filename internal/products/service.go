@@ -4,6 +4,7 @@ import "fmt"
 
 type Service interface {
 	GetAll() ([]Product, error)
+	GetById(id int) (Product, error)
 	Store(productCode, description string, width, height, length, netWeight, expirationRate, recommendedFreezingTemperature, freezingRate float64, productTypeId, sellerId int) (Product, error)
 }
 
@@ -22,6 +23,15 @@ func (s service) GetAll() ([]Product, error) {
 	}
 
 	return products, nil
+}
+
+func (s service) GetById(id int) (Product, error) {
+	product, err := s.repository.GetById(id)
+	if err != nil {
+		return Product{}, err
+	}
+
+	return product, nil
 }
 
 func (s service) Store(productCode, description string, width, height, length, netWeight, expirationRate, recommendedFreezingTemperature, freezingRate float64, productTypeId, sellerId int) (Product, error) {
