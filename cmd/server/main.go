@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/douglmendes/mercado-fresco-round-go/cmd/server/controllers"
+	"github.com/douglmendes/mercado-fresco-round-go/internal/sections"
 	"github.com/douglmendes/mercado-fresco-round-go/internal/sellers"
 	"github.com/douglmendes/mercado-fresco-round-go/internal/warehouses"
 	"github.com/douglmendes/mercado-fresco-round-go/pkg/store"
@@ -18,7 +19,8 @@ import (
 
 // @license.name Apache 2.0
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
-func main() {
+func main()  {
+	router := gin.Default()
 
 	sellersDb := store.New(store.FileType, "sellers.json")
 	sellersRepo := sellers.NewRepository(sellersDb)
@@ -26,15 +28,7 @@ func main() {
 
 	s := controllers.NewSeller(sellersService)
 
-	warehousesDB := store.New(store.FileType, "warehouses.json")
-	warehousesRepo := warehouses.NewRepository(warehousesDB)
-	warehousesService := warehouses.NewService(warehousesRepo)
-
-	whController := controllers.NewWareHouse(warehousesService)
-
-	r := gin.Default()
-
-	sl := r.Group("/api/v1/sellers")
+	sl := router.Group("/api/v1/sellers")
 	{
 		sl.GET("/", s.GetAll())
 		sl.GET("/:id", s.GetById())
@@ -43,7 +37,25 @@ func main() {
 		sl.DELETE("/:id", s.Delete())
 	}
 
-	wh := r.Group("/api/v1/warehouses")
+	sectionsRepository := sections.NewRepository(store.New(store.FileType, "../../sections.json"))
+	sectionsService := sections.NewService(sectionsRepository)
+	sectionsController := controllers.NewSectionsController(sectionsService)
+
+	sectionsRoutes := router.Group("/api/v1/sections")
+	{
+		sectionsRoutes.GET("/", sectionsController.GetAll)
+		sectionsRoutes.GET("/:id", sectionsController.GetById)
+		sectionsRoutes.POST("/", sectionsController.Create)
+		sectionsRoutes.PATCH("/:id", sectionsController.Update)
+		sectionsRoutes.DELETE("/:id", sectionsController.Delete)
+	}
+
+	warehousesDB := store.New(store.FileType, "warehouses.json")
+	warehousesRepo := warehouses.NewRepository(warehousesDB)
+	warehousesService := warehouses.NewService(warehousesRepo)
+	whController := controllers.NewWareHouse(warehousesService)
+
+	wh := router.Group("/api/v1/warehouses")
 	{
 		wh.POST("/", whController.Create())
 		wh.GET("/", whController.GetAll())
@@ -52,5 +64,5 @@ func main() {
 		wh.DELETE("/:id", whController.Delete())
 	}
 
-	r.Run()
+	router.Run()
 }
