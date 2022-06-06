@@ -68,10 +68,22 @@ func (s service) Store(cid int, commpanyName, address, telephone string) (Seller
 }
 
 func (s service) Update(id, cid int, companyName, address, telephone string) (Seller, error) {
+	sl, err := s.repository.GetAll()
+	if err != nil {
+		return Seller{}, err
+	}
+
+	for i := range sl {
+		if sl[i].Cid == cid {
+				return Seller{}, fmt.Errorf("this seller already exists")
+		}
+	}
+	
 	seller, err := s.repository.Update(id, cid, companyName, address, telephone)
 	if err != nil {
 		return Seller{}, err
 	}
+
 	return seller, err
 }
 

@@ -1,8 +1,8 @@
 package response
 
 type Response struct {
-	Data interface{} `json:"data,omitempty"`
-	Error string `json:"error,omitempty"`
+	Data  interface{} `json:"data,omitempty"`
+	Error string      `json:"error,omitempty"`
 }
 
 func NewResponse(data interface{}) Response {
