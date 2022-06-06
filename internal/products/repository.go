@@ -12,6 +12,7 @@ type Repository interface {
 	Store(id int, productCode, description string, width, height, length, netWeight, expirationRate, recommendedFreezingTemperature, freezingRate float64, productTypeId, sellerId int) (Product, error)
 	LastID() (int, error)
 	Update(id int, productCode, description string, width, height, length, netWeight, expirationRate, recommendedFreezingTemperature, freezingRate float64, productTypeId, sellerId int) (Product, error)
+	Delete(id int) error
 }
 
 type repository struct {
@@ -176,4 +177,31 @@ func (r *repository) Update(id int, productCode, description string, width, heig
 	r.db.Write(products)
 
 	return updatedProduct, nil
+}
+
+func (r *repository) Delete(id int) error {
+	deleted := false
+	foundIndex := 0
+	var products []Product
+
+	if err := r.db.Read(&products); err != nil {
+		return err
+	}
+
+	for index, product := range products {
+		if product.Id == id {
+			deleted = true
+			foundIndex = index
+		}
+	}
+
+	if !deleted {
+		return fmt.Errorf("product (%d) not found", id)
+	}
+
+	products = append(products[:foundIndex], products[foundIndex+1:]...)
+
+	r.db.Write(products)
+
+	return nil
 }
