@@ -4,6 +4,7 @@ import (
 	"github.com/douglmendes/mercado-fresco-round-go/cmd/server/controllers"
 	"github.com/douglmendes/mercado-fresco-round-go/internal/sections"
 	"github.com/douglmendes/mercado-fresco-round-go/internal/sellers"
+	"github.com/douglmendes/mercado-fresco-round-go/internal/warehouses"
 	"github.com/douglmendes/mercado-fresco-round-go/pkg/store"
 	"github.com/gin-gonic/gin"
 )
@@ -21,7 +22,7 @@ import (
 func main() {
 	router := gin.Default()
 
-	sellersDb := store.New(store.FileType, "../../sellers.json")
+	sellersDb := store.New(store.FileType, "sellers.json")
 	sellersRepo := sellers.NewRepository(sellersDb)
 	sellersService := sellers.NewService(sellersRepo)
 
@@ -47,6 +48,20 @@ func main() {
 		sectionsRoutes.POST("/", sectionsController.Create)
 		sectionsRoutes.PATCH("/:id", sectionsController.Update)
 		sectionsRoutes.DELETE("/:id", sectionsController.Delete)
+	}
+
+	warehousesDB := store.New(store.FileType, "warehouses.json")
+	warehousesRepo := warehouses.NewRepository(warehousesDB)
+	warehousesService := warehouses.NewService(warehousesRepo)
+	whController := controllers.NewWareHouse(warehousesService)
+
+	wh := router.Group("/api/v1/warehouses")
+	{
+		wh.POST("/", whController.Create())
+		wh.GET("/", whController.GetAll())
+		wh.GET("/:id", whController.GetById())
+		wh.PUT("/:id", whController.Update())
+		wh.DELETE("/:id", whController.Delete())
 	}
 
 	router.Run()
