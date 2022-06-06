@@ -15,10 +15,10 @@ type SellerController struct {
 }
 
 type request struct {
-	Cid         int `json:"cid" binding:"required"`
-	CompanyName string `json:"company_name" binding:"required"`
-	Address     string `json:"address" binding:"required"`
-	Telephone   string `json:"telephone" binding:"required"`
+	Cid         int    `json:"cid"`
+	CompanyName string `json:"company_name"`
+	Address     string `json:"address"`
+	Telephone   string `json:"telephone"`
 }
 
 func NewSeller(s sellers.Service) *SellerController {
@@ -36,36 +36,45 @@ func NewSeller(s sellers.Service) *SellerController {
 // @Produce  json
 // @Param token header string true "token"
 // @Success 200 {object} request
-// @Router /sellers [get]
+// @Router /api/v1/sellers [get]
 func (c *SellerController) GetAll() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		s, err := c.service.GetAll()
 		if err != nil {
-			ctx.JSON(404, gin.H{
+			ctx.JSON(http.StatusNotFound, gin.H{
 				"error": err.Error(),
 			})
 			return
 		}
 
-		ctx.JSON(http.StatusOK, response.NewResponse(http.StatusOK, s))
+		ctx.JSON(http.StatusOK, response.NewResponse(s))
 	}
 }
 
+// ListSeller godoc
+// @Summary List seller
+// @Tags Sellers
+// @Description get seller
+// @Accept  json
+// @Produce  json
+// @Param token header string true "token"
+// @Success 200 {object} request
+// @Router /api/v1/sellers/:id [get]
 func (c *SellerController) GetById() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
-			ctx.JSON(400, gin.H{"error": "invalid ID"})
+			ctx.JSON(http.StatusNotFound, gin.H{"error": "invalid ID"})
 			return
 		}
 
 		s, err := c.service.GetById(int(id))
 		if err != nil {
-			ctx.JSON(404, gin.H{"error": err.Error()})
+			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 			return
 		}
 
-		ctx.JSON(http.StatusOK, response.NewResponse(http.StatusOK, s))
+		ctx.JSON(http.StatusOK, response.NewResponse(s))
 	}
 }
 
@@ -77,72 +86,106 @@ func (c *SellerController) GetById() gin.HandlerFunc {
 // @Produce  json
 // @Param token header string true "token"
 // @Param product body request true "Seller to store"
-// @Success 200 {object} web.Response
+// @Success 201 {object} web.Response
 // @Failure 400 {object} web.Response
-// @Failure 401 {object} web.Response
-// @Router /sellers [post]
+// @Failure 404 {object} web.Response
+// @Router /api/v1/sellers [post]
 func (c *SellerController) Store() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var req request
 		if err := ctx.ShouldBindJSON(&req); err != nil {
-			ctx.AbortWithStatusJSON(http.StatusBadRequest,
-				gin.H{
-					"error":   "VALIDATEERR-1",
-					"message": "Invalid inputs. Please check your inputs",
-				})
+			ctx.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
+			return
+		}
+
+		if req.Cid == 0 {
+			ctx.JSON(http.StatusUnprocessableEntity,
+				response.DecodeError("cid is required"))
+			return
+		}
+		if req.CompanyName == "" {
+			ctx.JSON(http.StatusUnprocessableEntity,
+				response.DecodeError("company name is required"))
+			return
+		}
+		if req.Address == "" {
+			ctx.JSON(http.StatusUnprocessableEntity,
+				response.DecodeError("address is required"))
+			return
+		}
+		if req.Telephone == "" {
+			ctx.JSON(http.StatusUnprocessableEntity,
+				response.DecodeError("telephone is required"))
 			return
 		}
 
 		s, err := c.service.Store(req.Cid, req.CompanyName, req.Address, req.Telephone)
 		if err != nil {
-			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+			ctx.JSON(http.StatusConflict, gin.H{"error": err.Error()})
 			return
 		}
 
-		ctx.JSON(http.StatusOK, response.NewResponse(http.StatusOK, s))
+		ctx.JSON(http.StatusCreated, response.NewResponse(s))
 	}
 
 }
 
+// ListSellers godoc
+// @Summary Update seller
+// @Tags Sellers
+// @Description update seller
+// @Accept  json
+// @Produce  json
+// @Param token header string true "token"
+// @Success 200 {object} request
+// @Router /api/v1/sellers/:id [update]
 func (s *SellerController) Update() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
-			ctx.JSON(400, gin.H{"error": "invalid ID"})
+			ctx.JSON(http.StatusNotFound, gin.H{"error": "invalid ID"})
 			return
 		}
 
 		var req request
 		if err := ctx.ShouldBindJSON(&req); err != nil {
-			ctx.JSON(400, gin.H{"error": err.Error()})
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
 
 		s, err := s.service.Update(int(id), req.Cid, req.CompanyName, req.Address, req.Telephone)
 		if err != nil {
-			ctx.JSON(404, gin.H{"error": err.Error()})
+			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 			return
 		}
-		ctx.JSON(200, s)
+		ctx.JSON(http.StatusOK, s)
 	}
-	
+
 }
 
+// ListSellers godoc
+// @Summary Delete seller
+// @Tags Sellers
+// @Description delete seller
+// @Accept  json
+// @Param token header string true "token"
+// @Success 204 {object} request
+// @Router /api/v1/sellers/:id [delete]
 func (c *SellerController) Delete() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
-			ctx.JSON(400, gin.H{"error": "invalid ID"})
+			ctx.JSON(http.StatusNotFound, gin.H{"error": "invalid ID"})
 			return
 		}
 
 		err = c.service.Delete(int(id))
 		if err != nil {
-			ctx.JSON(404, gin.H{"error": err.Error()})
+			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 			return
 		}
 
-		ctx.JSON(200, gin.H{"data": fmt.Sprintf("seller %d was removed", id)})
+		ctx.JSON(http.StatusNoContent, gin.H{"data": fmt.Sprintf("seller %d was removed", id)})
 	}
-	
+
 }
