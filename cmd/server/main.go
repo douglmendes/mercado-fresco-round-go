@@ -60,7 +60,7 @@ func main() {
 		wh.POST("/", whController.Create())
 		wh.GET("/", whController.GetAll())
 		wh.GET("/:id", whController.GetById())
-		wh.PUT("/:id", whController.Update())
+		wh.PATCH("/:id", whController.Update())
 		wh.DELETE("/:id", whController.Delete())
 	}
 
