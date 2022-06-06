@@ -14,7 +14,7 @@ type EmployeesController struct {
 	service employees.Service
 }
 
-type request struct {
+type requestEmployee struct {
 	Id           int    `json:"id"`
 	CardNumberId string `json:"card_number_id"`
 	FirstName    string `json:"first_name"`
@@ -37,7 +37,7 @@ func (c *EmployeesController) GetAll() gin.HandlerFunc {
 			})
 			return
 		}
-		ctx.JSON(http.StatusOK, response.NewResponse(http.StatusOK, e))
+		ctx.JSON(http.StatusOK, response.NewResponse(e))
 	}
 }
 
@@ -54,13 +54,13 @@ func (c *EmployeesController) GetById() gin.HandlerFunc {
 			return
 		}
 
-		ctx.JSON(http.StatusOK, response.NewResponse(http.StatusOK, e))
+		ctx.JSON(http.StatusOK, response.NewResponse(e))
 	}
 }
 
 func (c *EmployeesController) Store() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		var req request
+		var req requestEmployee
 		if err := ctx.ShouldBindJSON(&req); err != nil {
 			ctx.AbortWithStatusJSON(http.StatusBadRequest,
 				gin.H{
@@ -75,7 +75,7 @@ func (c *EmployeesController) Store() gin.HandlerFunc {
 			return
 		}
 
-		ctx.JSON(http.StatusOK, response.NewResponse(http.StatusOK, e))
+		ctx.JSON(http.StatusOK, response.NewResponse(e))
 	}
 
 }
@@ -87,7 +87,7 @@ func (c *EmployeesController) Update() gin.HandlerFunc {
 			ctx.JSON(400, gin.H{"error": "Invalid ID"})
 			return
 		}
-		var req request
+		var req requestEmployee
 		if err := ctx.ShouldBindJSON(&req); err != nil {
 			ctx.JSON(400, gin.H{"error": err.Error})
 			return
