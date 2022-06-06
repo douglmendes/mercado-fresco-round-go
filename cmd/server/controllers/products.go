@@ -124,3 +124,21 @@ func (c *ProductController) Update() gin.HandlerFunc {
 		ctx.JSON(http.StatusOK, response.NewResponse(product))
 	}
 }
+
+func (c *ProductController) Delete() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, response.DecodeError(err.Error()))
+			return
+		}
+
+		err = c.service.Delete(int(id))
+		if err != nil {
+			ctx.JSON(http.StatusNotFound, response.DecodeError(err.Error()))
+			return
+		}
+
+		ctx.AbortWithStatus(http.StatusNoContent)
+	}
+}
