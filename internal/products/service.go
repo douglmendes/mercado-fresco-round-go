@@ -7,6 +7,7 @@ type Service interface {
 	GetById(id int) (Product, error)
 	Store(productCode, description string, width, height, length, netWeight, expirationRate, recommendedFreezingTemperature, freezingRate float64, productTypeId, sellerId int) (Product, error)
 	Update(id int, productCode, description string, width, height, length, netWeight, expirationRate, recommendedFreezingTemperature, freezingRate float64, productTypeId, sellerId int) (Product, error)
+	Delete(id int) error
 }
 
 type service struct {
@@ -67,4 +68,13 @@ func (s service) Update(id int, productCode, description string, width, height, 
 	}
 
 	return updatedProduct, nil
+}
+
+func (s service) Delete(id int) error {
+	err := s.repository.Delete(id)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
