@@ -3,6 +3,7 @@ package controllers
 import (
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/douglmendes/mercado-fresco-round-go/internal/products"
 	"github.com/douglmendes/mercado-fresco-round-go/pkg/response"
@@ -77,5 +78,49 @@ func (c *ProductController) Store() gin.HandlerFunc {
 		}
 
 		ctx.JSON(http.StatusCreated, response.NewResponse(product))
+	}
+}
+
+type optionalProductsRequest struct {
+	ProductCode                    string  `json:"product_code"`
+	Description                    string  `json:"description"`
+	Width                          float64 `json:"width"`
+	Height                         float64 `json:"height"`
+	Length                         float64 `json:"length"`
+	NetWeight                      float64 `json:"net_weight"`
+	ExpirationRate                 float64 `json:"expiration_rate"`
+	RecommendedFreezingTemperature float64 `json:"recommended_freezing_temperature"`
+	FreezingRate                   float64 `json:"freezing_rate"`
+	ProductTypeId                  int     `json:"product_type_id"`
+	SellerId                       int     `json:"seller_id"`
+}
+
+func (c *ProductController) Update() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, response.DecodeError(err.Error()))
+			return
+		}
+
+		var req optionalProductsRequest
+
+		if err := ctx.ShouldBindJSON(&req); err != nil {
+			ctx.AbortWithStatusJSON(http.StatusUnprocessableEntity, response.DecodeError(err.Error()))
+			return
+		}
+
+		product, err := c.service.Update(int(id), req.ProductCode, req.Description, req.Width, req.Height, req.Length, req.NetWeight, req.ExpirationRate, req.RecommendedFreezingTemperature, req.FreezingRate, req.ProductTypeId, req.SellerId)
+		if err != nil {
+			if strings.Contains(err.Error(), "not found") {
+				ctx.JSON(http.StatusNotFound, response.DecodeError(err.Error()))
+				return
+			}
+
+			ctx.JSON(http.StatusBadRequest, response.DecodeError(err.Error()))
+			return
+		}
+
+		ctx.JSON(http.StatusOK, response.NewResponse(product))
 	}
 }
