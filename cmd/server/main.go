@@ -1,18 +1,10 @@
 package main
 
 import (
-	"net/http"
-
 	"github.com/douglmendes/mercado-fresco-round-go/cmd/server/controllers"
 	"github.com/douglmendes/mercado-fresco-round-go/internal/sections"
 	"github.com/gin-gonic/gin"
 )
-
-func placeholderHandle(operation string) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		c.JSON(http.StatusNotImplemented, gin.H{"operation": operation})
-	}
-}
 
 func main() {
 	router := gin.Default()
@@ -26,7 +18,7 @@ func main() {
 		sectionsRoutes.GET("/", sectionsController.GetAll)
 		sectionsRoutes.GET("/:id", sectionsController.GetById)
 		sectionsRoutes.POST("/", sectionsController.Create)
-		sectionsRoutes.PATCH("/:id", placeholderHandle("update section"))
+		sectionsRoutes.PATCH("/:id", sectionsController.Update)
 		sectionsRoutes.DELETE("/:id", sectionsController.Delete)
 	}
 

@@ -1,15 +1,14 @@
 package sections
 
-import "fmt"
-
 type Service interface {
 	GetAll() ([]Section, error)
 	GetById(id int) (Section, error)
 	Create(
 		sectionNumber, currentCapacity, minimumCapacity,
-		maximumCapacity, warehouseId, productTypeId int,
-		currentTemperature, minimumTemperature float64,
+		maximumCapacity, warehouseId, productTypeId,
+		currentTemperature, minimumTemperature int,
 	) (Section, error)
+	Update(id int, args map[string]int) (Section, error)
 	Delete(id int) error
 }
 
@@ -27,8 +26,8 @@ func (s *service) GetById(id int) (Section, error) {
 
 func (s *service) Create(
 	sectionNumber, currentCapacity, minimumCapacity,
-	maximumCapacity, warehouseId, productTypeId int,
-	currentTemperature, minimumTemperature float64,
+	maximumCapacity, warehouseId, productTypeId,
+	currentTemperature, minimumTemperature int,
 ) (Section, error) {
 	sections, err := s.repository.GetAll()
 	if err != nil {
@@ -37,7 +36,7 @@ func (s *service) Create(
 
 	for _, section := range sections {
 		if section.SectionNumber == sectionNumber {
-			return Section{}, fmt.Errorf("a section with number %d already exists", sectionNumber)
+			return Section{}, &ErrorConflict{sectionNumber}
 		}
 	}
 
@@ -46,6 +45,28 @@ func (s *service) Create(
 		maximumCapacity, warehouseId, productTypeId,
 		currentTemperature, minimumTemperature,
 	)
+}
+
+func (s *service) Update(id int, args map[string]int) (Section, error) {
+	err := s.repository.Exists(id)
+	if err != nil {
+		return Section{}, err
+	}
+
+	if sectionNumber := args["section_number"]; sectionNumber != 0 {
+		sections, err := s.repository.GetAll()
+		if err != nil {
+			return Section{}, err
+		}
+
+		for _, section := range sections {
+			if section.SectionNumber == sectionNumber {
+				return Section{}, &ErrorConflict{sectionNumber}
+			}
+		}
+	}
+
+	return s.repository.Update(id, args)
 }
 
 func (s *service) Delete(id int) error {
