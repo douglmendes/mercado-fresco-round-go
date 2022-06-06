@@ -1,4 +1,4 @@
-package buyers
+package employees
 
 import "fmt"
 
@@ -22,11 +22,11 @@ func NewService(r Repository) Service {
 }
 
 func (s service) GetAll() ([]Employee, error) {
-	sl, err := s.repository.GetAll()
+	emp, err := s.repository.GetAll()
 	if err != nil {
 		return nil, err
 	}
-	return sl, nil
+	return emp, nil
 
 }
 

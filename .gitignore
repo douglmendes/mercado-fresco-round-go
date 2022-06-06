@@ -20,3 +20,9 @@ go.work
 
 # env file
 .env
+
+# debug binary
+__debug_bin
+
+# IDE
+*.idea
