@@ -25,7 +25,7 @@ func main() {
 	{
 		sectionsRoutes.GET("/", sectionsController.GetAll)
 		sectionsRoutes.GET("/:id", sectionsController.GetById)
-		sectionsRoutes.POST("/", placeholderHandle("create section"))
+		sectionsRoutes.POST("/", sectionsController.Create)
 		sectionsRoutes.PATCH("/:id", placeholderHandle("update section"))
 		sectionsRoutes.DELETE("/:id", placeholderHandle("delete section"))
 	}
