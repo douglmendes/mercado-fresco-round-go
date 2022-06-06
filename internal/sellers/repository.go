@@ -103,6 +103,8 @@ func (r *repository) Update(id, cid int, commpanyName, address, telephone string
 			fmt.Printf("seller é %v", s)
 			sl[i] = s
 			updated = true
+
+			// r.Store()
 			if err := r.db.Write(sl); err != nil {
 				return Seller{}, err
 			}
