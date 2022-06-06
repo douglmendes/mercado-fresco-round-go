@@ -1,11 +1,14 @@
 package products
 
 import (
+	"fmt"
+
 	"github.com/douglmendes/mercado-fresco-round-go/pkg/store"
 )
 
 type Repository interface {
 	GetAll() ([]Product, error)
+	GetById(id int) (Product, error)
 	Store(id int, productCode, description string, width, height, length, netWeight, expirationRate, recommendedFreezingTemperature, freezingRate float64, productTypeId, sellerId int) (Product, error)
 	LastID() (int, error)
 }
@@ -27,6 +30,23 @@ func (r *repository) GetAll() ([]Product, error) {
 	}
 
 	return products, nil
+}
+
+func (r *repository) GetById(id int) (Product, error) {
+	var products []Product
+
+	err := r.db.Read(&products)
+	if err != nil {
+		return Product{}, err
+	}
+
+	for _, product := range products {
+		if product.Id == id {
+			return product, nil
+		}
+	}
+
+	return Product{}, fmt.Errorf("product (%d) not found", id)
 }
 
 func (r *repository) Store(id int, productCode, description string, width, height, length, netWeight, expirationRate, recommendedFreezingTemperature, freezingRate float64, productTypeId, sellerId int) (Product, error) {
