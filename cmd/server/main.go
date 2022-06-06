@@ -24,7 +24,7 @@ func main() {
 	sectionsRoutes := router.Group("/api/v1/sections")
 	{
 		sectionsRoutes.GET("/", sectionsController.GetAll)
-		sectionsRoutes.GET("/:id", placeholderHandle("get section by id"))
+		sectionsRoutes.GET("/:id", sectionsController.GetById)
 		sectionsRoutes.POST("/", placeholderHandle("create section"))
 		sectionsRoutes.PATCH("/:id", placeholderHandle("update section"))
 		sectionsRoutes.DELETE("/:id", placeholderHandle("delete section"))
