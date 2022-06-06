@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/douglmendes/mercado-fresco-round-go/internal/products"
 	"github.com/douglmendes/mercado-fresco-round-go/pkg/response"
@@ -20,9 +21,25 @@ func (c *ProductController) GetAll() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		products, err := c.service.GetAll()
 		if err != nil {
-			ctx.JSON(http.StatusNotFound, gin.H{
-				"error": err.Error(),
-			})
+			ctx.JSON(http.StatusNotFound, response.DecodeError(err.Error()))
+			return
+		}
+
+		ctx.JSON(http.StatusOK, response.NewResponse(products))
+	}
+}
+
+func (c *ProductController) GetById() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, response.DecodeError(err.Error()))
+			return
+		}
+
+		products, err := c.service.GetById(int(id))
+		if err != nil {
+			ctx.JSON(http.StatusNotFound, response.DecodeError(err.Error()))
 			return
 		}
 
@@ -49,17 +66,13 @@ func (c *ProductController) Store() gin.HandlerFunc {
 		var req productsRequest
 
 		if err := ctx.ShouldBindJSON(&req); err != nil {
-			ctx.AbortWithStatusJSON(http.StatusUnprocessableEntity, gin.H{
-				"error": err.Error(),
-			})
+			ctx.AbortWithStatusJSON(http.StatusUnprocessableEntity, response.DecodeError(err.Error()))
 			return
 		}
 
 		product, err := c.service.Store(req.ProductCode, req.Description, req.Width, req.Height, req.Length, req.NetWeight, req.ExpirationRate, req.RecommendedFreezingTemperature, req.FreezingRate, req.ProductTypeId, req.SellerId)
 		if err != nil {
-			ctx.JSON(http.StatusUnprocessableEntity, gin.H{
-				"error": err.Error(),
-			})
+			ctx.JSON(http.StatusUnprocessableEntity, response.DecodeError(err.Error()))
 			return
 		}
 
