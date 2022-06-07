@@ -2,8 +2,8 @@ package main
 
 import (
 	"github.com/douglmendes/mercado-fresco-round-go/cmd/server/controllers"
-	"github.com/douglmendes/mercado-fresco-round-go/internal/products"
 	"github.com/douglmendes/mercado-fresco-round-go/internal/employees"
+	"github.com/douglmendes/mercado-fresco-round-go/internal/products"
 	"github.com/douglmendes/mercado-fresco-round-go/internal/sections"
 	"github.com/douglmendes/mercado-fresco-round-go/internal/sellers"
 	"github.com/douglmendes/mercado-fresco-round-go/internal/warehouses"
@@ -41,7 +41,8 @@ func main() {
 		sectionsRoutes.DELETE("/:id", sectionsController.Delete)
 	}
 
-	warehousesDB := store.New(store.FileType, "../../warehouses.json")
+	warehousesDB := store.New(store.FileType, store.PathBuilder("/warehouses.json"))
+	//warehousesDB := store.New(store.FileType, "../../warehouses.json")
 	warehousesRepo := warehouses.NewRepository(warehousesDB)
 	warehousesService := warehouses.NewService(warehousesRepo)
 	whController := controllers.NewWareHouse(warehousesService)
@@ -67,7 +68,7 @@ func main() {
 		productsRoutes.POST("/", productsController.Store())
 		productsRoutes.PATCH("/:id", productsController.Update())
 		productsRoutes.DELETE("/:id", productsController.Delete())
-  }
+	}
 
 	employeesDb := store.New(store.FileType, "../../employees.json")
 	employeesRepo := employees.NewRepository(employeesDb)
