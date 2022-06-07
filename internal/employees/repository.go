@@ -6,13 +6,11 @@ import (
 	"github.com/douglmendes/mercado-fresco-round-go/pkg/store"
 )
 
-var emp []Employee = []Employee{}
-
 type Repository interface {
 	GetAll() ([]Employee, error)
 	GetById(id int) (Employee, error)
 	LastID() (int, error)
-	Store(id int, cardNumberId string, firstName string, lastName string, warehouseId int) (Employee, error)
+	Create(id int, cardNumberId string, firstName string, lastName string, warehouseId int) (Employee, error)
 	Update(id int, cardNumberId string, firstName string, lastName string, warehouseId int) (Employee, error)
 	Delete(id int) error
 }
@@ -54,7 +52,7 @@ func (r *repository) LastID() (int, error) {
 	return emp[len(emp)-1].Id, nil
 }
 
-func (r *repository) Store(id int, cardNumberId string, firstName string, lastName string, warehouseId int) (Employee, error) {
+func (r *repository) Create(id int, cardNumberId string, firstName string, lastName string, warehouseId int) (Employee, error) {
 	var emp []Employee
 	if err := r.db.Read(&emp); err != nil {
 		return Employee{}, err

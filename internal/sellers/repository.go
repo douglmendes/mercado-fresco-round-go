@@ -6,8 +6,6 @@ import (
 	"github.com/douglmendes/mercado-fresco-round-go/pkg/store"
 )
 
-var sl []Seller = []Seller{}
-
 type Repository interface {
 	GetAll() ([]Seller, error)
 	GetById(id int) (Seller, error)
@@ -38,11 +36,10 @@ func (r *repository) GetById(id int) (Seller, error) {
 
 	for i := range sl {
 		if sl[i].ID == id {
-				return sl[i], nil
+			return sl[i], nil
 		}
 	}
 
-	
 	return Seller{}, fmt.Errorf("seller %d not found", id)
 }
 
@@ -51,7 +48,7 @@ func (r *repository) LastID() (int, error) {
 	if err := r.db.Read(&sl); err != nil {
 		return 0, err
 	}
-	
+
 	if len(sl) == 0 {
 		return 0, nil
 	}
@@ -75,7 +72,7 @@ func (r *repository) Store(id, cid int, commpanyName, address, telephone string)
 func (r *repository) Update(id, cid int, commpanyName, address, telephone string) (Seller, error) {
 	var sl []Seller
 	if err := r.db.Read(&sl); err != nil {
-		return Seller{}, nil
+		return Seller{}, err
 	}
 
 	s := Seller{}
@@ -115,7 +112,7 @@ func (r *repository) Update(id, cid int, commpanyName, address, telephone string
 		return Seller{}, fmt.Errorf("seller %d not found", id)
 	}
 	return s, nil
-	
+
 }
 
 // func (r *repository) Update(id, cid int, commpanyName, address, telephone string) (Seller, error) {
@@ -141,7 +138,7 @@ func (r *repository) Update(id, cid int, commpanyName, address, telephone string
 // 		return Seller{}, fmt.Errorf("seller %d not found", id)
 // 	}
 // 	return s, nil
-	
+
 // }
 
 func (r *repository) Delete(id int) error {
@@ -172,8 +169,8 @@ func (r *repository) Delete(id int) error {
 }
 
 func NewRepository(db store.Store) Repository {
-	return &repository {
+	return &repository{
 		db: db,
 	}
-	
+
 }

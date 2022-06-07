@@ -5,7 +5,7 @@ import "fmt"
 type Service interface {
 	GetAll() ([]Product, error)
 	GetById(id int) (Product, error)
-	Store(productCode, description string, width, height, length, netWeight, expirationRate, recommendedFreezingTemperature, freezingRate float64, productTypeId, sellerId int) (Product, error)
+	Create(productCode, description string, width, height, length, netWeight, expirationRate, recommendedFreezingTemperature, freezingRate float64, productTypeId, sellerId int) (Product, error)
 	Update(id int, productCode, description string, width, height, length, netWeight, expirationRate, recommendedFreezingTemperature, freezingRate float64, productTypeId, sellerId int) (Product, error)
 	Delete(id int) error
 }
@@ -36,7 +36,7 @@ func (s service) GetById(id int) (Product, error) {
 	return product, nil
 }
 
-func (s service) Store(productCode, description string, width, height, length, netWeight, expirationRate, recommendedFreezingTemperature, freezingRate float64, productTypeId, sellerId int) (Product, error) {
+func (s service) Create(productCode, description string, width, height, length, netWeight, expirationRate, recommendedFreezingTemperature, freezingRate float64, productTypeId, sellerId int) (Product, error) {
 	lastId, err := s.repository.LastID()
 	if err != nil {
 		return Product{}, err
@@ -53,7 +53,7 @@ func (s service) Store(productCode, description string, width, height, length, n
 		}
 	}
 
-	product, err := s.repository.Store(lastId+1, productCode, description, width, height, length, netWeight, expirationRate, recommendedFreezingTemperature, freezingRate, productTypeId, sellerId)
+	product, err := s.repository.Create(lastId+1, productCode, description, width, height, length, netWeight, expirationRate, recommendedFreezingTemperature, freezingRate, productTypeId, sellerId)
 	if err != nil {
 		return Product{}, err
 	}
