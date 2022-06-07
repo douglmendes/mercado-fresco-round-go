@@ -39,7 +39,7 @@ func (r *repository) GetById(id int) (Buyer, error) {
 		}
 	}
 
-	return Buyer{}, fmt.Errorf("Buyer%d not found", id)
+	return Buyer{}, fmt.Errorf("Buyer %d not found", id)
 }
 
 func (r *repository) LastID() (int, error) {
