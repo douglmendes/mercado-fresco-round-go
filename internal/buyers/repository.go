@@ -84,7 +84,6 @@ func (r *repository) Update(id int, cardNumberId, firstName, lastName string) (B
 		if by[i].Id == id {
 			s = by[i]
 			if cardNumberId != "" {
-				fmt.Printf("cid é %v", cardNumberId)
 				s.CardNumberId = cardNumberId
 			}
 			if firstName != "" {
@@ -94,7 +93,6 @@ func (r *repository) Update(id int, cardNumberId, firstName, lastName string) (B
 				s.LastName = lastName
 			}
 
-			fmt.Printf("Buyer é %v", s)
 			by[i] = s
 			updated = true
 
