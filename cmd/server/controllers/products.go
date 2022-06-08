@@ -62,7 +62,7 @@ type productsRequest struct {
 	SellerId                       int     `json:"seller_id" binding:"required"`
 }
 
-func (c *ProductController) Store() gin.HandlerFunc {
+func (c *ProductController) Create() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var req productsRequest
 
@@ -71,7 +71,7 @@ func (c *ProductController) Store() gin.HandlerFunc {
 			return
 		}
 
-		product, err := c.service.Store(req.ProductCode, req.Description, req.Width, req.Height, req.Length, req.NetWeight, req.ExpirationRate, req.RecommendedFreezingTemperature, req.FreezingRate, req.ProductTypeId, req.SellerId)
+		product, err := c.service.Create(req.ProductCode, req.Description, req.Width, req.Height, req.Length, req.NetWeight, req.ExpirationRate, req.RecommendedFreezingTemperature, req.FreezingRate, req.ProductTypeId, req.SellerId)
 		if err != nil {
 			ctx.JSON(http.StatusUnprocessableEntity, response.DecodeError(err.Error()))
 			return

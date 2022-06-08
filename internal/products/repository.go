@@ -9,7 +9,7 @@ import (
 type Repository interface {
 	GetAll() ([]Product, error)
 	GetById(id int) (Product, error)
-	Store(id int, productCode, description string, width, height, length, netWeight, expirationRate, recommendedFreezingTemperature, freezingRate float64, productTypeId, sellerId int) (Product, error)
+	Create(id int, productCode, description string, width, height, length, netWeight, expirationRate, recommendedFreezingTemperature, freezingRate float64, productTypeId, sellerId int) (Product, error)
 	LastID() (int, error)
 	Update(id int, productCode, description string, width, height, length, netWeight, expirationRate, recommendedFreezingTemperature, freezingRate float64, productTypeId, sellerId int) (Product, error)
 	Delete(id int) error
@@ -51,7 +51,7 @@ func (r *repository) GetById(id int) (Product, error) {
 	return Product{}, fmt.Errorf("product (%d) not found", id)
 }
 
-func (r *repository) Store(id int, productCode, description string, width, height, length, netWeight, expirationRate, recommendedFreezingTemperature, freezingRate float64, productTypeId, sellerId int) (Product, error) {
+func (r *repository) Create(id int, productCode, description string, width, height, length, netWeight, expirationRate, recommendedFreezingTemperature, freezingRate float64, productTypeId, sellerId int) (Product, error) {
 	var products []Product
 
 	if err := r.db.Read(&products); err != nil {

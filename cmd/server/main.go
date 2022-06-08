@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/douglmendes/mercado-fresco-round-go/cmd/server/controllers"
+	"github.com/douglmendes/mercado-fresco-round-go/internal/buyers"
 	"github.com/douglmendes/mercado-fresco-round-go/internal/employees"
 	"github.com/douglmendes/mercado-fresco-round-go/internal/products"
 	"github.com/douglmendes/mercado-fresco-round-go/internal/sections"
@@ -42,7 +43,6 @@ func main() {
 	}
 
 	warehousesDB := store.New(store.FileType, store.PathBuilder("/warehouses.json"))
-	//warehousesDB := store.New(store.FileType, "../../warehouses.json")
 	warehousesRepo := warehouses.NewRepository(warehousesDB)
 	warehousesService := warehouses.NewService(warehousesRepo)
 	whController := controllers.NewWareHouse(warehousesService)
@@ -65,7 +65,7 @@ func main() {
 	{
 		productsRoutes.GET("/", productsController.GetAll())
 		productsRoutes.GET("/:id", productsController.GetById())
-		productsRoutes.POST("/", productsController.Store())
+		productsRoutes.POST("/", productsController.Create())
 		productsRoutes.PATCH("/:id", productsController.Update())
 		productsRoutes.DELETE("/:id", productsController.Delete())
 	}
@@ -80,9 +80,24 @@ func main() {
 	{
 		emp.GET("/", e.GetAll())
 		emp.GET("/:id", e.GetById())
-		emp.POST("/", e.Store())
+		emp.POST("/", e.Create())
 		emp.PATCH("/:id", e.Update())
 		emp.DELETE("/:id", e.Delete())
+	}
+
+	buyersDb := store.New(store.FileType, "buyers.json")
+	buyersDbRepo := buyers.NewRepository(buyersDb)
+	buyersService := buyers.NewService(buyersDbRepo)
+
+	b := controllers.NewBuyer(buyersService)
+
+	buy := router.Group("/api/v1/buyers")
+	{
+		buy.GET("/", b.GetAll())
+		buy.GET("/:id", b.GetById())
+		buy.POST("/", b.Create())
+		buy.PATCH("/:id", b.Update())
+		buy.DELETE("/:id", b.Delete())
 	}
 
 	router.Run()
