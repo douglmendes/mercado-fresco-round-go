@@ -1,0 +1,599 @@
+{
+	"info": {
+		"_postman_id": "8bc74484-b66a-4403-847a-1919d3e5401b",
+		"name": "Mercado Fresco",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "9872887"
+	},
+	"item": [
+		{
+			"name": "Seller",
+			"item": [
+				{
+					"name": "GetAll",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{localBaseUrl}}{{version}}/sellers/",
+							"host": [
+								"{{localBaseUrl}}{{version}}"
+							],
+							"path": [
+								"sellers",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetById",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{localBaseUrl}}{{version}}/sellers/1",
+							"host": [
+								"{{localBaseUrl}}{{version}}"
+							],
+							"path": [
+								"sellers",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"cid\": 1,\n    \"company_name\": \"Digital House\",\n    \"address\": \"Monroe 860\",\n    \"telephone\": \"47470000\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{localBaseUrl}}{{version}}/sellers/",
+							"host": [
+								"{{localBaseUrl}}{{version}}"
+							],
+							"path": [
+								"sellers",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"cid\": 1,\n    \"company_name\": \"Digital House\",\n    \"address\": \"Monroe 860\",\n    \"telephone\": \"47470000\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{localBaseUrl}}{{version}}/sellers/1",
+							"host": [
+								"{{localBaseUrl}}{{version}}"
+							],
+							"path": [
+								"sellers",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{localBaseUrl}}{{version}}/sellers/1",
+							"host": [
+								"{{localBaseUrl}}{{version}}"
+							],
+							"path": [
+								"sellers",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Warehouse",
+			"item": [
+				{
+					"name": "GetAll",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{localBaseUrl}}{{version}}/warehouses/",
+							"host": [
+								"{{localBaseUrl}}{{version}}"
+							],
+							"path": [
+								"warehouses",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetById",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "",
+								"value": "",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{localBaseUrl}}{{version}}/warehouses/1",
+							"host": [
+								"{{localBaseUrl}}{{version}}"
+							],
+							"path": [
+								"warehouses",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"address\": \"Monroe 860\",\n    \"telephone\": \"47470000\",\n    \"warehouse_code\": \"JAFK\",\n    \"minimun_capacity\": 10,\n    \"minimun_temperature\": 10\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{localBaseUrl}}{{version}}/warehouses/",
+							"host": [
+								"{{localBaseUrl}}{{version}}"
+							],
+							"path": [
+								"warehouses",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"address\": \"Rua do Teste 1\",\n    \"telephone\": \"555555555\",\n    \"warehouse_code\": \"KKK\",\n    \"minimun_capacity\": 10,\n    \"minimun_temperature\": 10\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{localBaseUrl}}{{version}}/warehouses/1",
+							"host": [
+								"{{localBaseUrl}}{{version}}"
+							],
+							"path": [
+								"warehouses",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{localBaseUrl}}{{version}}/warehouses/1",
+							"host": [
+								"{{localBaseUrl}}{{version}}"
+							],
+							"path": [
+								"warehouses",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Section",
+			"item": [
+				{
+					"name": "GetAll",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{localBaseUrl}}{{version}}/sections/",
+							"host": [
+								"{{localBaseUrl}}{{version}}"
+							],
+							"path": [
+								"sections",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetById",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "",
+								"value": "",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{localBaseUrl}}{{version}}/sections/1",
+							"host": [
+								"{{localBaseUrl}}{{version}}"
+							],
+							"path": [
+								"sections",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"section_number\": 1,\n    \"current_temperature\": 1,\n    \"minimum_temperature\": 1,\n    \"current_capacity\": 1,\n    \"minimum_capacity\": 1,\n    \"maximum_capacity\": 1,\n    \"warehouse_id\": 1,\n    \"product_type_id\": 1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{localBaseUrl}}{{version}}/sections/",
+							"host": [
+								"{{localBaseUrl}}{{version}}"
+							],
+							"path": [
+								"sections",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"section_number\": 1,\n    \"current_temperature\": 1,\n    \"minimum_temperature\": 1,\n    \"current_capacity\": 1,\n    \"minimum_capacity\": 1,\n    \"maximum_capacity\": 1,\n    \"warehouse_id\": 1,\n    \"product_type_id\": 1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{localBaseUrl}}{{version}}/sections/1",
+							"host": [
+								"{{localBaseUrl}}{{version}}"
+							],
+							"path": [
+								"sections",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{localBaseUrl}}{{version}}/sections/1",
+							"host": [
+								"{{localBaseUrl}}{{version}}"
+							],
+							"path": [
+								"sections",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Product",
+			"item": [
+				{
+					"name": "GetAll",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{localBaseUrl}}{{version}}/products/",
+							"host": [
+								"{{localBaseUrl}}{{version}}"
+							],
+							"path": [
+								"products",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetById",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "",
+								"value": "",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{localBaseUrl}}{{version}}/products/1",
+							"host": [
+								"{{localBaseUrl}}{{version}}"
+							],
+							"path": [
+								"products",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"description\": \"Yogurt\",\n    \"expiration_rate\": 1,\n    \"freezing_rate\": 2,\n    \"height\": 6.4,\n    \"length\": 4.5,\n    \"netweight\": 3.4,\n    \"product_code\": \"PROD01\",\n    \"recommended_freezing_temperature\": 1.3,\n    \"width\": 1.2,\n    \"product_type_id\": 2,\n    \"seller_id\": 2\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{localBaseUrl}}{{version}}/products/",
+							"host": [
+								"{{localBaseUrl}}{{version}}"
+							],
+							"path": [
+								"products",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"description\": \"Yogurt\",\n    \"expiration_rate\": 1,\n    \"freezing_rate\": 2,\n    \"height\": 6.4,\n    \"length\": 4.5,\n    \"netweight\": 3.4,\n    \"product_code\": \"PROD01\",\n    \"recommended_freezing_temperature\": 1.3,\n    \"width\": 1.2,\n    \"product_type_id\": 2,\n    \"seller_id\": 2\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{localBaseUrl}}{{version}}/products/1",
+							"host": [
+								"{{localBaseUrl}}{{version}}"
+							],
+							"path": [
+								"products",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{localBaseUrl}}{{version}}/products/1",
+							"host": [
+								"{{localBaseUrl}}{{version}}"
+							],
+							"path": [
+								"products",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Employee",
+			"item": [
+				{
+					"name": "GetAll",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{localBaseUrl}}{{version}}/employees/",
+							"host": [
+								"{{localBaseUrl}}{{version}}"
+							],
+							"path": [
+								"employees",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetById",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "",
+								"value": "",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{localBaseUrl}}{{version}}/employees/1",
+							"host": [
+								"{{localBaseUrl}}{{version}}"
+							],
+							"path": [
+								"employees",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"card_number_id\": \"402323\",\n    \"first_name\": \"Jhon\",\n    \"last_name\": \"Doe\",\n    \"warehouse_id\": 1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{localBaseUrl}}{{version}}/employees/",
+							"host": [
+								"{{localBaseUrl}}{{version}}"
+							],
+							"path": [
+								"employees",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"card_number_id\": \"402323\",\n    \"first_name\": \"Jhon\",\n    \"last_name\": \"Doe\",\n    \"warehouse_id\": 1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{localBaseUrl}}{{version}}/employees/1",
+							"host": [
+								"{{localBaseUrl}}{{version}}"
+							],
+							"path": [
+								"employees",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{localBaseUrl}}{{version}}/employees/1",
+							"host": [
+								"{{localBaseUrl}}{{version}}"
+							],
+							"path": [
+								"employees",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
