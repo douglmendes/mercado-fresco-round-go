@@ -32,7 +32,7 @@ func main() {
 	{
 		sl.GET("/", s.GetAll())
 		sl.GET("/:id", s.GetById())
-		sl.POST("/", s.Store())
+		sl.POST("/", s.Create())
 		sl.PATCH("/:id", s.Update())
 		sl.DELETE("/:id", s.Delete())
 	}

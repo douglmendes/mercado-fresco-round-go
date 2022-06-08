@@ -78,19 +78,19 @@ func (c *SellerController) GetById() gin.HandlerFunc {
 	}
 }
 
-// StoreProducts godoc
-// @Summary Store sellers
+// Create godoc
+// @Summary Create sellers
 // @Tags Sellers
-// @Description store sellers
+// @Description create sellers
 // @Accept  json
 // @Produce  json
 // @Param token header string true "token"
-// @Param product body request true "Seller to store"
+// @Param product body request true "Seller to create"
 // @Success 201 {object} web.Response
 // @Failure 400 {object} web.Response
 // @Failure 404 {object} web.Response
 // @Router /api/v1/sellers [post]
-func (c *SellerController) Store() gin.HandlerFunc {
+func (c *SellerController) Create() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var req request
 		if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -119,7 +119,7 @@ func (c *SellerController) Store() gin.HandlerFunc {
 			return
 		}
 
-		s, err := c.service.Store(req.Cid, req.CompanyName, req.Address, req.Telephone)
+		s, err := c.service.Create(req.Cid, req.CompanyName, req.Address, req.Telephone)
 		if err != nil {
 			ctx.JSON(http.StatusConflict, gin.H{"error": err.Error()})
 			return
