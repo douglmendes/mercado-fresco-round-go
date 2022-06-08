@@ -90,7 +90,6 @@ func (r *repository) LastID() (int, error) {
 }
 
 func (r *repository) Update(id int, address, telephone, warehouseCode string, minimunCapacity, minimunTemperature int) (Warehouse, error) {
-
 	var warehouses []Warehouse
 	if err := r.db.Read(&warehouses); err != nil {
 		return Warehouse{}, err
@@ -107,19 +106,38 @@ func (r *repository) Update(id int, address, telephone, warehouseCode string, mi
 	updated := false
 	for i := range warehouses {
 		if warehouses[i].Id == id {
-			wh.Id = id
+			wh = warehouses[i]
+
+			if address != "" {
+				wh.Address = address
+			}
+
+			if telephone != "" {
+				wh.Telephone = telephone
+			}
+
+			if warehouseCode != "" {
+				wh.WarehouseCode = warehouseCode
+			}
+
+			if minimunTemperature != 0 {
+				wh.MinimunTemperature = minimunTemperature
+			}
+
+			if minimunCapacity != 0 {
+				wh.MinimunCapacity = minimunCapacity
+			}
+
 			warehouses[i] = wh
 			updated = true
+			if err := r.db.Write(warehouses); err != nil {
+				return Warehouse{}, err
+			}
 		}
 	}
 	if !updated {
 		return Warehouse{}, fmt.Errorf("warehouse with id %d not found", id)
 	}
-
-	if err := r.db.Write(warehouses); err != nil {
-		return Warehouse{}, err
-	}
-
 	return wh, nil
 }
 

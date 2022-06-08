@@ -42,7 +42,7 @@ func main() {
 		sectionsRoutes.DELETE("/:id", sectionsController.Delete)
 	}
 
-	warehousesDB := store.New(store.FileType, "../../warehouses.json")
+	warehousesDB := store.New(store.FileType, store.PathBuilder("/warehouses.json"))
 	warehousesRepo := warehouses.NewRepository(warehousesDB)
 	warehousesService := warehouses.NewService(warehousesRepo)
 	whController := controllers.NewWareHouse(warehousesService)
@@ -52,7 +52,7 @@ func main() {
 		wh.POST("/", whController.Create())
 		wh.GET("/", whController.GetAll())
 		wh.GET("/:id", whController.GetById())
-		wh.PUT("/:id", whController.Update())
+		wh.PATCH("/:id", whController.Update())
 		wh.DELETE("/:id", whController.Delete())
 	}
 
