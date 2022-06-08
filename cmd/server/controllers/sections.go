@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/douglmendes/mercado-fresco-round-go/internal/sections"
+	"github.com/douglmendes/mercado-fresco-round-go/pkg/response"
 	"github.com/gin-gonic/gin"
 )
 
@@ -16,10 +17,7 @@ type SectionsController struct {
 func (s *SectionsController) GetAll(c *gin.Context) {
 	sections, err := s.service.GetAll()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error":   err.Error(),
-			"message": "Não foi possível obter as seções",
-		})
+		c.JSON(http.StatusInternalServerError, response.DecodeError(err.Error()))
 		return
 	}
 
@@ -28,39 +26,30 @@ func (s *SectionsController) GetAll(c *gin.Context) {
 			return http.StatusNoContent
 		}
 		return http.StatusOK
-	}(), gin.H{"data": sections})
+	}(), response.NewResponse(sections))
 }
 
 func (s *SectionsController) GetById(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error":   err.Error(),
-			"message": "O ID informado não é válido",
-		})
+		c.JSON(http.StatusBadRequest, response.DecodeError(err.Error()))
 		return
 	}
 
 	section, err := s.service.GetById(id)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"error":   err.Error(),
-			"message": "Não foi possível obter a seção procurada",
-		})
+		c.JSON(http.StatusNotFound, response.DecodeError(err.Error()))
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": section})
+	c.JSON(http.StatusOK, response.NewResponse(section))
 }
 
 func (s *SectionsController) Create(c *gin.Context) {
 	var req sectionsRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{
-			"error":   err.Error(),
-			"message": "Não foi possível processar os dados da requisição",
-		})
+		c.JSON(http.StatusUnprocessableEntity, response.DecodeError(err.Error()))
 		return
 	}
 
@@ -70,83 +59,61 @@ func (s *SectionsController) Create(c *gin.Context) {
 		req.CurrentTemperature, req.MinimumTemperature,
 	)
 	if err != nil {
-		c.JSON(http.StatusConflict, gin.H{
-			"error":   err.Error(),
-			"message": "Não é possível criar duas seções com o mesmo número",
-		})
+		c.JSON(http.StatusConflict, response.DecodeError(err.Error()))
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{"data": section})
+	c.JSON(http.StatusCreated, response.NewResponse(section))
 }
 
 func (s *SectionsController) Update(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error":   err.Error(),
-			"message": "O ID informado não é válido",
-		})
+		c.JSON(http.StatusBadRequest, response.DecodeError(err.Error()))
 		return
 	}
 
 	var args map[string]int
 	if err := c.ShouldBindJSON(&args); err != nil {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{
-			"error":   err.Error(),
-			"message": "Não foi possível processar os dados da requisição",
-		})
+		c.JSON(http.StatusUnprocessableEntity, response.DecodeError(err.Error()))
 		return
 	}
 
 	section, err := s.service.Update(id, args)
 	if err != nil {
-		errNF := &sections.ErrorNotFound{}
-		errCF := &sections.ErrorConflict{}
-		if errors.As(err, &errNF) {
-			c.JSON(http.StatusNotFound, gin.H{
-				"error":   err.Error(),
-				"message": "A seção que deseja atualizar não existe",
-			})
-			return
-		}
-		if errors.As(err, &errCF) {
-			c.JSON(http.StatusConflict, gin.H{
-				"error":   err.Error(),
-				"message": "Não é possível criar duas seções com o mesmo número",
-			})
-			return
-		}
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error":   err.Error(),
-			"message": "Não foi possível atualizar a seção procurada",
-		})
+		c.JSON(func() int {
+			errNF := &sections.ErrorNotFound{}
+			if errors.As(err, &errNF) {
+				return http.StatusNotFound
+			}
+
+			errCF := &sections.ErrorConflict{}
+			if errors.As(err, &errCF) {
+				return http.StatusConflict
+			}
+
+			return http.StatusInternalServerError
+		}(), response.DecodeError(err.Error()))
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": section})
+	c.JSON(http.StatusOK, response.NewResponse(section))
 }
 
 func (s *SectionsController) Delete(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error":   err.Error(),
-			"message": "O ID informado não é válido",
-		})
+		c.JSON(http.StatusBadRequest, response.DecodeError(err.Error()))
 		return
 	}
 
 	err = s.service.Delete(id)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"error":   err.Error(),
-			"message": "Não foi possível remover a seção procurada",
-		})
+		c.JSON(http.StatusNotFound, response.DecodeError(err.Error()))
 		return
 	}
 
-	c.JSON(http.StatusNoContent, gin.H{})
+	c.JSON(http.StatusNoContent, response.NewResponse(nil))
 }
 
 func NewSectionsController(s sections.Service) *SectionsController {

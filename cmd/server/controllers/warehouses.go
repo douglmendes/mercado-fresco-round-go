@@ -2,11 +2,12 @@ package controllers
 
 import (
 	"fmt"
+	"net/http"
+	"strconv"
+
 	"github.com/douglmendes/mercado-fresco-round-go/internal/warehouses"
 	"github.com/douglmendes/mercado-fresco-round-go/pkg/response"
 	"github.com/gin-gonic/gin"
-	"net/http"
-	"strconv"
 )
 
 type WareHouseController struct {
@@ -125,9 +126,9 @@ func NewWareHouse(w warehouses.Service) *WareHouseController {
 }
 
 type whRequest struct {
-	Address            string `json:"address" binding:"required"`
-	Telephone          string `json:"telephone" binding:"required"`
-	WarehouseCode      string `json:"warehouse_code" binding:"required"`
-	MinimunCapacity    int    `json:"minimun_capacity" binding:"required"`
-	MinimunTemperature int    `json:"minimun_temperature" binding:"required"`
+	Address            string `json:"address"`
+	Telephone          string `json:"telephone"`
+	WarehouseCode      string `json:"warehouse_code"`
+	MinimunCapacity    int    `json:"minimun_capacity"`
+	MinimunTemperature int    `json:"minimun_temperature"`
 }

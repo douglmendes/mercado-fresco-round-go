@@ -21,8 +21,8 @@ func New(store Type, fileName string) Store {
 	switch store {
 	case FileType:
 		return &FileStore{fileName}
-	}
 
+	}
 	return nil
 }
 
