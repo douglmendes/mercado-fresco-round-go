@@ -5,7 +5,7 @@ import "fmt"
 type Service interface {
 	GetAll() ([]Seller, error)
 	GetById(id int) (Seller, error)
-	Store(cid int, commpanyName, address, telephone string) (Seller, error)
+	Create(cid int, commpanyName, address, telephone string) (Seller, error)
 	Update(id, cid int, companyname, address, telephone string) (Seller, error)
 	Delete(id int) error
 }
@@ -39,7 +39,7 @@ func (s service) GetById(id int) (Seller, error) {
 	
 }
 
-func (s service) Store(cid int, commpanyName, address, telephone string) (Seller, error) {
+func (s service) Create(cid int, commpanyName, address, telephone string) (Seller, error) {
 	lastID, err := s.repository.LastID()
 	if err != nil {
 		return Seller{}, err
@@ -58,7 +58,7 @@ func (s service) Store(cid int, commpanyName, address, telephone string) (Seller
 
 	lastID++
 
-	seller, err := s.repository.Store(lastID, cid, commpanyName, address, telephone)
+	seller, err := s.repository.Create(lastID, cid, commpanyName, address, telephone)
 
 	if err != nil {
 		return Seller{}, err
@@ -78,7 +78,7 @@ func (s service) Update(id, cid int, companyName, address, telephone string) (Se
 				return Seller{}, fmt.Errorf("this seller already exists")
 		}
 	}
-	
+
 	seller, err := s.repository.Update(id, cid, companyName, address, telephone)
 	if err != nil {
 		return Seller{}, err
