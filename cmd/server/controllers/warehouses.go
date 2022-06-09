@@ -115,7 +115,7 @@ func (w *WareHouseController) Delete() gin.HandlerFunc {
 			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 			return
 		}
-		ctx.JSON(http.StatusOK, gin.H{"data": fmt.Sprintf("warehouse with id %d hs been removed", id)})
+		ctx.JSON(http.StatusNoContent, gin.H{"data": fmt.Sprintf("warehouse with id %d hs been removed", id)})
 	}
 }
 
