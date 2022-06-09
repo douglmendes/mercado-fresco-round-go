@@ -1,7 +1,11 @@
 package main
 
 import (
+	"log"
+	"os"
+
 	"github.com/douglmendes/mercado-fresco-round-go/cmd/server/controllers"
+	"github.com/douglmendes/mercado-fresco-round-go/cmd/server/docs"
 	"github.com/douglmendes/mercado-fresco-round-go/internal/buyers"
 	"github.com/douglmendes/mercado-fresco-round-go/internal/employees"
 	"github.com/douglmendes/mercado-fresco-round-go/internal/products"
@@ -10,10 +14,26 @@ import (
 	"github.com/douglmendes/mercado-fresco-round-go/internal/warehouses"
 	"github.com/douglmendes/mercado-fresco-round-go/pkg/store"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
+
+	swaggerFiles "github.com/swaggo/files"
+
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func main() {
+
+	err := godotenv.Load(".env")
+	if err != nil {
+		log.Fatal("failed to load .env")
+	}
+
 	router := gin.Default()
+
+	docs.SwaggerInfo.Host = os.Getenv("HOST")
+	router.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
+
 	sellersDb := store.New(store.FileType, "../../sellers.json")
 	sellersRepo := sellers.NewRepository(sellersDb)
 	sellersService := sellers.NewService(sellersRepo)
