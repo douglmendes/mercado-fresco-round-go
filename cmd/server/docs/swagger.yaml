@@ -59,9 +59,15 @@ paths:
       summary: Create sellers
       tags:
       - Sellers
-  /api/v1/sellers/:id:
+  /api/v1/sellers/{id}:
     delete:
       description: delete seller
+      parameters:
+      - description: Seller ID
+        in: path
+        name: id
+        required: true
+        type: integer
       responses:
         "204":
           description: No Content
@@ -74,6 +80,12 @@ paths:
       consumes:
       - application/json
       description: get seller
+      parameters:
+      - description: Seller ID
+        in: path
+        name: id
+        required: true
+        type: integer
       produces:
       - application/json
       responses:
@@ -92,6 +104,18 @@ paths:
       consumes:
       - application/json
       description: update seller
+      parameters:
+      - description: Seller to create
+        in: body
+        name: product
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.request'
+      - description: Seller ID
+        in: path
+        name: id
+        required: true
+        type: integer
       produces:
       - application/json
       responses:

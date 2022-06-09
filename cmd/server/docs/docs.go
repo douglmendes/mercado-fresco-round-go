@@ -86,7 +86,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/sellers/:id": {
+        "/api/v1/sellers/{id}": {
             "get": {
                 "description": "get seller",
                 "consumes": [
@@ -99,6 +99,15 @@ const docTemplate = `{
                     "Sellers"
                 ],
                 "summary": "List seller",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Seller ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -120,6 +129,15 @@ const docTemplate = `{
                     "Sellers"
                 ],
                 "summary": "Delete seller",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Seller ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "204": {
                         "description": "No Content",
@@ -141,6 +159,24 @@ const docTemplate = `{
                     "Sellers"
                 ],
                 "summary": "Update seller",
+                "parameters": [
+                    {
+                        "description": "Seller to create",
+                        "name": "product",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controllers.request"
+                        }
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Seller ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
