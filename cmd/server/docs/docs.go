@@ -24,21 +24,24 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/api/v1/employees": {
+        "/api/v1/buyers": {
             "get": {
-                "description": "get all employees",
+                "description": "get buyers",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "Employees"
+                    "Buyers"
                 ],
-                "summary": "List all employees",
+                "summary": "List buyers",
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/controllers.request"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/buyers.Buyer"
+                            }
                         }
                     },
                     "404": {
@@ -48,19 +51,99 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "post": {
+                "description": "create buyers",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Buyers"
+                ],
+                "summary": "Create buyers",
+                "parameters": [
+                    {
+                        "description": "Buyer to create",
+                        "name": "buyer",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controllers.buyerRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/buyers.Buyer"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
             }
         },
-        "/api/v1/employees/{id}": {
-            "delete": {
-                "description": "delete employee",
-                "tags": [
-                    "Employees"
+        "/api/v1/buyers/{id}": {
+            "get": {
+                "description": "get buyer",
+                "consumes": [
+                    "application/json"
                 ],
-                "summary": "Delete employee",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Buyers"
+                ],
+                "summary": "List buyer",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Employee ID",
+                        "description": "Buyer ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/buyers.Buyer"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "delete buyer",
+                "tags": [
+                    "Buyers"
+                ],
+                "summary": "Delete buyer",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Buyer ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -76,6 +159,204 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "description": "update buyer",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Buyers"
+                ],
+                "summary": "Update buyer",
+                "parameters": [
+                    {
+                        "description": "Buyer to create",
+                        "name": "buyer",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controllers.buyerRequest"
+                        }
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Buyer ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/buyers.Buyer"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/employees": {
+            "get": {
+                "description": "get employees",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "employees"
+                ],
+                "summary": "List employees",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.request"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a new employee in the system",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "employees"
+                ],
+                "summary": "Create a new employee",
+                "parameters": [
+                    {
+                        "description": "Employee to be created",
+                        "name": "employee",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controllers.requestEmployee"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/employees.Employee"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/employees/{id}": {
+            "get": {
+                "description": "Get a employee from the system searching by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "employees"
+                ],
+                "summary": "Get a employee by id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Employee id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/employees.Employee"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a employee from the system, selecting by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "employees"
+                ],
+                "summary": "Delete a employee",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Employee id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Successfully deleted"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "patch": {
                 "description": "update employee",
                 "consumes": [
                     "application/json"
@@ -84,7 +365,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Employees"
+                    "employees"
                 ],
                 "summary": "Update employee",
                 "parameters": [
@@ -94,7 +375,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/controllers.request"
+                            "$ref": "#/definitions/controllers.requestEmployee"
                         }
                     },
                     {
@@ -109,7 +390,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/controllers.request"
+                            "$ref": "#/definitions/employees.Employee"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "string"
                         }
                     }
                 }
@@ -530,9 +823,244 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/api/v1/warehouses": {
+            "get": {
+                "description": "List all available warehouses",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Warehouses"
+                ],
+                "summary": "List warehouses",
+                "responses": {
+                    "200": {
+                        "description": "desc",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "allOf": [
+                                    {
+                                        "$ref": "#/definitions/response.Response"
+                                    },
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "data": {
+                                                "$ref": "#/definitions/warehouses.Warehouse"
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "create one warehouse",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Warehouses"
+                ],
+                "summary": "Create warehouses",
+                "parameters": [
+                    {
+                        "description": "Warehouse to create",
+                        "name": "warehouses",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controllers.whRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/warehouses.Warehouse"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/warehouses/{id}": {
+            "get": {
+                "description": "Read one warehouse",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Warehouses"
+                ],
+                "summary": "Warehouse",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Warehouse ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/warehouses.Warehouse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a warehouse by ID",
+                "tags": [
+                    "Warehouses"
+                ],
+                "summary": "Delete warehouse",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Warehouse ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "Update a warehouse by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Warehouses"
+                ],
+                "summary": "Update warehouse",
+                "parameters": [
+                    {
+                        "description": "Warehouse to update",
+                        "name": "warehouse",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controllers.whRequest"
+                        }
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Warehouse ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/warehouses.Warehouse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "buyers.Buyer": {
+            "type": "object",
+            "properties": {
+                "card_number_id": {
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "last_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "controllers.buyerRequest": {
+            "type": "object",
+            "properties": {
+                "card_number_id": {
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "last_name": {
+                    "type": "string"
+                }
+            }
+        },
         "controllers.request": {
             "type": "object",
             "properties": {
@@ -547,6 +1075,26 @@ const docTemplate = `{
                 },
                 "telephone": {
                     "type": "string"
+                }
+            }
+        },
+        "controllers.requestEmployee": {
+            "type": "object",
+            "properties": {
+                "card_number_id": {
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "last_name": {
+                    "type": "string"
+                },
+                "warehouse_id": {
+                    "type": "integer"
                 }
             }
         },
@@ -583,6 +1131,46 @@ const docTemplate = `{
                 },
                 "section_number": {
                     "type": "integer"
+                },
+                "warehouse_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "controllers.whRequest": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "minimun_capacity": {
+                    "type": "integer"
+                },
+                "minimun_temperature": {
+                    "type": "integer"
+                },
+                "telephone": {
+                    "type": "string"
+                },
+                "warehouse_code": {
+                    "type": "string"
+                }
+            }
+        },
+        "employees.Employee": {
+            "type": "object",
+            "properties": {
+                "card_number_id": {
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "last_name": {
+                    "type": "string"
                 },
                 "warehouse_id": {
                     "type": "integer"
@@ -646,6 +1234,29 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "telephone": {
+                    "type": "string"
+                }
+            }
+        },
+        "warehouses.Warehouse": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "minimun_capacity": {
+                    "type": "integer"
+                },
+                "minimun_temperature": {
+                    "type": "integer"
+                },
+                "telephone": {
+                    "type": "string"
+                },
+                "warehouse_code": {
                     "type": "string"
                 }
             }

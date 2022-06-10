@@ -37,7 +37,7 @@ func (r *repository) GetAll() ([]Warehouse, error) {
 	var warehouses []Warehouse
 
 	if err := r.db.Read(&warehouses); err != nil {
-		return []Warehouse{}, nil
+		return []Warehouse{}, err
 	}
 
 	return warehouses, nil

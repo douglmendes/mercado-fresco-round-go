@@ -10,11 +10,21 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type WareHouseController struct {
+type WarehousesController struct {
 	service warehouses.Service
 }
 
-func (w *WareHouseController) Create() gin.HandlerFunc {
+// Create godoc
+// @Summary Create warehouses
+// @Tags Warehouses
+// @Description create one warehouse
+// @Accept  json
+// @Produce  json
+// @Param warehouses body whRequest true "Warehouse to create"
+// @Success 201 {object} warehouses.Warehouse
+// @Failure 422 {object} response.Response
+// @Router /api/v1/warehouses [post]
+func (w *WarehousesController) Create() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var whRequest whRequest
 
@@ -39,7 +49,15 @@ func (w *WareHouseController) Create() gin.HandlerFunc {
 	}
 }
 
-func (w *WareHouseController) GetAll() gin.HandlerFunc {
+// GetAll godoc
+// @Summary List warehouses
+// @Tags Warehouses
+// @Description List all available warehouses
+// @Produce  json
+// @Success 200 {array} response.Response{data=warehouses.Warehouse} "desc"
+// @Failure 404 {object} response.Response
+// @Router /api/v1/warehouses [get]
+func (w *WarehousesController) GetAll() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 
 		warehousesList, err := w.service.GetAll()
@@ -51,7 +69,18 @@ func (w *WareHouseController) GetAll() gin.HandlerFunc {
 	}
 }
 
-func (w *WareHouseController) GetById() gin.HandlerFunc {
+// GetById Warehouse godoc
+// @Summary Warehouse
+// @Tags Warehouses
+// @Description Read one warehouse
+// @Accept  json
+// @Produce  json
+// @Param id path int true "Warehouse ID"
+// @Success 200 {object} warehouses.Warehouse
+// @Failure 400 {object} response.Response
+// @Failure 404 {object} response.Response
+// @Router /api/v1/warehouses/{id} [get]
+func (w *WarehousesController) GetById() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 
 		id, err := strconv.Atoi(ctx.Param("id"))
@@ -70,7 +99,18 @@ func (w *WareHouseController) GetById() gin.HandlerFunc {
 	}
 }
 
-func (w *WareHouseController) Update() gin.HandlerFunc {
+// Update godoc
+// @Summary Update warehouse
+// @Tags Warehouses
+// @Description Update a warehouse by ID
+// @Accept  json
+// @Produce  json
+// @Param warehouse body whRequest true "Warehouse to update"
+// @Param id path int true "Warehouse ID"
+// @Success 200 {object} warehouses.Warehouse
+// @Failure 404 {object} response.Response
+// @Router /api/v1/warehouses/{id} [patch]
+func (w *WarehousesController) Update() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 
 		id, err := strconv.Atoi(ctx.Param("id"))
@@ -101,7 +141,16 @@ func (w *WareHouseController) Update() gin.HandlerFunc {
 	}
 }
 
-func (w *WareHouseController) Delete() gin.HandlerFunc {
+// Delete Warehouse godoc
+// @Summary Delete warehouse
+// @Tags Warehouses
+// @Description Delete a warehouse by ID
+// @Param id path int true "Warehouse ID"
+// @Success 204 {object} string
+// @Failure 400 {object} response.Response
+// @Failure 404 {object} response.Response
+// @Router /api/v1/warehouses/{id} [delete]
+func (w *WarehousesController) Delete() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 
 		id, err := strconv.Atoi(ctx.Param("id"))
@@ -119,8 +168,8 @@ func (w *WareHouseController) Delete() gin.HandlerFunc {
 	}
 }
 
-func NewWareHouse(w warehouses.Service) *WareHouseController {
-	return &WareHouseController{
+func NewWareHouse(w warehouses.Service) *WarehousesController {
+	return &WarehousesController{
 		service: w,
 	}
 }
