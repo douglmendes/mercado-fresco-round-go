@@ -21,8 +21,8 @@ type WarehousesController struct {
 // @Accept  json
 // @Produce  json
 // @Param warehouses body whRequest true "Warehouse to create"
-// @Success 201 {object} string
-// @Failure 422 {object} string
+// @Success 201 {object} warehouses.Warehouse
+// @Failure 422 {object} response.Response
 // @Router /api/v1/warehouses [post]
 func (w *WarehousesController) Create() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
@@ -54,8 +54,8 @@ func (w *WarehousesController) Create() gin.HandlerFunc {
 // @Tags Warehouses
 // @Description List all available warehouses
 // @Produce  json
-// @Success 200 {object} whRequest
-// @Failure 404 {object} string
+// @Success 200 {array} response.Response{data=warehouses.Warehouse} "desc"
+// @Failure 404 {object} response.Response
 // @Router /api/v1/warehouses [get]
 func (w *WarehousesController) GetAll() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
@@ -76,9 +76,9 @@ func (w *WarehousesController) GetAll() gin.HandlerFunc {
 // @Accept  json
 // @Produce  json
 // @Param id path int true "Warehouse ID"
-// @Success 200 {object} string
-// @Failure 400 {object} string
-// @Failure 404 {object} string
+// @Success 200 {object} warehouses.Warehouse
+// @Failure 400 {object} response.Response
+// @Failure 404 {object} response.Response
 // @Router /api/v1/warehouses/{id} [get]
 func (w *WarehousesController) GetById() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
@@ -107,7 +107,8 @@ func (w *WarehousesController) GetById() gin.HandlerFunc {
 // @Produce  json
 // @Param warehouse body whRequest true "Warehouse to update"
 // @Param id path int true "Warehouse ID"
-// @Success 200 {object} string
+// @Success 200 {object} warehouses.Warehouse
+// @Failure 404 {object} response.Response
 // @Router /api/v1/warehouses/{id} [patch]
 func (w *WarehousesController) Update() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
@@ -146,6 +147,8 @@ func (w *WarehousesController) Update() gin.HandlerFunc {
 // @Description Delete a warehouse by ID
 // @Param id path int true "Warehouse ID"
 // @Success 204 {object} string
+// @Failure 400 {object} response.Response
+// @Failure 404 {object} response.Response
 // @Router /api/v1/warehouses/{id} [delete]
 func (w *WarehousesController) Delete() gin.HandlerFunc {
 	return func(ctx *gin.Context) {

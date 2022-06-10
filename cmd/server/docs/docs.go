@@ -437,15 +437,30 @@ const docTemplate = `{
                 "summary": "List warehouses",
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "desc",
                         "schema": {
-                            "$ref": "#/definitions/controllers.whRequest"
+                            "type": "array",
+                            "items": {
+                                "allOf": [
+                                    {
+                                        "$ref": "#/definitions/response.Response"
+                                    },
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "data": {
+                                                "$ref": "#/definitions/warehouses.Warehouse"
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -477,13 +492,13 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/warehouses.Warehouse"
                         }
                     },
                     "422": {
                         "description": "Unprocessable Entity",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -515,13 +530,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/warehouses.Warehouse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -546,6 +567,18 @@ const docTemplate = `{
                         "description": "No Content",
                         "schema": {
                             "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -584,7 +617,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/warehouses.Warehouse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -605,26 +644,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "telephone": {
-                    "type": "string"
-                }
-            }
-        },
-        "controllers.whRequest": {
-            "type": "object",
-            "properties": {
-                "address": {
-                    "type": "string"
-                },
-                "minimun_capacity": {
-                    "type": "integer"
-                },
-                "minimun_temperature": {
-                    "type": "integer"
-                },
-                "telephone": {
-                    "type": "string"
-                },
-                "warehouse_code": {
                     "type": "string"
                 }
             }
@@ -668,6 +687,26 @@ const docTemplate = `{
                 }
             }
         },
+        "controllers.whRequest": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "minimun_capacity": {
+                    "type": "integer"
+                },
+                "minimun_temperature": {
+                    "type": "integer"
+                },
+                "telephone": {
+                    "type": "string"
+                },
+                "warehouse_code": {
+                    "type": "string"
+                }
+            }
+        },
         "response.Response": {
             "type": "object",
             "properties": {
@@ -706,6 +745,29 @@ const docTemplate = `{
                 },
                 "warehouse_id": {
                     "type": "integer"
+                }
+            }
+        },
+        "warehouses.Warehouse": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "minimun_capacity": {
+                    "type": "integer"
+                },
+                "minimun_temperature": {
+                    "type": "integer"
+                },
+                "telephone": {
+                    "type": "string"
+                },
+                "warehouse_code": {
+                    "type": "string"
                 }
             }
         }

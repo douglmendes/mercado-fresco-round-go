@@ -38,6 +38,19 @@ definitions:
     - section_number
     - warehouse_id
     type: object
+  controllers.whRequest:
+    properties:
+      address:
+        type: string
+      minimun_capacity:
+        type: integer
+      minimun_temperature:
+        type: integer
+      telephone:
+        type: string
+      warehouse_code:
+        type: string
+    type: object
   response.Response:
     properties:
       data: {}
@@ -65,10 +78,12 @@ definitions:
       warehouse_id:
         type: integer
     type: object
-  controllers.whRequest:
+  warehouses.Warehouse:
     properties:
       address:
         type: string
+      id:
+        type: integer
       minimun_capacity:
         type: integer
       minimun_temperature:
@@ -362,13 +377,20 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: desc
           schema:
-            $ref: '#/definitions/controllers.whRequest'
+            items:
+              allOf:
+              - $ref: '#/definitions/response.Response'
+              - properties:
+                  data:
+                    $ref: '#/definitions/warehouses.Warehouse'
+                type: object
+            type: array
         "404":
           description: Not Found
           schema:
-            type: string
+            $ref: '#/definitions/response.Response'
       summary: List warehouses
       tags:
       - Warehouses
@@ -389,11 +411,11 @@ paths:
         "201":
           description: Created
           schema:
-            type: string
+            $ref: '#/definitions/warehouses.Warehouse'
         "422":
           description: Unprocessable Entity
           schema:
-            type: string
+            $ref: '#/definitions/response.Response'
       summary: Create warehouses
       tags:
       - Warehouses
@@ -411,6 +433,14 @@ paths:
           description: No Content
           schema:
             type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
       summary: Delete warehouse
       tags:
       - Warehouses
@@ -430,11 +460,15 @@ paths:
         "200":
           description: OK
           schema:
-            type: string
+            $ref: '#/definitions/warehouses.Warehouse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
         "404":
           description: Not Found
           schema:
-            type: string
+            $ref: '#/definitions/response.Response'
       summary: Warehouse
       tags:
       - Warehouses
@@ -460,7 +494,11 @@ paths:
         "200":
           description: OK
           schema:
-            type: string
+            $ref: '#/definitions/warehouses.Warehouse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
       summary: Update warehouse
       tags:
       - Warehouses
