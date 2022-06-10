@@ -21,9 +21,18 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
-func main() {
+// @title Mercado Fresco
+// @version 1.0
+// @description This API Handle MELI fresh products
+// @termsOfService https://developers.mercadolivre.com.br/pt_br/termos-e-condicoes
 
-	err := godotenv.Load(".env")
+// @contact.name API Support
+// @contact.url https://developers.mercadolivre.com.br/support
+
+// @license.name Apache 2.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+func main() {
+	err := godotenv.Load("../../.env")
 	if err != nil {
 		log.Fatal("failed to load .env")
 	}
@@ -32,7 +41,6 @@ func main() {
 
 	docs.SwaggerInfo.Host = os.Getenv("HOST")
 	router.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-
 
 	sellersDb := store.New(store.FileType, "../../sellers.json")
 	sellersRepo := sellers.NewRepository(sellersDb)
