@@ -17,9 +17,9 @@
   },
   {
     "id": 3,
-    "address": "Rua Almirante 2",
+    "address": "Rua do Teste 2",
     "telephone": "3344455667",
-    "warehouse_code": "LAFK",
+    "warehouse_code": "RRRRRR",
     "minimun_capacity": 1000,
     "minimun_temperature": 2
   }

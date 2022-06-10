@@ -57,7 +57,7 @@ func main() {
 		sl.DELETE("/:id", s.Delete())
 	}
 
-	sectionsRepository := sections.NewRepository(store.New(store.FileType, "../../sections.json"))
+	sectionsRepository := sections.NewRepository(store.New(store.FileType, store.PathBuilder("/sections.json")))
 	sectionsService := sections.NewService(sectionsRepository)
 	sectionsController := controllers.NewSectionsController(sectionsService)
 
@@ -84,7 +84,7 @@ func main() {
 		wh.DELETE("/:id", whController.Delete())
 	}
 
-	productsDb := store.New(store.FileType, "products.json")
+	productsDb := store.New(store.FileType, store.PathBuilder("/products.json"))
 	productsRepository := products.NewRepository(productsDb)
 	productsService := products.NewService(productsRepository)
 	productsController := controllers.NewProductController(productsService)
