@@ -466,7 +466,10 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/controllers.request"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/sellers.Seller"
+                            }
                         }
                     },
                     "404": {
@@ -492,7 +495,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "description": "Seller to create",
-                        "name": "product",
+                        "name": "seller",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -504,7 +507,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/sellers.Seller"
                         }
                     },
                     "409": {
@@ -548,7 +551,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/controllers.request"
+                            "$ref": "#/definitions/sellers.Seller"
                         }
                     },
                     "404": {
@@ -617,7 +620,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/controllers.request"
+                            "$ref": "#/definitions/sellers.Seller"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "string"
                         }
                     }
                 }
@@ -759,6 +774,26 @@ const docTemplate = `{
                 },
                 "warehouse_id": {
                     "type": "integer"
+                }
+            }
+        },
+        "sellers.Seller": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "cid": {
+                    "type": "integer"
+                },
+                "company_name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "telephone": {
+                    "type": "string"
                 }
             }
         }

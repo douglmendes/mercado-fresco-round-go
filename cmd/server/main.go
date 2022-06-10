@@ -32,7 +32,7 @@ import (
 // @license.name  Apache 2.0
 // @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
 func main() {
-	err := godotenv.Load("../../.env")
+	err := godotenv.Load(store.PathBuilder("/.env"))
 	if err != nil {
 		log.Fatal("failed to load .env")
 	}
@@ -42,7 +42,7 @@ func main() {
 	docs.SwaggerInfo.Host = os.Getenv("HOST")
 	router.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	sellersDb := store.New(store.FileType, "../../sellers.json")
+	sellersDb := store.New(store.FileType, store.PathBuilder("/sellers.json"))
 	sellersRepo := sellers.NewRepository(sellersDb)
 	sellersService := sellers.NewService(sellersRepo)
 
