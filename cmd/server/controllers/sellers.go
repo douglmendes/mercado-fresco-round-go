@@ -32,10 +32,9 @@ func NewSeller(s sellers.Service) *SellerController {
 // @Summary List sellers
 // @Tags Sellers
 // @Description get sellers
-// @Accept  json
 // @Produce  json
-// @Param token header string true "token"
 // @Success 200 {object} request
+// @Failure 404 {object} string
 // @Router /api/v1/sellers [get]
 func (c *SellerController) GetAll() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
@@ -57,9 +56,10 @@ func (c *SellerController) GetAll() gin.HandlerFunc {
 // @Description get seller
 // @Accept  json
 // @Produce  json
-// @Param token header string true "token"
+// @Param id   path int true "Seller ID"
 // @Success 200 {object} request
-// @Router /api/v1/sellers/:id [get]
+// @Failure 404 {object} string
+// @Router /api/v1/sellers/{id} [get]
 func (c *SellerController) GetById() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
@@ -78,19 +78,18 @@ func (c *SellerController) GetById() gin.HandlerFunc {
 	}
 }
 
-// StoreProducts godoc
-// @Summary Store sellers
+// Create godoc
+// @Summary Create sellers
 // @Tags Sellers
-// @Description store sellers
+// @Description create sellers
 // @Accept  json
 // @Produce  json
-// @Param token header string true "token"
-// @Param product body request true "Seller to store"
-// @Success 201 {object} web.Response
-// @Failure 400 {object} web.Response
-// @Failure 404 {object} web.Response
+// @Param product body request true "Seller to create"
+// @Success 201 {object} string
+// @Failure 422 {object} string
+// @Failure 409 {object} string
 // @Router /api/v1/sellers [post]
-func (c *SellerController) Store() gin.HandlerFunc {
+func (c *SellerController) Create() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var req request
 		if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -119,7 +118,7 @@ func (c *SellerController) Store() gin.HandlerFunc {
 			return
 		}
 
-		s, err := c.service.Store(req.Cid, req.CompanyName, req.Address, req.Telephone)
+		s, err := c.service.Create(req.Cid, req.CompanyName, req.Address, req.Telephone)
 		if err != nil {
 			ctx.JSON(http.StatusConflict, gin.H{"error": err.Error()})
 			return
@@ -136,9 +135,10 @@ func (c *SellerController) Store() gin.HandlerFunc {
 // @Description update seller
 // @Accept  json
 // @Produce  json
-// @Param token header string true "token"
+// @Param product body request true "Seller to create"
+// @Param id   path int true "Seller ID"
 // @Success 200 {object} request
-// @Router /api/v1/sellers/:id [update]
+// @Router /api/v1/sellers/{id} [patch]
 func (s *SellerController) Update() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
@@ -167,10 +167,9 @@ func (s *SellerController) Update() gin.HandlerFunc {
 // @Summary Delete seller
 // @Tags Sellers
 // @Description delete seller
-// @Accept  json
-// @Param token header string true "token"
+// @Param id   path int true "Seller ID"
 // @Success 204 {object} request
-// @Router /api/v1/sellers/:id [delete]
+// @Router /api/v1/sellers/{id} [delete]
 func (c *SellerController) Delete() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
