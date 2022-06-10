@@ -10,6 +10,19 @@ definitions:
       telephone:
         type: string
     type: object
+  controllers.requestEmployee:
+    properties:
+      card_number_id:
+        type: string
+      first_name:
+        type: string
+      id:
+        type: integer
+      last_name:
+        type: string
+      warehouse_id:
+        type: integer
+    type: object
   controllers.sectionsRequest:
     properties:
       current_capacity:
@@ -37,6 +50,19 @@ definitions:
     - product_type_id
     - section_number
     - warehouse_id
+    type: object
+  employees.Employee:
+    properties:
+      card_number_id:
+        type: string
+      first_name:
+        type: string
+      id:
+        type: integer
+      last_name:
+        type: string
+      warehouse_id:
+        type: integer
     type: object
   response.Response:
     properties:
@@ -92,7 +118,7 @@ info:
 paths:
   /api/v1/employees:
     get:
-      description: get all employees
+      description: get employees
       produces:
       - application/json
       responses:
@@ -104,26 +130,89 @@ paths:
           description: Not Found
           schema:
             type: string
-      summary: List all employees
+      summary: List employees
       tags:
-      - Employees
+      - employees
+    post:
+      consumes:
+      - application/json
+      description: Create a new employee in the system
+      parameters:
+      - description: Employee to be created
+        in: body
+        name: employee
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.requestEmployee'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/employees.Employee'
+        "409":
+          description: Conflict
+          schema:
+            type: string
+        "422":
+          description: Unprocessable Entity
+          schema:
+            type: string
+      summary: Create a new employee
+      tags:
+      - employees
   /api/v1/employees/{id}:
     delete:
-      description: delete employee
+      consumes:
+      - application/json
+      description: Delete a employee from the system, selecting by id
       parameters:
-      - description: Employee ID
+      - description: Employee id
         in: path
         name: id
         required: true
         type: integer
+      produces:
+      - application/json
       responses:
         "204":
-          description: No Content
+          description: Successfully deleted
+        "400":
+          description: Bad Request
           schema:
-            $ref: '#/definitions/controllers.request'
-      summary: Delete employee
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+      summary: Delete a employee
       tags:
-      - Employees
+      - employees
+    get:
+      consumes:
+      - application/json
+      description: Get a employee from the system searching by id
+      parameters:
+      - description: Employee id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/employees.Employee'
+        "404":
+          description: Not Found
+          schema:
+            type: string
+      summary: Get a employee by id
+      tags:
+      - employees
     patch:
       consumes:
       - application/json
@@ -134,7 +223,7 @@ paths:
         name: product
         required: true
         schema:
-          $ref: '#/definitions/controllers.request'
+          $ref: '#/definitions/controllers.requestEmployee'
       - description: Employee ID
         in: path
         name: id
@@ -146,10 +235,18 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/controllers.request'
+            $ref: '#/definitions/employees.Employee'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
       summary: Update employee
       tags:
-      - Employees
+      - employees
   /api/v1/sections:
     get:
       consumes:

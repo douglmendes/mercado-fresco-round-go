@@ -166,12 +166,12 @@ func (s *SellerController) Update() gin.HandlerFunc {
 }
 
 // ListSellers godoc
-// @Summary Delete seller
-// @Tags Sellers
-// @Description delete seller
-// @Param id   path int true "Seller ID"
-// @Success 204 {object} request
-// @Router /api/v1/sellers/{id} [delete]
+// @Summary      Delete seller
+// @Tags         Sellers
+// @Description  delete seller
+// @Param        id   path      int  true  "Seller ID"
+// @Success      204  {object}  request
+// @Router       /api/v1/sellers/{id} [delete]
 func (c *SellerController) Delete() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
