@@ -51,6 +51,19 @@ definitions:
     - section_number
     - warehouse_id
     type: object
+  controllers.whRequest:
+    properties:
+      address:
+        type: string
+      minimun_capacity:
+        type: integer
+      minimun_temperature:
+        type: integer
+      telephone:
+        type: string
+      warehouse_code:
+        type: string
+    type: object
   employees.Employee:
     properties:
       card_number_id:
@@ -102,6 +115,21 @@ definitions:
       id:
         type: integer
       telephone:
+        type: string
+    type: object
+  warehouses.Warehouse:
+    properties:
+      address:
+        type: string
+      id:
+        type: integer
+      minimun_capacity:
+        type: integer
+      minimun_temperature:
+        type: integer
+      telephone:
+        type: string
+      warehouse_code:
         type: string
     type: object
 info:
@@ -522,4 +550,136 @@ paths:
       summary: Update seller
       tags:
       - Sellers
+  /api/v1/warehouses:
+    get:
+      description: List all available warehouses
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: desc
+          schema:
+            items:
+              allOf:
+              - $ref: '#/definitions/response.Response'
+              - properties:
+                  data:
+                    $ref: '#/definitions/warehouses.Warehouse'
+                type: object
+            type: array
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: List warehouses
+      tags:
+      - Warehouses
+    post:
+      consumes:
+      - application/json
+      description: create one warehouse
+      parameters:
+      - description: Warehouse to create
+        in: body
+        name: warehouses
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.whRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/warehouses.Warehouse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Create warehouses
+      tags:
+      - Warehouses
+  /api/v1/warehouses/{id}:
+    delete:
+      description: Delete a warehouse by ID
+      parameters:
+      - description: Warehouse ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Delete warehouse
+      tags:
+      - Warehouses
+    get:
+      consumes:
+      - application/json
+      description: Read one warehouse
+      parameters:
+      - description: Warehouse ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/warehouses.Warehouse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Warehouse
+      tags:
+      - Warehouses
+    patch:
+      consumes:
+      - application/json
+      description: Update a warehouse by ID
+      parameters:
+      - description: Warehouse to update
+        in: body
+        name: warehouse
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.whRequest'
+      - description: Warehouse ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/warehouses.Warehouse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Update warehouse
+      tags:
+      - Warehouses
 swagger: "2.0"
