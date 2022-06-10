@@ -21,16 +21,16 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
-// @title Mercado Fresco
-// @version 1.0
-// @description This API Handle MELI fresh products
-// @termsOfService https://developers.mercadolivre.com.br/pt_br/termos-e-condicoes
+// @title           Mercado Fresco
+// @version         1.0
+// @description     This API Handle MELI fresh products
+// @termsOfService  https://developers.mercadolivre.com.br/pt_br/termos-e-condicoes
 
-// @contact.name API Support
-// @contact.url https://developers.mercadolivre.com.br/support
+// @contact.name  API Support
+// @contact.url   https://developers.mercadolivre.com.br/support
 
-// @license.name Apache 2.0
-// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+// @license.name  Apache 2.0
+// @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
 func main() {
 	err := godotenv.Load(store.PathBuilder("/.env"))
 	if err != nil {
