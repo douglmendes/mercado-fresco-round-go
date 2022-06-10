@@ -1,0 +1,345 @@
+definitions:
+  controllers.request:
+    properties:
+      address:
+        type: string
+      cid:
+        type: integer
+      company_name:
+        type: string
+      telephone:
+        type: string
+    type: object
+  controllers.sectionsRequest:
+    properties:
+      current_capacity:
+        type: integer
+      current_temperature:
+        type: integer
+      maximum_capacity:
+        type: integer
+      minimum_capacity:
+        type: integer
+      minimum_temperature:
+        type: integer
+      product_type_id:
+        type: integer
+      section_number:
+        type: integer
+      warehouse_id:
+        type: integer
+    required:
+    - current_capacity
+    - current_temperature
+    - maximum_capacity
+    - minimum_capacity
+    - minimum_temperature
+    - product_type_id
+    - section_number
+    - warehouse_id
+    type: object
+  response.Response:
+    properties:
+      data: {}
+      error:
+        type: string
+    type: object
+  sections.Section:
+    properties:
+      current_capacity:
+        type: integer
+      current_temperature:
+        type: integer
+      id:
+        type: integer
+      maximum_capacity:
+        type: integer
+      minimum_capacity:
+        type: integer
+      minimum_temperature:
+        type: integer
+      product_type_id:
+        type: integer
+      section_number:
+        type: integer
+      warehouse_id:
+        type: integer
+    type: object
+info:
+  contact:
+    name: API Support
+    url: https://developers.mercadolivre.com.br/support
+  description: This API Handle MELI fresh products
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: https://developers.mercadolivre.com.br/pt_br/termos-e-condicoes
+  title: Mercado Fresco
+  version: "1.0"
+paths:
+  /api/v1/sections:
+    get:
+      consumes:
+      - application/json
+      description: List all sections currently in the system
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/sections.Section'
+            type: array
+        "204":
+          description: Empty database
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: List all sections
+      tags:
+      - sections
+    post:
+      consumes:
+      - application/json
+      description: Create a new section in the system
+      parameters:
+      - description: Section to be created
+        in: body
+        name: section
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.sectionsRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/sections.Section'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/response.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Create a new section
+      tags:
+      - sections
+  /api/v1/sections/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a section from the system, selecting by id
+      parameters:
+      - description: Section id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Successfully deleted
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Delete a section
+      tags:
+      - sections
+    get:
+      consumes:
+      - application/json
+      description: Get a section from the system searching by id
+      parameters:
+      - description: Section id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/sections.Section'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Get a section by id
+      tags:
+      - sections
+    patch:
+      consumes:
+      - application/json
+      description: Update a section in the system, selecting by id
+      parameters:
+      - description: Section id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Section to be updated (all fields are optional)
+        in: body
+        name: section
+        schema:
+          $ref: '#/definitions/controllers.sectionsRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/sections.Section'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/response.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Update a section
+      tags:
+      - sections
+  /api/v1/sellers:
+    get:
+      description: get sellers
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.request'
+        "404":
+          description: Not Found
+          schema:
+            type: string
+      summary: List sellers
+      tags:
+      - Sellers
+    post:
+      consumes:
+      - application/json
+      description: create sellers
+      parameters:
+      - description: Seller to create
+        in: body
+        name: product
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.request'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            type: string
+        "409":
+          description: Conflict
+          schema:
+            type: string
+        "422":
+          description: Unprocessable Entity
+          schema:
+            type: string
+      summary: Create sellers
+      tags:
+      - Sellers
+  /api/v1/sellers/{id}:
+    delete:
+      description: delete seller
+      parameters:
+      - description: Seller ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+          schema:
+            $ref: '#/definitions/controllers.request'
+      summary: Delete seller
+      tags:
+      - Sellers
+    get:
+      consumes:
+      - application/json
+      description: get seller
+      parameters:
+      - description: Seller ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.request'
+        "404":
+          description: Not Found
+          schema:
+            type: string
+      summary: List seller
+      tags:
+      - Sellers
+    patch:
+      consumes:
+      - application/json
+      description: update seller
+      parameters:
+      - description: Seller to create
+        in: body
+        name: product
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.request'
+      - description: Seller ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.request'
+      summary: Update seller
+      tags:
+      - Sellers
+swagger: "2.0"

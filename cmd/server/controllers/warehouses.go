@@ -115,7 +115,7 @@ func (w *WareHouseController) Delete() gin.HandlerFunc {
 			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 			return
 		}
-		ctx.JSON(http.StatusOK, gin.H{"data": fmt.Sprintf("warehouse with id %d hs been removed", id)})
+		ctx.JSON(http.StatusNoContent, gin.H{"data": fmt.Sprintf("warehouse with id %d hs been removed", id)})
 	}
 }
 
@@ -126,9 +126,9 @@ func NewWareHouse(w warehouses.Service) *WareHouseController {
 }
 
 type whRequest struct {
-	Address            string `json:"address" binding:"required"`
-	Telephone          string `json:"telephone" binding:"required"`
-	WarehouseCode      string `json:"warehouse_code" binding:"required"`
-	MinimunCapacity    int    `json:"minimun_capacity" binding:"required"`
-	MinimunTemperature int    `json:"minimun_temperature" binding:"required"`
+	Address            string `json:"address"`
+	Telephone          string `json:"telephone"`
+	WarehouseCode      string `json:"warehouse_code"`
+	MinimunCapacity    int    `json:"minimun_capacity"`
+	MinimunTemperature int    `json:"minimun_temperature"`
 }
