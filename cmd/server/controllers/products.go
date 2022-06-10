@@ -18,18 +18,44 @@ func NewProductController(service products.Service) *ProductController {
 	return &ProductController{service}
 }
 
+// ListProducts godoc
+// @Summary      List all products
+// @Description  List all products currently in the system
+// @Tags         products
+// @Accept       json
+// @Produce      json
+// @Success      200  {array}  products.Product
+// @Success      204  "Empty database"
+// @Failure      500  {object}  response.Response
+// @Router       /api/v1/products [get]
 func (c *ProductController) GetAll() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		products, err := c.service.GetAll()
 		if err != nil {
-			ctx.JSON(http.StatusNotFound, response.DecodeError(err.Error()))
+			ctx.JSON(http.StatusInternalServerError, response.DecodeError(err.Error()))
 			return
 		}
 
-		ctx.JSON(http.StatusOK, response.NewResponse(products))
+		ctx.JSON(func() int {
+			if len(products) == 0 {
+				return http.StatusNoContent
+			}
+			return http.StatusOK
+		}(), response.NewResponse(products))
 	}
 }
 
+// GetProduct godoc
+// @Summary      Get a product by id
+// @Description  Get a product from the system searching by id
+// @Tags         products
+// @Accept       json
+// @Produce      json
+// @Param        id   path      int  true  "Product id"
+// @Success      200  {object}  products.Product
+// @Failure      400  {object}  response.Response
+// @Failure      404  {object}  response.Response
+// @Router       /api/v1/products/{id} [get]
 func (c *ProductController) GetById() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
@@ -62,6 +88,17 @@ type productsRequest struct {
 	SellerId                       int     `json:"seller_id" binding:"required"`
 }
 
+// CreateProduct godoc
+// @Summary      Create a new product
+// @Description  Create a new product in the system
+// @Tags         products
+// @Accept       json
+// @Produce      json
+// @Param        product  body      productsRequest  true  "Product to be created"
+// @Success      201      {object}  products.Product
+// @Failure      409      {object}  response.Response
+// @Failure      422      {object}  response.Response
+// @Router       /api/v1/products [post]
 func (c *ProductController) Create() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var req productsRequest
@@ -73,7 +110,7 @@ func (c *ProductController) Create() gin.HandlerFunc {
 
 		product, err := c.service.Create(req.ProductCode, req.Description, req.Width, req.Height, req.Length, req.NetWeight, req.ExpirationRate, req.RecommendedFreezingTemperature, req.FreezingRate, req.ProductTypeId, req.SellerId)
 		if err != nil {
-			ctx.JSON(http.StatusUnprocessableEntity, response.DecodeError(err.Error()))
+			ctx.JSON(http.StatusConflict, response.DecodeError(err.Error()))
 			return
 		}
 
@@ -95,6 +132,20 @@ type optionalProductsRequest struct {
 	SellerId                       int     `json:"seller_id"`
 }
 
+// UpdateProduct godoc
+// @Summary      Update a product
+// @Description  Update a product in the system, selecting by id
+// @Tags         products
+// @Accept       json
+// @Produce      json
+// @Param        id       path      int              true   "Product id"
+// @Param        product  body      productsRequest  false  "Product to be updated (all fields are optional)"
+// @Success      200      {object}  products.Product
+// @Failure      400      {object}  response.Response
+// @Failure      404      {object}  response.Response
+// @Failure      422      {object}  response.Response
+// @Failure      500      {object}  response.Response
+// @Router       /api/v1/products/{id} [patch]
 func (c *ProductController) Update() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
@@ -117,7 +168,7 @@ func (c *ProductController) Update() gin.HandlerFunc {
 				return
 			}
 
-			ctx.JSON(http.StatusBadRequest, response.DecodeError(err.Error()))
+			ctx.JSON(http.StatusInternalServerError, response.DecodeError(err.Error()))
 			return
 		}
 
@@ -125,6 +176,17 @@ func (c *ProductController) Update() gin.HandlerFunc {
 	}
 }
 
+// DeleteProduct godoc
+// @Summary      Delete a product
+// @Description  Delete a product from the system, selecting by id
+// @Tags         products
+// @Accept       json
+// @Produce      json
+// @Param        id   path  int  true  "Product id"
+// @Success      204  "Successfully deleted"
+// @Failure      400  {object}  response.Response
+// @Failure      404  {object}  response.Response
+// @Router       /api/v1/products/{id} [delete]
 func (c *ProductController) Delete() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
