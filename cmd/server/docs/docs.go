@@ -940,70 +940,6 @@ const docTemplate = `{
                 }
             }
         },
-        "response.Response": {
-            "type": "object",
-            "properties": {
-                "data": {},
-                "error": {
-                    "type": "string"
-                }
-            }
-        },
-        "sections.Section": {
-            "type": "object",
-            "properties": {
-                "current_capacity": {
-                    "type": "integer"
-                },
-                "current_temperature": {
-                    "type": "integer"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "maximum_capacity": {
-                    "type": "integer"
-                },
-                "minimum_capacity": {
-                    "type": "integer"
-                },
-                "minimum_temperature": {
-                    "type": "integer"
-                },
-                "product_type_id": {
-                    "type": "integer"
-                },
-                "section_number": {
-                    "type": "integer"
-                },
-                "warehouse_id": {
-                    "type": "integer"
-                }
-            }
-        },
-        "warehouses.Warehouse": {
-            "type": "object",
-            "properties": {
-                "address": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "minimun_capacity": {
-                    "type": "integer"
-                },
-                "minimun_temperature": {
-                    "type": "integer"
-                },
-                "telephone": {
-                    "type": "string"
-                },
-                "warehouse_code": {
-                    "type": "string"
-                }
-            }
-        },
         "employees.Employee": {
             "type": "object",
             "properties": {
@@ -1081,6 +1017,29 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "telephone": {
+                    "type": "string"
+                }
+            }
+        },
+        "warehouses.Warehouse": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "minimun_capacity": {
+                    "type": "integer"
+                },
+                "minimun_temperature": {
+                    "type": "integer"
+                },
+                "telephone": {
+                    "type": "string"
+                },
+                "warehouse_code": {
                     "type": "string"
                 }
             }

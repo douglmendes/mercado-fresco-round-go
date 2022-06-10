@@ -64,48 +64,6 @@ definitions:
       warehouse_code:
         type: string
     type: object
-  response.Response:
-    properties:
-      data: {}
-      error:
-        type: string
-    type: object
-  sections.Section:
-    properties:
-      current_capacity:
-        type: integer
-      current_temperature:
-        type: integer
-      id:
-        type: integer
-      maximum_capacity:
-        type: integer
-      minimum_capacity:
-        type: integer
-      minimum_temperature:
-        type: integer
-      product_type_id:
-        type: integer
-      section_number:
-        type: integer
-      warehouse_id:
-        type: integer
-    type: object
-  warehouses.Warehouse:
-    properties:
-      address:
-        type: string
-      id:
-        type: integer
-      minimun_capacity:
-        type: integer
-      minimun_temperature:
-        type: integer
-      telephone:
-        type: string
-      warehouse_code:
-        type: string
-    type: object
   employees.Employee:
     properties:
       card_number_id:
@@ -157,6 +115,21 @@ definitions:
       id:
         type: integer
       telephone:
+        type: string
+    type: object
+  warehouses.Warehouse:
+    properties:
+      address:
+        type: string
+      id:
+        type: integer
+      minimun_capacity:
+        type: integer
+      minimun_temperature:
+        type: integer
+      telephone:
+        type: string
+      warehouse_code:
         type: string
     type: object
 info:
