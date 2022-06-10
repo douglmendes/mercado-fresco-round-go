@@ -77,6 +77,7 @@ func (w *WarehousesController) GetAll() gin.HandlerFunc {
 // @Produce  json
 // @Param id path int true "Warehouse ID"
 // @Success 200 {object} string
+// @Failure 400 {object} string
 // @Failure 404 {object} string
 // @Router /api/v1/warehouses/{id} [get]
 func (w *WarehousesController) GetById() gin.HandlerFunc {
