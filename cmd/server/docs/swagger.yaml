@@ -1,4 +1,24 @@
 definitions:
+  buyers.Buyer:
+    properties:
+      card_number_id:
+        type: string
+      first_name:
+        type: string
+      id:
+        type: integer
+      last_name:
+        type: string
+    type: object
+  controllers.buyerRequest:
+    properties:
+      card_number_id:
+        type: string
+      first_name:
+        type: string
+      last_name:
+        type: string
+    type: object
   controllers.request:
     properties:
       address:
@@ -144,6 +164,129 @@ info:
   title: Mercado Fresco
   version: "1.0"
 paths:
+  /api/v1/buyers:
+    get:
+      description: get buyers
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/buyers.Buyer'
+            type: array
+        "404":
+          description: Not Found
+          schema:
+            type: string
+      summary: List buyers
+      tags:
+      - Buyers
+    post:
+      consumes:
+      - application/json
+      description: create buyers
+      parameters:
+      - description: Buyer to create
+        in: body
+        name: buyer
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.buyerRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/buyers.Buyer'
+        "409":
+          description: Conflict
+          schema:
+            type: string
+        "422":
+          description: Unprocessable Entity
+          schema:
+            type: string
+      summary: Create buyers
+      tags:
+      - Buyers
+  /api/v1/buyers/{id}:
+    delete:
+      description: delete buyer
+      parameters:
+      - description: Buyer ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+          schema:
+            $ref: '#/definitions/controllers.request'
+      summary: Delete buyer
+      tags:
+      - Buyers
+    get:
+      consumes:
+      - application/json
+      description: get buyer
+      parameters:
+      - description: Buyer ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/buyers.Buyer'
+        "404":
+          description: Not Found
+          schema:
+            type: string
+      summary: List buyer
+      tags:
+      - Buyers
+    patch:
+      consumes:
+      - application/json
+      description: update buyer
+      parameters:
+      - description: Buyer to create
+        in: body
+        name: buyer
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.buyerRequest'
+      - description: Buyer ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/buyers.Buyer'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+      summary: Update buyer
+      tags:
+      - Buyers
   /api/v1/employees:
     get:
       description: get employees
