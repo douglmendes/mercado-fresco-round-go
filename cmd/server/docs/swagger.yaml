@@ -38,6 +38,46 @@ definitions:
     - section_number
     - warehouse_id
     type: object
+  response.Response:
+    properties:
+      data: {}
+      error:
+        type: string
+    type: object
+  sections.Section:
+    properties:
+      current_capacity:
+        type: integer
+      current_temperature:
+        type: integer
+      id:
+        type: integer
+      maximum_capacity:
+        type: integer
+      minimum_capacity:
+        type: integer
+      minimum_temperature:
+        type: integer
+      product_type_id:
+        type: integer
+      section_number:
+        type: integer
+      warehouse_id:
+        type: integer
+    type: object
+  sellers.Seller:
+    properties:
+      address:
+        type: string
+      cid:
+        type: integer
+      company_name:
+        type: string
+      id:
+        type: integer
+      telephone:
+        type: string
+    type: object
 info:
   contact:
     name: API Support
@@ -122,14 +162,14 @@ paths:
           description: OK
           schema:
             items:
-              type: string
+              $ref: '#/definitions/sections.Section'
             type: array
         "204":
           description: Empty database
         "500":
           description: Internal Server Error
           schema:
-            type: string
+            $ref: '#/definitions/response.Response'
       summary: List all sections
       tags:
       - sections
@@ -150,15 +190,15 @@ paths:
         "201":
           description: Created
           schema:
-            type: string
+            $ref: '#/definitions/sections.Section'
         "409":
           description: Conflict
           schema:
-            type: string
+            $ref: '#/definitions/response.Response'
         "422":
           description: Unprocessable Entity
           schema:
-            type: string
+            $ref: '#/definitions/response.Response'
       summary: Create a new section
       tags:
       - sections
@@ -181,11 +221,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            type: string
+            $ref: '#/definitions/response.Response'
         "404":
           description: Not Found
           schema:
-            type: string
+            $ref: '#/definitions/response.Response'
       summary: Delete a section
       tags:
       - sections
@@ -205,15 +245,15 @@ paths:
         "200":
           description: OK
           schema:
-            type: string
+            $ref: '#/definitions/sections.Section'
         "400":
           description: Bad Request
           schema:
-            type: string
+            $ref: '#/definitions/response.Response'
         "404":
           description: Not Found
           schema:
-            type: string
+            $ref: '#/definitions/response.Response'
       summary: Get a section by id
       tags:
       - sections
@@ -238,27 +278,27 @@ paths:
         "200":
           description: OK
           schema:
-            type: string
+            $ref: '#/definitions/sections.Section'
         "400":
           description: Bad Request
           schema:
-            type: string
+            $ref: '#/definitions/response.Response'
         "404":
           description: Not Found
           schema:
-            type: string
+            $ref: '#/definitions/response.Response'
         "409":
           description: Conflict
           schema:
-            type: string
+            $ref: '#/definitions/response.Response'
         "422":
           description: Unprocessable Entity
           schema:
-            type: string
+            $ref: '#/definitions/response.Response'
         "500":
           description: Internal Server Error
           schema:
-            type: string
+            $ref: '#/definitions/response.Response'
       summary: Update a section
       tags:
       - sections
@@ -271,7 +311,9 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/controllers.request'
+            items:
+              $ref: '#/definitions/sellers.Seller'
+            type: array
         "404":
           description: Not Found
           schema:
@@ -286,7 +328,7 @@ paths:
       parameters:
       - description: Seller to create
         in: body
-        name: product
+        name: seller
         required: true
         schema:
           $ref: '#/definitions/controllers.request'
@@ -296,7 +338,7 @@ paths:
         "201":
           description: Created
           schema:
-            type: string
+            $ref: '#/definitions/sellers.Seller'
         "409":
           description: Conflict
           schema:
@@ -341,7 +383,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/controllers.request'
+            $ref: '#/definitions/sellers.Seller'
         "404":
           description: Not Found
           schema:
@@ -371,7 +413,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/controllers.request'
+            $ref: '#/definitions/sellers.Seller'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
       summary: Update seller
       tags:
       - Sellers
