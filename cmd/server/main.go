@@ -113,7 +113,7 @@ func main() {
 		emp.DELETE("/:id", e.Delete())
 	}
 
-	buyersDb := store.New(store.FileType, "buyers.json")
+	buyersDb := store.New(store.FileType, store.PathBuilder("/buyers.json"))
 	buyersDbRepo := buyers.NewRepository(buyersDb)
 	buyersService := buyers.NewService(buyersDbRepo)
 
