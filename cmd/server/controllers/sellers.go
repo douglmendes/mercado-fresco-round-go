@@ -33,7 +33,7 @@ func NewSeller(s sellers.Service) *SellerController {
 // @Tags Sellers
 // @Description get sellers
 // @Produce  json
-// @Success 200 {object} request
+// @Success 200 {array} sellers.Seller
 // @Failure 404 {object} string
 // @Router /api/v1/sellers [get]
 func (c *SellerController) GetAll() gin.HandlerFunc {
@@ -57,7 +57,7 @@ func (c *SellerController) GetAll() gin.HandlerFunc {
 // @Accept  json
 // @Produce  json
 // @Param id   path int true "Seller ID"
-// @Success 200 {object} request
+// @Success 200 {object} sellers.Seller
 // @Failure 404 {object} string
 // @Router /api/v1/sellers/{id} [get]
 func (c *SellerController) GetById() gin.HandlerFunc {
@@ -84,8 +84,8 @@ func (c *SellerController) GetById() gin.HandlerFunc {
 // @Description create sellers
 // @Accept  json
 // @Produce  json
-// @Param product body request true "Seller to create"
-// @Success 201 {object} string
+// @Param seller body request true "Seller to create"
+// @Success 201 {object} sellers.Seller
 // @Failure 422 {object} string
 // @Failure 409 {object} string
 // @Router /api/v1/sellers [post]
@@ -137,7 +137,9 @@ func (c *SellerController) Create() gin.HandlerFunc {
 // @Produce  json
 // @Param product body request true "Seller to create"
 // @Param id   path int true "Seller ID"
-// @Success 200 {object} request
+// @Success 200 {object} sellers.Seller
+// @Failure 400 {object} string
+// @Failure 404 {object} string
 // @Router /api/v1/sellers/{id} [patch]
 func (s *SellerController) Update() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
