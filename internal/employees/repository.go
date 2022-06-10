@@ -90,6 +90,9 @@ func (r *repository) Update(id int, cardNumberId string, firstName string, lastN
 			if lastName != "" {
 				e.LastName = lastName
 			}
+			if warehouseId != 0 {
+				e.WarehouseId = warehouseId
+			}
 
 			fmt.Printf("employee is %v", e)
 			emp[i] = e

@@ -29,13 +29,13 @@ func NewSeller(s sellers.Service) *SellerController {
 }
 
 // ListSellers godoc
-// @Summary List sellers
-// @Tags Sellers
-// @Description get sellers
-// @Produce  json
-// @Success 200 {object} request
-// @Failure 404 {object} string
-// @Router /api/v1/sellers [get]
+// @Summary      List sellers
+// @Tags         Sellers
+// @Description  get sellers
+// @Produce      json
+// @Success      200  {object}  request
+// @Failure      404  {object}  string
+// @Router       /api/v1/sellers [get]
 func (c *SellerController) GetAll() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		s, err := c.service.GetAll()
@@ -51,15 +51,15 @@ func (c *SellerController) GetAll() gin.HandlerFunc {
 }
 
 // ListSeller godoc
-// @Summary List seller
-// @Tags Sellers
-// @Description get seller
-// @Accept  json
-// @Produce  json
-// @Param id   path int true "Seller ID"
-// @Success 200 {object} request
-// @Failure 404 {object} string
-// @Router /api/v1/sellers/{id} [get]
+// @Summary      List seller
+// @Tags         Sellers
+// @Description  get seller
+// @Accept       json
+// @Produce      json
+// @Param        id   path      int  true  "Seller ID"
+// @Success      200  {object}  request
+// @Failure      404  {object}  string
+// @Router       /api/v1/sellers/{id} [get]
 func (c *SellerController) GetById() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
@@ -79,16 +79,16 @@ func (c *SellerController) GetById() gin.HandlerFunc {
 }
 
 // Create godoc
-// @Summary Create sellers
-// @Tags Sellers
-// @Description create sellers
-// @Accept  json
-// @Produce  json
-// @Param product body request true "Seller to create"
-// @Success 201 {object} string
-// @Failure 422 {object} string
-// @Failure 409 {object} string
-// @Router /api/v1/sellers [post]
+// @Summary      Create sellers
+// @Tags         Sellers
+// @Description  create sellers
+// @Accept       json
+// @Produce      json
+// @Param        product  body      request  true  "Seller to create"
+// @Success      201      {object}  string
+// @Failure      422      {object}  string
+// @Failure      409      {object}  string
+// @Router       /api/v1/sellers [post]
 func (c *SellerController) Create() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var req request
@@ -130,15 +130,15 @@ func (c *SellerController) Create() gin.HandlerFunc {
 }
 
 // ListSellers godoc
-// @Summary Update seller
-// @Tags Sellers
-// @Description update seller
-// @Accept  json
-// @Produce  json
-// @Param product body request true "Seller to create"
-// @Param id   path int true "Seller ID"
-// @Success 200 {object} request
-// @Router /api/v1/sellers/{id} [patch]
+// @Summary      Update seller
+// @Tags         Sellers
+// @Description  update seller
+// @Accept       json
+// @Produce      json
+// @Param        product  body      request  true  "Seller to create"
+// @Param        id       path      int      true  "Seller ID"
+// @Success      200      {object}  request
+// @Router       /api/v1/sellers/{id} [patch]
 func (s *SellerController) Update() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
@@ -164,12 +164,12 @@ func (s *SellerController) Update() gin.HandlerFunc {
 }
 
 // ListSellers godoc
-// @Summary Delete seller
-// @Tags Sellers
-// @Description delete seller
-// @Param id   path int true "Seller ID"
-// @Success 204 {object} request
-// @Router /api/v1/sellers/{id} [delete]
+// @Summary      Delete seller
+// @Tags         Sellers
+// @Description  delete seller
+// @Param        id   path      int  true  "Seller ID"
+// @Success      204  {object}  request
+// @Router       /api/v1/sellers/{id} [delete]
 func (c *SellerController) Delete() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)

@@ -29,13 +29,13 @@ func NewEmployees(e employees.Service) *EmployeesController {
 }
 
 // ListEmployees godoc
-// @Summary List all employees
-// @Tags Employees
-// @Description get all employees
-// @Produce  json
-// @Success 200 {object} request
-// @Failure 404 {object} string
-// @Router /api/v1/employees [get]
+// @Summary      List employees
+// @Tags         employees
+// @Description  get employees
+// @Produce      json
+// @Success      200  {object}  request
+// @Failure      404  {object}  string
+// @Router       /api/v1/employees [get]
 func (c *EmployeesController) GetAll() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		e, err := c.service.GetAll()
@@ -49,17 +49,16 @@ func (c *EmployeesController) GetAll() gin.HandlerFunc {
 	}
 }
 
-// ListEmployees godoc
-// @Summary List employee
-// @Tags Employees
-// @Description get employees
-// @Accept  json
-// @Produce  json
-// @Param id   path int true "Employee ID"
-// @Success 200 {object} request
-// @Failure 404 {object} string
-// @Router /api/v1/employees/{id} [get]
-
+// GetEmployee godoc
+// @Summary      Get a employee by id
+// @Description  Get a employee from the system searching by id
+// @Tags         employees
+// @Accept       json
+// @Produce      json
+// @Param        id   path      int  true  "Employee id"
+// @Success      200  {object}  employees.Employee
+// @Failure      404  {object}  string
+// @Router       /api/v1/employees/{id} [get]
 func (c *EmployeesController) GetById() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
@@ -77,18 +76,17 @@ func (c *EmployeesController) GetById() gin.HandlerFunc {
 	}
 }
 
-// Create godoc
-// @Summary Create employees
-// @Tags Employees
-// @Description create employees
-// @Accept  json
-// @Produce  json
-// @Param product body request true "Employee to create"
-// @Success 201 {object} string
-// @Failure 422 {object} string
-// @Failure 409 {object} string
-// @Router /api/v1/employees [post]
-
+// CreateEmployee godoc
+// @Summary      Create a new employee
+// @Description  Create a new employee in the system
+// @Tags         employees
+// @Accept       json
+// @Produce      json
+// @Param        employee  body      requestEmployee  true  "Employee to be created"
+// @Success      201       {object}  employees.Employee
+// @Failure      409       {object}  string
+// @Failure      422       {object}  string
+// @Router       /api/v1/employees [post]
 func (c *EmployeesController) Create() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var req requestEmployee
@@ -112,15 +110,17 @@ func (c *EmployeesController) Create() gin.HandlerFunc {
 }
 
 // ListEmployees godoc
-// @Summary Update employee
-// @Tags Employees
-// @Description update employee
-// @Accept  json
-// @Produce  json
-// @Param product body request true "Employee to create"
-// @Param id   path int true "Employee ID"
-// @Success 200 {object} request
-// @Router /api/v1/employees/{id} [patch]
+// @Summary      Update employee
+// @Tags         employees
+// @Description  update employee
+// @Accept       json
+// @Produce      json
+// @Param        product  body      requestEmployee  true  "Employee to create"
+// @Param        id       path      int      true  "Employee ID"
+// @Success      200      {object}  employees.Employee
+// @Failure      400       {object}  string
+// @Failure      404       {object}  string
+// @Router       /api/v1/employees/{id} [patch]
 func (c *EmployeesController) Update() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
@@ -144,13 +144,17 @@ func (c *EmployeesController) Update() gin.HandlerFunc {
 
 }
 
-// ListEmployees godoc
-// @Summary Delete employee
-// @Tags Employees
-// @Description delete employee
-// @Param id   path int true "Employee ID"
-// @Success 204 {object} request
-// @Router /api/v1/employees/{id} [delete]
+// DeleteEmployee godoc
+// @Summary      Delete a employee
+// @Description  Delete a employee from the system, selecting by id
+// @Tags         employees
+// @Accept       json
+// @Produce      json
+// @Param        id   path  int  true  "Employee id"
+// @Success      204  "Successfully deleted"
+// @Failure      400  {object}  string
+// @Failure      404  {object}  string
+// @Router       /api/v1/employees/{id} [delete]
 func (c *EmployeesController) Delete() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
