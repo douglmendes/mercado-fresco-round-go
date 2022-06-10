@@ -105,6 +105,66 @@ info:
   title: Mercado Fresco
   version: "1.0"
 paths:
+  /api/v1/employees:
+    get:
+      description: get all employees
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.request'
+        "404":
+          description: Not Found
+          schema:
+            type: string
+      summary: List all employees
+      tags:
+      - Employees
+  /api/v1/employees/{id}:
+    delete:
+      description: delete employee
+      parameters:
+      - description: Employee ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+          schema:
+            $ref: '#/definitions/controllers.request'
+      summary: Delete employee
+      tags:
+      - Employees
+    patch:
+      consumes:
+      - application/json
+      description: update employee
+      parameters:
+      - description: Employee to create
+        in: body
+        name: product
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.request'
+      - description: Employee ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.request'
+      summary: Update employee
+      tags:
+      - Employees
   /api/v1/sections:
     get:
       consumes:

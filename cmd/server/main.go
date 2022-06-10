@@ -98,7 +98,7 @@ func main() {
 		productsRoutes.DELETE("/:id", productsController.Delete())
 	}
 
-	employeesDb := store.New(store.FileType, "../../employees.json")
+	employeesDb := store.New(store.FileType, store.PathBuilder("/employees.json"))
 	employeesRepo := employees.NewRepository(employeesDb)
 	employeesService := employees.NewService(employeesRepo)
 
