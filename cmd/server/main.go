@@ -73,7 +73,7 @@ func main() {
 	warehousesDB := store.New(store.FileType, store.PathBuilder("/warehouses.json"))
 	warehousesRepo := warehouses.NewRepository(warehousesDB)
 	warehousesService := warehouses.NewService(warehousesRepo)
-	whController := controllers.NewWareHouse(warehousesService)
+	whController := controllers.NewWarehouse(warehousesService)
 
 	wh := router.Group("/api/v1/warehouses")
 	{
