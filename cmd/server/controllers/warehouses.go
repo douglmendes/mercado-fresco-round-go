@@ -168,7 +168,7 @@ func (w *WarehousesController) Delete() gin.HandlerFunc {
 	}
 }
 
-func NewWareHouse(w warehouses.Service) *WarehousesController {
+func NewWarehouse(w warehouses.Service) *WarehousesController {
 	return &WarehousesController{
 		service: w,
 	}
