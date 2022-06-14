@@ -8,6 +8,6 @@
     "minimum_capacity": 20,
     "maximum_capacity": 200,
     "warehouse_id": 2,
-    "product_type_id": 1
+    "product_type_id": 33
   }
 ]
