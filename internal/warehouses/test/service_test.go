@@ -22,20 +22,20 @@ func callMock(t *testing.T) (*mock_warehouses.MockRepository, warehouses.Service
 func TestService_GetAll(t *testing.T) {
 	wh := []warehouses.Warehouse{
 		{
-			1,
-			"Rua Café Torrado",
-			"918288888",
-			"ABC",
-			100,
-			2,
+			Id:                 1,
+			Address:            "Rua 25 de Março",
+			Telephone:          "9911100011",
+			WarehouseCode:      "XYZ",
+			MinimunCapacity:    2,
+			MinimunTemperature: 1,
 		},
 		{
-			2,
-			"Av. Santo Agostinho",
-			"7777777777",
-			"DEF",
-			23,
-			12,
+			Id:                 2,
+			Address:            "Av. Santo Agostinho",
+			Telephone:          "7777777777",
+			WarehouseCode:      "DEF",
+			MinimunCapacity:    23,
+			MinimunTemperature: 12,
 		},
 	}
 
@@ -90,7 +90,7 @@ func TestService_GetById_NOK(t *testing.T) {
 	assert.NotNil(t, err)
 }
 
-func TestDelete_OK(t *testing.T) {
+func TestService_Delete_OK(t *testing.T) {
 	apiMock, service := callMock(t)
 
 	apiMock.EXPECT().Delete(gomock.Eq(id)).Return(nil)
