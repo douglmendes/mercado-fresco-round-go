@@ -26,5 +26,3 @@ __debug_bin
 
 # IDE
 *.idea
-
-.pre-commit-config.yaml
