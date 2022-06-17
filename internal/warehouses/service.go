@@ -2,6 +2,7 @@ package warehouses
 
 import "fmt"
 
+//go:generate mockgen -source=./service.go -destination=./mock/service_mock.go
 type Service interface {
 	Create(address, telephone, warehouseCode string, minimunCapacity, minimunTemperature int) (*Warehouse, error)
 	GetAll() ([]Warehouse, error)

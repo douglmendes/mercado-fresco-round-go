@@ -41,7 +41,7 @@ func (w *WarehousesController) Create() gin.HandlerFunc {
 			whRequest.MinimunTemperature,
 		)
 		if err != nil {
-			ctx.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
+			ctx.JSON(http.StatusConflict, gin.H{"error": err.Error()})
 			return
 		}
 
@@ -164,11 +164,11 @@ func (w *WarehousesController) Delete() gin.HandlerFunc {
 			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 			return
 		}
-		ctx.JSON(http.StatusNoContent, gin.H{"data": fmt.Sprintf("warehouse with id %d hs been removed", id)})
+		ctx.JSON(http.StatusNoContent, gin.H{"data": fmt.Sprintf("warehouse with id %d has been removed", id)})
 	}
 }
 
-func NewWareHouse(w warehouses.Service) *WarehousesController {
+func NewWarehouse(w warehouses.Service) *WarehousesController {
 	return &WarehousesController{
 		service: w,
 	}
