@@ -57,17 +57,6 @@ func (s service) Create(cardNumberId string, firstName string, lastName string, 
 		return Employee{}, err
 	}
 
-	sl, err := s.repository.GetAll()
-	if err != nil {
-		return Employee{}, err
-	}
-
-	for i := range sl {
-		if sl[i].CardNumberId == cardNumberId {
-			return Employee{}, fmt.Errorf("this card number id already exists")
-		}
-	}
-
 	lastID++
 
 	employee, err := s.repository.Create(lastID, cardNumberId, firstName, lastName, warehouseId)
