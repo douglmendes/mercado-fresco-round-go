@@ -6,48 +6,73 @@ import (
 	"os"
 )
 
+type Store interface {
+	Read(data interface{}) error
+	Write(data interface{}) error
+	AddMock(mock *Mock)
+	ClearMock()
+}
+
 type Type string
 
 const (
 	FileType Type = "file"
 )
 
-type Store interface {
-	Read(data interface{}) error
-	Write(data interface{}) error
-}
-
 func New(store Type, fileName string) Store {
 	switch store {
 	case FileType:
-		return &FileStore{fileName}
-
+		return &FileStore{
+			FileName: fileName,
+		}
 	}
 	return nil
 }
 
+type Mock struct {
+	Data []byte
+	Err  error
+}
+
 type FileStore struct {
 	FileName string
+	Mock     *Mock
 }
 
-func (f *FileStore) Write(data interface{}) error {
-	jsonContent, err := json.MarshalIndent(data, "", "  ")
-	if err != nil {
-		log.Println("failed to parse memory data into JSON on store.Write")
-		log.Println(err)
-		return err
-	}
-
-	return os.WriteFile(f.FileName, jsonContent, 0644)
+func (fs *FileStore) AddMock(mock *Mock) {
+	fs.Mock = mock
 }
 
-func (f *FileStore) Read(data interface{}) error {
-	jsonContent, err := os.ReadFile(f.FileName)
+func (fs *FileStore) ClearMock() {
+	fs.Mock = nil
+}
+
+func (fs *FileStore) Write(data interface{}) error {
+	if fs.Mock != nil {
+		if fs.Mock.Err != nil {
+			return fs.Mock.Err
+		}
+		return json.Unmarshal(fs.Mock.Data, data)
+	}
+	fileData, err := json.MarshalIndent(data, "", "  ")
 	if err != nil {
-		log.Println("failed to read file on store.Read")
-		log.Println(err)
+		log.Println("failed to write. err:", err)
 		return err
 	}
+	return os.WriteFile(fs.FileName, fileData, 0644)
+}
 
-	return json.Unmarshal(jsonContent, &data)
+func (fs *FileStore) Read(data interface{}) error {
+	if fs.Mock != nil {
+		if fs.Mock.Err != nil {
+			return fs.Mock.Err
+		}
+		return json.Unmarshal(fs.Mock.Data, data)
+	}
+	file, err := os.ReadFile(fs.FileName)
+	if err != nil {
+		log.Println("failed to read. err:", err)
+		return err
+	}
+	return json.Unmarshal(file, &data)
 }
