@@ -2,6 +2,7 @@ package test
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/douglmendes/mercado-fresco-round-go/cmd/server/controllers"
 	"github.com/douglmendes/mercado-fresco-round-go/internal/warehouses"
@@ -65,6 +66,21 @@ func TestWarehousesController_GetAll(t *testing.T) {
 	_ = json.Unmarshal(resp.Body.Bytes(), &respExpect)
 
 	assert.Equal(t, whList[0].WarehouseCode, respExpect.Data[0].WarehouseCode)
+}
+
+func TestWarehousesController_GetAll_NOK(t *testing.T) {
+	service, handler, api := callMock(t)
+
+	api.GET(relativePath, handler.GetAll())
+
+	service.EXPECT().GetAll().Return([]warehouses.Warehouse{}, errors.New("error 404"))
+
+	req := httptest.NewRequest(http.MethodGet, relativePath, nil)
+	resp := httptest.NewRecorder()
+	api.ServeHTTP(resp, req)
+
+	assert.Equal(t, http.StatusNotFound, resp.Code)
+
 }
 
 func TestWarehousesController_GetById(t *testing.T) {
