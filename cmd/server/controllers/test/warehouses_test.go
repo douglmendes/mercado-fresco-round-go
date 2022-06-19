@@ -110,3 +110,16 @@ func TestWarehousesController_GetById(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.Code)
 	assert.Equal(t, wh.WarehouseCode, respExpect.Data.WarehouseCode)
 }
+
+func TestWarehousesController_GetById_NOK(t *testing.T) {
+	service, handler, api := callMock(t)
+	api.GET(relativePathGetById, handler.GetById())
+	service.EXPECT().GetById(gomock.Eq(1)).Return(warehouses.Warehouse{}, errors.New("warehouse not found"))
+
+	req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/warehouses/%s", id), nil)
+	resp := httptest.NewRecorder()
+	api.ServeHTTP(resp, req)
+
+	assert.Equal(t, http.StatusNotFound, resp.Code)
+
+}
