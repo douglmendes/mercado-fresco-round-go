@@ -40,7 +40,7 @@ func (s service) GetById(id int) (Seller, error) {
 	
 }
 
-func (s service) Create(cid int, commpanyName, address, telephone string) (Seller, error) {
+func (s service) Create(cid int, companyName, address, telephone string) (Seller, error) {
 	lastID, err := s.repository.LastID()
 	if err != nil {
 		return Seller{}, err
@@ -59,7 +59,7 @@ func (s service) Create(cid int, commpanyName, address, telephone string) (Selle
 
 	lastID++
 
-	seller, err := s.repository.Create(lastID, cid, commpanyName, address, telephone)
+	seller, err := s.repository.Create(lastID, cid, companyName, address, telephone)
 
 	if err != nil {
 		return Seller{}, err
