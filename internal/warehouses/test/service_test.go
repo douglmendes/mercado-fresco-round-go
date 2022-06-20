@@ -162,7 +162,7 @@ func TestServiceCreate_OK(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func TestServiceCreate_NOK(t *testing.T) {
+func TestServiceCreate_Conflict(t *testing.T) {
 	apiMock, service := callMock(t)
 
 	wh := []warehouses.Warehouse{
@@ -205,6 +205,72 @@ func TestServiceCreate_NOK(t *testing.T) {
 
 	assert.Equal(t, assert.NotNil(t, err), true)
 	assert.EqualError(t, err, "this warehouse already exists")
+}
+
+func TestService_Create_LastId_NOK(t *testing.T) {
+	apiMock, service := callMock(t)
+	apiMock.EXPECT().LastID().Return(0, errors.New("error"))
+
+	_, err := service.Create(
+		"Rua Nova",
+		"12121212",
+		"ABC",
+		2,
+		2,
+	)
+
+	assert.NotNil(t, err)
+}
+
+func TestService_Create_GetAll_Fail(t *testing.T) {
+	apiMock, service := callMock(t)
+	apiMock.EXPECT().LastID().Return(1, nil)
+	apiMock.EXPECT().GetAll().Return([]warehouses.Warehouse{}, errors.New("error"))
+
+	_, err := service.Create(
+		"Rua Nova",
+		"12121212",
+		"ABC",
+		2,
+		2,
+	)
+	assert.NotNil(t, err)
+}
+
+func TestService_Create_NOK(t *testing.T) {
+	apiMock, service := callMock(t)
+	wh := []warehouses.Warehouse{
+		{
+			1,
+			"Rua Café Torrado",
+			"918288888",
+			"ABC",
+			100,
+			2,
+		},
+	}
+
+	apiMock.EXPECT().LastID().Return(1, nil)
+	apiMock.EXPECT().GetAll().Return(wh, nil)
+	apiMock.EXPECT().Create(
+		2,
+		"Rua Nova",
+		"12121212",
+		"GHI",
+		2,
+		2,
+	).Return(warehouses.Warehouse{}, errors.New("error"))
+
+	result, err := service.Create(
+		"Rua Nova",
+		"12121212",
+		"GHI",
+		2,
+		2,
+	)
+
+	assert.Nil(t, result)
+	assert.NotNil(t, err)
 }
 
 func TestService_Update_WithTheSameWarehouseCode(t *testing.T) {
