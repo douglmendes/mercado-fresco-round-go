@@ -220,3 +220,84 @@ func TestWarehousesController_Delete_BadRequest(t *testing.T) {
 
 	assert.Equal(t, http.StatusBadRequest, resp.Code)
 }
+
+func TestWarehousesController_Update(t *testing.T) {
+	wh := warehouses.Warehouse{
+		Id:                 1,
+		Address:            "Av. Estrela da Morte",
+		Telephone:          "987654321",
+		WarehouseCode:      "LSW",
+		MinimunCapacity:    10,
+		MinimunTemperature: 10,
+	}
+
+	service, handler, api := callMock(t)
+	api.PATCH(relativePathWithId, handler.Update())
+
+	service.EXPECT().Update(
+		gomock.Eq(1),
+		"Rua Sem Saida",
+		"888888888",
+		"LSW",
+		8,
+		9,
+	).Return(wh, nil)
+
+	payload := `{"address": "Rua Sem Saida","telephone": "888888888","warehouse_code": "LSW","minimun_capacity": 8, "minimun_temperature": 9}`
+
+	req := httptest.NewRequest(
+		http.MethodPatch,
+		fmt.Sprintf("/api/v1/warehouses/%s", id),
+		bytes.NewBuffer([]byte(payload)),
+	)
+
+	resp := httptest.NewRecorder()
+	api.ServeHTTP(resp, req)
+
+	assert.Equal(t, http.StatusOK, resp.Code)
+}
+
+func TestWarehousesController_Update_NOK(t *testing.T) {
+	service, handler, api := callMock(t)
+	api.PATCH(relativePathWithId, handler.Update())
+
+	service.EXPECT().Update(
+		gomock.Eq(1),
+		"Rua Sem Saida",
+		"888888888",
+		"LSW",
+		8,
+		9,
+	).Return(warehouses.Warehouse{}, errors.New("warehouse not found"))
+
+	payload := `{"address": "Rua Sem Saida","telephone": "888888888","warehouse_code": "LSW","minimun_capacity": 8, "minimun_temperature": 9}`
+
+	req := httptest.NewRequest(
+		http.MethodPatch,
+		fmt.Sprintf("/api/v1/warehouses/%s", id),
+		bytes.NewBuffer([]byte(payload)),
+	)
+
+	resp := httptest.NewRecorder()
+	api.ServeHTTP(resp, req)
+
+	assert.Equal(t, http.StatusNotFound, resp.Code)
+}
+
+func TestWarehousesController_Update_BadRequest(t *testing.T) {
+	_, handler, api := callMock(t)
+	api.PATCH(relativePathWithId, handler.Update())
+
+	payload := `{"address": "Rua Sem Saida","telephone": "888888888","warehouse_code": "LSW","minimun_capacity": 8, "minimun_temperature": 9}`
+
+	req := httptest.NewRequest(
+		http.MethodPatch,
+		fmt.Sprintf("/api/v1/warehouses/%s", "Valfenda"),
+		bytes.NewBuffer([]byte(payload)),
+	)
+
+	resp := httptest.NewRecorder()
+	api.ServeHTTP(resp, req)
+
+	assert.Equal(t, http.StatusBadRequest, resp.Code)
+}

@@ -121,7 +121,7 @@ func (w *WarehousesController) Update() gin.HandlerFunc {
 
 		var whRequest whRequest
 		if err := ctx.ShouldBindJSON(&whRequest); err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			ctx.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
 			return
 		}
 
