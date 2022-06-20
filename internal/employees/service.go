@@ -2,10 +2,11 @@ package employees
 
 import "fmt"
 
+//go:generate mockgen -source=./service.go -destination=./mock/service_mock.go
 type Service interface {
 	GetAll() ([]Employee, error)
 	GetById(id int) (Employee, error)
-	Create(id int, cardNumberId string, firstName string, lastName string, warehouseId int) (Employee, error)
+	Create(cardNumberId string, firstName string, lastName string, warehouseId int) (Employee, error)
 	Update(id int, cardNumberId string, firstName string, lastName string, warehouseId int) (Employee, error)
 	Delete(id int) error
 }
@@ -39,7 +40,7 @@ func (s service) GetById(id int) (Employee, error) {
 
 }
 
-func (s service) Create(id int, cardNumberId string, firstName string, lastName string, warehouseId int) (Employee, error) {
+func (s service) Create(cardNumberId string, firstName string, lastName string, warehouseId int) (Employee, error) {
 	emp, err := s.repository.GetAll()
 
 	if err != nil {
@@ -54,17 +55,6 @@ func (s service) Create(id int, cardNumberId string, firstName string, lastName 
 	lastID, err := s.repository.LastID()
 	if err != nil {
 		return Employee{}, err
-	}
-
-	sl, err := s.repository.GetAll()
-	if err != nil {
-		return Employee{}, err
-	}
-
-	for i := range sl {
-		if sl[i].Id == id {
-			return Employee{}, fmt.Errorf("this card number id already exists")
-		}
 	}
 
 	lastID++
