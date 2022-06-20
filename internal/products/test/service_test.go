@@ -385,3 +385,40 @@ func TestUpdate(t *testing.T) {
 		})
 	}
 }
+
+func TestDelete(t *testing.T) {
+	existentId := 1
+
+	testCases := []struct {
+		name        string
+		productId   int
+		buildStubs  func(repository *mock_products.MockRepository)
+		checkResult func(t *testing.T, err error)
+	}{
+		{
+			name:      "OK",
+			productId: existentId,
+			buildStubs: func(repository *mock_products.MockRepository) {
+				repository.
+					EXPECT().
+					Delete(existentId).
+					Times(1).
+					Return(nil)
+			},
+			checkResult: func(t *testing.T, err error) {
+				assert.NoError(t, err)
+			},
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			repository, service := callMock(t)
+
+			testCase.buildStubs(repository)
+
+			err := service.Delete(testCase.productId)
+			testCase.checkResult(t, err)
+		})
+	}
+}
