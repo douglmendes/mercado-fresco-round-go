@@ -327,15 +327,6 @@ func TestService_Update_WithOtherWarehouseCode_NOK(t *testing.T) {
 		MinimunTemperature: 1,
 	}
 
-	//newWh := warehouses.Warehouse{
-	//	Id:                 1,
-	//	Address:            "Av. Paulista",
-	//	Telephone:          "000000000",
-	//	WarehouseCode:      "GNK",
-	//	MinimunCapacity:    20,
-	//	MinimunTemperature: 2,
-	//}
-
 	whList := []warehouses.Warehouse{
 		{
 			Id:                 1,
