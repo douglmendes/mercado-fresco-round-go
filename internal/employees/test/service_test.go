@@ -105,10 +105,10 @@ func TestService_GetAll(t *testing.T) {
 			33,
 		},
 	}
-
+	//repository
 	apiMock, service := callMock(t)
 	apiMock.EXPECT().GetAll().Return(emp, nil)
-
+	//service
 	result, err := service.GetAll()
 	assert.Equal(t, len(result), len(emp))
 	assert.Nil(t, err)
