@@ -184,6 +184,18 @@ func TestWarehousesController_Create_Conflict(t *testing.T) {
 	assert.Equal(t, http.StatusConflict, resp.Code)
 }
 
+func TestWarehousesController_Create_Fail(t *testing.T) {
+	_, handler, api := callMock(t)
+	api.POST(relativePath, handler.Create())
+
+	payload := `{"address": "Rua 1","minimun_capacity": 8, "minimun_temperature": 9}`
+	req := httptest.NewRequest(http.MethodPost, relativePath, bytes.NewBuffer([]byte(payload)))
+	resp := httptest.NewRecorder()
+	api.ServeHTTP(resp, req)
+
+	assert.Equal(t, http.StatusUnprocessableEntity, resp.Code)
+}
+
 func TestWarehousesController_Delete_OK(t *testing.T) {
 	service, handler, api := callMock(t)
 	api.DELETE(relativePathWithId, handler.Delete())
@@ -282,6 +294,24 @@ func TestWarehousesController_Update_NOK(t *testing.T) {
 	api.ServeHTTP(resp, req)
 
 	assert.Equal(t, http.StatusNotFound, resp.Code)
+}
+
+func TestWarehousesController_Update_Fail(t *testing.T) {
+	_, handler, api := callMock(t)
+	api.PATCH(relativePathWithId, handler.Update())
+
+	payload := `{"address": "Rua Sem Saida","telephone": 888888888,"warehouse_code": 25,"minimun_capacity": "Nice!!", "minimun_temperature": 9}`
+
+	req := httptest.NewRequest(
+		http.MethodPatch,
+		fmt.Sprintf("/api/v1/warehouses/%s", id),
+		bytes.NewBuffer([]byte(payload)),
+	)
+
+	resp := httptest.NewRecorder()
+	api.ServeHTTP(resp, req)
+
+	assert.Equal(t, http.StatusUnprocessableEntity, resp.Code)
 }
 
 func TestWarehousesController_Update_BadRequest(t *testing.T) {
