@@ -265,6 +265,8 @@ func TestGetById(t *testing.T) {
 		SellerId:                       5,
 	}
 
+	nonExistentId := 15
+
 	testCases := []struct {
 		name        string
 		productId   int
@@ -285,6 +287,23 @@ func TestGetById(t *testing.T) {
 				assert.NoError(t, err)
 
 				assert.Equal(t, expected, result)
+			},
+		},
+		{
+			name:      "NotFound",
+			productId: nonExistentId,
+			buildStubs: func(repository *mock_products.MockRepository) {
+				repository.
+					EXPECT().
+					GetById(nonExistentId).
+					Times(1).
+					Return(products.Product{}, fmt.Errorf("product (%d) not found", nonExistentId))
+			},
+			checkResult: func(t *testing.T, result products.Product, err error) {
+				assert.Error(t, err)
+				assert.EqualError(t, err, fmt.Sprintf("product (%d) not found", nonExistentId))
+
+				assert.Equal(t, products.Product{}, result)
 			},
 		},
 	}
