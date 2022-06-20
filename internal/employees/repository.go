@@ -6,6 +6,7 @@ import (
 	"github.com/douglmendes/mercado-fresco-round-go/pkg/store"
 )
 
+//go:generate mockgen -source=./repository.go -destination=./mock/repository_mock.go
 type Repository interface {
 	GetAll() ([]Employee, error)
 	GetById(id int) (Employee, error)
@@ -38,7 +39,7 @@ func (r *repository) GetById(id int) (Employee, error) {
 			return emp[i], nil
 		}
 	}
-	return Employee{}, fmt.Errorf("Employee %d no found", id)
+	return Employee{}, fmt.Errorf("Employee %d not found", id)
 }
 
 func (r *repository) LastID() (int, error) {
@@ -89,6 +90,9 @@ func (r *repository) Update(id int, cardNumberId string, firstName string, lastN
 			}
 			if lastName != "" {
 				e.LastName = lastName
+			}
+			if warehouseId != 0 {
+				e.WarehouseId = warehouseId
 			}
 
 			fmt.Printf("employee is %v", e)

@@ -1,4 +1,61 @@
 definitions:
+  controllers.productsRequest:
+    properties:
+      description:
+        type: string
+      expiration_rate:
+        type: number
+      freezing_rate:
+        type: number
+      height:
+        type: number
+      length:
+        type: number
+      net_weight:
+        type: number
+      product_code:
+        type: string
+      product_type_id:
+        type: integer
+      recommended_freezing_temperature:
+        type: number
+      seller_id:
+        type: integer
+      width:
+        type: number
+    required:
+    - description
+    - expiration_rate
+    - freezing_rate
+    - height
+    - length
+    - net_weight
+    - product_code
+    - product_type_id
+    - recommended_freezing_temperature
+    - seller_id
+    - width
+    type: object
+  buyers.Buyer:
+    properties:
+      card_number_id:
+        type: string
+      first_name:
+        type: string
+      id:
+        type: integer
+      last_name:
+        type: string
+    type: object
+  controllers.buyerRequest:
+    properties:
+      card_number_id:
+        type: string
+      first_name:
+        type: string
+      last_name:
+        type: string
+    type: object
   controllers.request:
     properties:
       address:
@@ -9,6 +66,19 @@ definitions:
         type: string
       telephone:
         type: string
+    type: object
+  controllers.requestEmployee:
+    properties:
+      card_number_id:
+        type: string
+      first_name:
+        type: string
+      id:
+        type: integer
+      last_name:
+        type: string
+      warehouse_id:
+        type: integer
     type: object
   controllers.sectionsRequest:
     properties:
@@ -38,6 +108,59 @@ definitions:
     - section_number
     - warehouse_id
     type: object
+  controllers.whRequest:
+    properties:
+      address:
+        type: string
+      minimun_capacity:
+        type: integer
+      minimun_temperature:
+        type: integer
+      telephone:
+        type: string
+      warehouse_code:
+        type: string
+    type: object
+  employees.Employee:
+    properties:
+      card_number_id:
+        type: string
+      first_name:
+        type: string
+      id:
+        type: integer
+      last_name:
+        type: string
+      warehouse_id:
+        type: integer
+    type: object
+  products.Product:
+    properties:
+      description:
+        type: string
+      expiration_rate:
+        type: number
+      freezing_rate:
+        type: number
+      height:
+        type: number
+      id:
+        type: integer
+      length:
+        type: number
+      net_weight:
+        type: number
+      product_code:
+        type: string
+      product_type_id:
+        type: integer
+      recommended_freezing_temperature:
+        type: number
+      seller_id:
+        type: integer
+      width:
+        type: number
+    type: object
   response.Response:
     properties:
       data: {}
@@ -65,6 +188,34 @@ definitions:
       warehouse_id:
         type: integer
     type: object
+  sellers.Seller:
+    properties:
+      address:
+        type: string
+      cid:
+        type: integer
+      company_name:
+        type: string
+      id:
+        type: integer
+      telephone:
+        type: string
+    type: object
+  warehouses.Warehouse:
+    properties:
+      address:
+        type: string
+      id:
+        type: integer
+      minimun_capacity:
+        type: integer
+      minimun_temperature:
+        type: integer
+      telephone:
+        type: string
+      warehouse_code:
+        type: string
+    type: object
 info:
   contact:
     name: API Support
@@ -77,6 +228,408 @@ info:
   title: Mercado Fresco
   version: "1.0"
 paths:
+  /api/v1/buyers:
+    get:
+      description: get buyers
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/buyers.Buyer'
+            type: array
+        "404":
+          description: Not Found
+          schema:
+            type: string
+      summary: List buyers
+      tags:
+      - Buyers
+    post:
+      consumes:
+      - application/json
+      description: create buyers
+      parameters:
+      - description: Buyer to create
+        in: body
+        name: buyer
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.buyerRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/buyers.Buyer'
+        "409":
+          description: Conflict
+          schema:
+            type: string
+        "422":
+          description: Unprocessable Entity
+          schema:
+            type: string
+      summary: Create buyers
+      tags:
+      - Buyers
+  /api/v1/buyers/{id}:
+    delete:
+      description: delete buyer
+      parameters:
+      - description: Buyer ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+          schema:
+            $ref: '#/definitions/controllers.request'
+      summary: Delete buyer
+      tags:
+      - Buyers
+    get:
+      consumes:
+      - application/json
+      description: get buyer
+      parameters:
+      - description: Buyer ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/buyers.Buyer'
+        "404":
+          description: Not Found
+          schema:
+            type: string
+      summary: List buyer
+      tags:
+      - Buyers
+    patch:
+      consumes:
+      - application/json
+      description: update buyer
+      parameters:
+      - description: Buyer to create
+        in: body
+        name: buyer
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.buyerRequest'
+      - description: Buyer ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/buyers.Buyer'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+      summary: Update buyer
+      tags:
+      - Buyers
+  /api/v1/employees:
+    get:
+      description: get employees
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.request'
+        "404":
+          description: Not Found
+          schema:
+            type: string
+      summary: List employees
+      tags:
+      - employees
+    post:
+      consumes:
+      - application/json
+      description: Create a new employee in the system
+      parameters:
+      - description: Employee to be created
+        in: body
+        name: employee
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.requestEmployee'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/employees.Employee'
+        "409":
+          description: Conflict
+          schema:
+            type: string
+        "422":
+          description: Unprocessable Entity
+          schema:
+            type: string
+      summary: Create a new employee
+      tags:
+      - employees
+  /api/v1/employees/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a employee from the system, selecting by id
+      parameters:
+      - description: Employee id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Successfully deleted
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+      summary: Delete a employee
+      tags:
+      - employees
+    get:
+      consumes:
+      - application/json
+      description: Get a employee from the system searching by id
+      parameters:
+      - description: Employee id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/employees.Employee'
+        "404":
+          description: Not Found
+          schema:
+            type: string
+      summary: Get a employee by id
+      tags:
+      - employees
+    patch:
+      consumes:
+      - application/json
+      description: update employee
+      parameters:
+      - description: Employee to create
+        in: body
+        name: product
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.requestEmployee'
+      - description: Employee ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/employees.Employee'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+      summary: Update employee
+      tags:
+      - employees
+  /api/v1/products:
+    get:
+      consumes:
+      - application/json
+      description: List all products currently in the system
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/products.Product'
+            type: array
+        "204":
+          description: Empty database
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: List all products
+      tags:
+      - products
+    post:
+      consumes:
+      - application/json
+      description: Create a new product in the system
+      parameters:
+      - description: Product to be created
+        in: body
+        name: product
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.productsRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/products.Product'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/response.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Create a new product
+      tags:
+      - products
+  /api/v1/products/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a product from the system, selecting by id
+      parameters:
+      - description: Product id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Successfully deleted
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Delete a product
+      tags:
+      - products
+    get:
+      consumes:
+      - application/json
+      description: Get a product from the system searching by id
+      parameters:
+      - description: Product id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/products.Product'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Get a product by id
+      tags:
+      - products
+    patch:
+      consumes:
+      - application/json
+      description: Update a product in the system, selecting by id
+      parameters:
+      - description: Product id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Product to be updated (all fields are optional)
+        in: body
+        name: product
+        schema:
+          $ref: '#/definitions/controllers.productsRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/products.Product'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Update a product
+      tags:
+      - products
   /api/v1/sections:
     get:
       consumes:
@@ -238,7 +791,9 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/controllers.request'
+            items:
+              $ref: '#/definitions/sellers.Seller'
+            type: array
         "404":
           description: Not Found
           schema:
@@ -253,7 +808,7 @@ paths:
       parameters:
       - description: Seller to create
         in: body
-        name: product
+        name: seller
         required: true
         schema:
           $ref: '#/definitions/controllers.request'
@@ -263,7 +818,7 @@ paths:
         "201":
           description: Created
           schema:
-            type: string
+            $ref: '#/definitions/sellers.Seller'
         "409":
           description: Conflict
           schema:
@@ -308,7 +863,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/controllers.request'
+            $ref: '#/definitions/sellers.Seller'
         "404":
           description: Not Found
           schema:
@@ -338,8 +893,148 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/controllers.request'
+            $ref: '#/definitions/sellers.Seller'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
       summary: Update seller
       tags:
       - Sellers
+  /api/v1/warehouses:
+    get:
+      description: List all available warehouses
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: desc
+          schema:
+            items:
+              allOf:
+              - $ref: '#/definitions/response.Response'
+              - properties:
+                  data:
+                    $ref: '#/definitions/warehouses.Warehouse'
+                type: object
+            type: array
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: List warehouses
+      tags:
+      - Warehouses
+    post:
+      consumes:
+      - application/json
+      description: create one warehouse
+      parameters:
+      - description: Warehouse to create
+        in: body
+        name: warehouses
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.whRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/warehouses.Warehouse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Create warehouses
+      tags:
+      - Warehouses
+  /api/v1/warehouses/{id}:
+    delete:
+      description: Delete a warehouse by ID
+      parameters:
+      - description: Warehouse ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Delete warehouse
+      tags:
+      - Warehouses
+    get:
+      consumes:
+      - application/json
+      description: Read one warehouse
+      parameters:
+      - description: Warehouse ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/warehouses.Warehouse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Warehouse
+      tags:
+      - Warehouses
+    patch:
+      consumes:
+      - application/json
+      description: Update a warehouse by ID
+      parameters:
+      - description: Warehouse to update
+        in: body
+        name: warehouse
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.whRequest'
+      - description: Warehouse ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/warehouses.Warehouse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Update warehouse
+      tags:
+      - Warehouses
 swagger: "2.0"

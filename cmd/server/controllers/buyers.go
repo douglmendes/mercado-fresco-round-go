@@ -26,6 +26,14 @@ func NewBuyer(s buyers.Service) *BuyerController {
 
 }
 
+// ListSellers godoc
+// @Summary List buyers
+// @Tags Buyers
+// @Description get buyers
+// @Produce  json
+// @Success 200 {array} buyers.Buyer
+// @Failure 404 {object} string
+// @Router /api/v1/buyers [get]
 func (c *BuyerController) GetAll() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		s, err := c.service.GetAll()
@@ -40,6 +48,16 @@ func (c *BuyerController) GetAll() gin.HandlerFunc {
 	}
 }
 
+// ListSeller godoc
+// @Summary List buyer
+// @Tags Buyers
+// @Description get buyer
+// @Accept  json
+// @Produce  json
+// @Param id   path int true "Buyer ID"
+// @Success 200 {object} buyers.Buyer
+// @Failure 404 {object} string
+// @Router /api/v1/buyers/{id} [get]
 func (c *BuyerController) GetById() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
@@ -58,6 +76,17 @@ func (c *BuyerController) GetById() gin.HandlerFunc {
 	}
 }
 
+// Create godoc
+// @Summary Create buyers
+// @Tags Buyers
+// @Description create buyers
+// @Accept  json
+// @Produce  json
+// @Param buyer body buyerRequest true "Buyer to create"
+// @Success 201 {object} buyers.Buyer
+// @Failure 422 {object} string
+// @Failure 409 {object} string
+// @Router /api/v1/buyers [post]
 func (c *BuyerController) Create() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var req buyerRequest
@@ -93,6 +122,18 @@ func (c *BuyerController) Create() gin.HandlerFunc {
 
 }
 
+// ListSellers godoc
+// @Summary Update buyer
+// @Tags Buyers
+// @Description update buyer
+// @Accept  json
+// @Produce  json
+// @Param buyer body buyerRequest true "Buyer to create"
+// @Param id   path int true "Buyer ID"
+// @Success 200 {object} buyers.Buyer
+// @Failure 400 {object} string
+// @Failure 404 {object} string
+// @Router /api/v1/buyers/{id} [patch]
 func (s *BuyerController) Update() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
@@ -117,6 +158,13 @@ func (s *BuyerController) Update() gin.HandlerFunc {
 
 }
 
+// ListSellers godoc
+// @Summary Delete buyer
+// @Tags Buyers
+// @Description delete buyer
+// @Param id   path int true "Buyer ID"
+// @Success 204 {object} request
+// @Router /api/v1/buyers/{id} [delete]
 func (c *BuyerController) Delete() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
