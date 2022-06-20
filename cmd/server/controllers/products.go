@@ -77,15 +77,15 @@ func (c *ProductController) GetById() gin.HandlerFunc {
 type productsRequest struct {
 	ProductCode                    string  `json:"product_code" binding:"required"`
 	Description                    string  `json:"description" binding:"required"`
-	Width                          float64 `json:"width" binding:"required"`
-	Height                         float64 `json:"height" binding:"required"`
-	Length                         float64 `json:"length" binding:"required"`
-	NetWeight                      float64 `json:"net_weight" binding:"required"`
+	Width                          float64 `json:"width" binding:"required,min=0.1"`
+	Height                         float64 `json:"height" binding:"required,min=0.1"`
+	Length                         float64 `json:"length" binding:"required,min=0.1"`
+	NetWeight                      float64 `json:"net_weight" binding:"required,min=0.1"`
 	ExpirationRate                 float64 `json:"expiration_rate" binding:"required"`
 	RecommendedFreezingTemperature float64 `json:"recommended_freezing_temperature" binding:"required"`
 	FreezingRate                   float64 `json:"freezing_rate" binding:"required"`
-	ProductTypeId                  int     `json:"product_type_id" binding:"required"`
-	SellerId                       int     `json:"seller_id" binding:"required"`
+	ProductTypeId                  int     `json:"product_type_id" binding:"required,min=1"`
+	SellerId                       int     `json:"seller_id" binding:"required,min=1"`
 }
 
 // CreateProduct godoc
@@ -108,7 +108,21 @@ func (c *ProductController) Create() gin.HandlerFunc {
 			return
 		}
 
-		product, err := c.service.Create(req.ProductCode, req.Description, req.Width, req.Height, req.Length, req.NetWeight, req.ExpirationRate, req.RecommendedFreezingTemperature, req.FreezingRate, req.ProductTypeId, req.SellerId)
+		arg := products.Product{
+			ProductCode:                    req.ProductCode,
+			Description:                    req.Description,
+			Width:                          req.Width,
+			Height:                         req.Height,
+			Length:                         req.Length,
+			NetWeight:                      req.NetWeight,
+			ExpirationRate:                 req.ExpirationRate,
+			RecommendedFreezingTemperature: req.RecommendedFreezingTemperature,
+			FreezingRate:                   req.FreezingRate,
+			ProductTypeId:                  req.ProductTypeId,
+			SellerId:                       req.SellerId,
+		}
+
+		product, err := c.service.Create(arg)
 		if err != nil {
 			ctx.JSON(http.StatusConflict, response.DecodeError(err.Error()))
 			return
@@ -118,7 +132,7 @@ func (c *ProductController) Create() gin.HandlerFunc {
 	}
 }
 
-type optionalProductsRequest struct {
+type updateProductsRequest struct {
 	ProductCode                    string  `json:"product_code"`
 	Description                    string  `json:"description"`
 	Width                          float64 `json:"width"`
@@ -154,14 +168,29 @@ func (c *ProductController) Update() gin.HandlerFunc {
 			return
 		}
 
-		var req optionalProductsRequest
+		var req updateProductsRequest
 
 		if err := ctx.ShouldBindJSON(&req); err != nil {
 			ctx.AbortWithStatusJSON(http.StatusUnprocessableEntity, response.DecodeError(err.Error()))
 			return
 		}
 
-		product, err := c.service.Update(int(id), req.ProductCode, req.Description, req.Width, req.Height, req.Length, req.NetWeight, req.ExpirationRate, req.RecommendedFreezingTemperature, req.FreezingRate, req.ProductTypeId, req.SellerId)
+		arg := products.Product{
+			Id:                             int(id),
+			ProductCode:                    req.ProductCode,
+			Description:                    req.Description,
+			Width:                          req.Width,
+			Height:                         req.Height,
+			Length:                         req.Length,
+			NetWeight:                      req.NetWeight,
+			ExpirationRate:                 req.ExpirationRate,
+			RecommendedFreezingTemperature: req.RecommendedFreezingTemperature,
+			FreezingRate:                   req.FreezingRate,
+			ProductTypeId:                  req.ProductTypeId,
+			SellerId:                       req.SellerId,
+		}
+
+		product, err := c.service.Update(arg)
 		if err != nil {
 			if strings.Contains(err.Error(), "not found") {
 				ctx.JSON(http.StatusNotFound, response.DecodeError(err.Error()))
