@@ -122,7 +122,6 @@ func TestService_GetById_Nok(t *testing.T) {
 
 	_, err := service.GetById(1)
 	assert.NotNil(t, err)
-
 }
 
 //READ find_by_id_existent Se o elemento procurado por id existir, ele

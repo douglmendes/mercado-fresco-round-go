@@ -26,9 +26,9 @@ type WarehousesController struct {
 // @Router /api/v1/warehouses [post]
 func (w *WarehousesController) Create() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		var whRequest whRequest
+		var whRequest whCreateRequest
 
-		if err := ctx.Bind(&whRequest); err != nil {
+		if err := ctx.ShouldBindJSON(&whRequest); err != nil {
 			ctx.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
 			return
 		}
@@ -119,9 +119,9 @@ func (w *WarehousesController) Update() gin.HandlerFunc {
 			return
 		}
 
-		var whRequest whRequest
+		var whRequest whUpdateRequest
 		if err := ctx.ShouldBindJSON(&whRequest); err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			ctx.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
 			return
 		}
 
@@ -174,7 +174,15 @@ func NewWarehouse(w warehouses.Service) *WarehousesController {
 	}
 }
 
-type whRequest struct {
+type whCreateRequest struct {
+	Address            string `json:"address" binding:"required"`
+	Telephone          string `json:"telephone" binding:"required"`
+	WarehouseCode      string `json:"warehouse_code" binding:"required"`
+	MinimunCapacity    int    `json:"minimun_capacity" binding:"required"`
+	MinimunTemperature int    `json:"minimun_temperature" binding:"required"`
+}
+
+type whUpdateRequest struct {
 	Address            string `json:"address"`
 	Telephone          string `json:"telephone"`
 	WarehouseCode      string `json:"warehouse_code"`

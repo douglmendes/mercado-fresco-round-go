@@ -58,13 +58,15 @@ func (c *SellerController) GetAll() gin.HandlerFunc {
 // @Produce  json
 // @Param id   path int true "Seller ID"
 // @Success 200 {object} sellers.Seller
+// @Failure 400 {object} string
 // @Failure 404 {object} string
 // @Router /api/v1/sellers/{id} [get]
 func (c *SellerController) GetById() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+		// id, err := strconv.Atoi(ctx.Param("id"))
 		if err != nil {
-			ctx.JSON(http.StatusNotFound, gin.H{"error": "invalid ID"})
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid ID"})
 			return
 		}
 
@@ -145,7 +147,7 @@ func (s *SellerController) Update() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
-			ctx.JSON(http.StatusNotFound, gin.H{"error": "invalid ID"})
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid ID"})
 			return
 		}
 
@@ -176,7 +178,7 @@ func (c *SellerController) Delete() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
-			ctx.JSON(http.StatusNotFound, gin.H{"error": "invalid ID"})
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid ID"})
 			return
 		}
 

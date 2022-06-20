@@ -2,6 +2,7 @@ package sellers
 
 import "fmt"
 
+//go:generate mockgen -source=./service.go -destination=./mock/service_mock.go
 type Service interface {
 	GetAll() ([]Seller, error)
 	GetById(id int) (Seller, error)
@@ -24,7 +25,7 @@ func NewService(r Repository) Service {
 func (s service) GetAll() ([]Seller, error) {
 	sl, err := s.repository.GetAll()
 	if err != nil {
-		return nil, err
+		return []Seller{}, err
 	}
 	return sl, nil
 	
@@ -39,7 +40,7 @@ func (s service) GetById(id int) (Seller, error) {
 	
 }
 
-func (s service) Create(cid int, commpanyName, address, telephone string) (Seller, error) {
+func (s service) Create(cid int, companyName, address, telephone string) (Seller, error) {
 	lastID, err := s.repository.LastID()
 	if err != nil {
 		return Seller{}, err
@@ -58,7 +59,7 @@ func (s service) Create(cid int, commpanyName, address, telephone string) (Selle
 
 	lastID++
 
-	seller, err := s.repository.Create(lastID, cid, commpanyName, address, telephone)
+	seller, err := s.repository.Create(lastID, cid, companyName, address, telephone)
 
 	if err != nil {
 		return Seller{}, err
