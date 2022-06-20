@@ -108,7 +108,7 @@ func TestService_Delete_NOK(t *testing.T) {
 	assert.NotNil(t, err)
 }
 
-func TestCreate_OK(t *testing.T) {
+func TestServiceCreate_OK(t *testing.T) {
 	apiMock, service := callMock(t)
 
 	wh := []warehouses.Warehouse{
@@ -162,7 +162,7 @@ func TestCreate_OK(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func TestCreate_NOK(t *testing.T) {
+func TestServiceCreate_NOK(t *testing.T) {
 	apiMock, service := callMock(t)
 
 	wh := []warehouses.Warehouse{
@@ -326,15 +326,6 @@ func TestService_Update_WithOtherWarehouseCode_NOK(t *testing.T) {
 		MinimunCapacity:    2,
 		MinimunTemperature: 1,
 	}
-
-	//newWh := warehouses.Warehouse{
-	//	Id:                 1,
-	//	Address:            "Av. Paulista",
-	//	Telephone:          "000000000",
-	//	WarehouseCode:      "GNK",
-	//	MinimunCapacity:    20,
-	//	MinimunTemperature: 2,
-	//}
 
 	whList := []warehouses.Warehouse{
 		{

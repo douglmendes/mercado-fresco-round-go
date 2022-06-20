@@ -28,7 +28,7 @@ func (w *WarehousesController) Create() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var whRequest whRequest
 
-		if err := ctx.Bind(&whRequest); err != nil {
+		if err := ctx.ShouldBindJSON(&whRequest); err != nil {
 			ctx.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
 			return
 		}
@@ -121,7 +121,7 @@ func (w *WarehousesController) Update() gin.HandlerFunc {
 
 		var whRequest whRequest
 		if err := ctx.ShouldBindJSON(&whRequest); err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			ctx.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
 			return
 		}
 
