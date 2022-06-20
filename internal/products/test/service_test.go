@@ -1,6 +1,7 @@
 package products_test
 
 import (
+	"fmt"
 	"os"
 	"testing"
 
@@ -90,6 +91,28 @@ func TestCreate(t *testing.T) {
 			},
 			checkResult: func(t *testing.T, result products.Product, err error) {
 				assert.Error(t, err)
+
+				assert.EqualValues(t, products.Product{}, result)
+			},
+		},
+		{
+			name: "ConflictError",
+			buildStubs: func(repository *mock_products.MockRepository) {
+				repository.
+					EXPECT().
+					LastID().
+					Times(1).
+					Return(0, nil)
+
+				repository.
+					EXPECT().
+					GetAll().
+					Times(1).
+					Return([]products.Product{expected}, nil)
+			},
+			checkResult: func(t *testing.T, result products.Product, err error) {
+				assert.Error(t, err)
+				assert.EqualError(t, err, fmt.Sprintf("the product with code \"%s\" already exists", expected.ProductCode))
 
 				assert.EqualValues(t, products.Product{}, result)
 			},
