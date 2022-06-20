@@ -388,6 +388,7 @@ func TestUpdate(t *testing.T) {
 
 func TestDelete(t *testing.T) {
 	existentId := 1
+	nonExistentId := 99
 
 	testCases := []struct {
 		name        string
@@ -407,6 +408,21 @@ func TestDelete(t *testing.T) {
 			},
 			checkResult: func(t *testing.T, err error) {
 				assert.NoError(t, err)
+			},
+		},
+		{
+			name:      "NotFound",
+			productId: nonExistentId,
+			buildStubs: func(repository *mock_products.MockRepository) {
+				repository.
+					EXPECT().
+					Delete(nonExistentId).
+					Times(1).
+					Return(fmt.Errorf("product (%d) not found", nonExistentId))
+			},
+			checkResult: func(t *testing.T, err error) {
+				assert.Error(t, err)
+				assert.EqualError(t, err, fmt.Sprintf("product (%d) not found", nonExistentId))
 			},
 		},
 	}
