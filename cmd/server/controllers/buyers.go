@@ -138,13 +138,13 @@ func (s *BuyerController) Update() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
-			ctx.JSON(http.StatusNotFound, gin.H{"error": "invalid ID"})
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid ID"})
 			return
 		}
 
 		var req buyerRequest
 		if err := ctx.ShouldBindJSON(&req); err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			ctx.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
 			return
 		}
 
