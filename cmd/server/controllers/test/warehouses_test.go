@@ -1,6 +1,7 @@
 package test
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -121,5 +122,33 @@ func TestWarehousesController_GetById_NOK(t *testing.T) {
 	api.ServeHTTP(resp, req)
 
 	assert.Equal(t, http.StatusNotFound, resp.Code)
+}
 
+func TestWarehousesController_Create(t *testing.T) {
+	wh := warehouses.Warehouse{
+		Id:                 1,
+		Address:            "Rua 1",
+		Telephone:          "555555555",
+		WarehouseCode:      "ZAQ",
+		MinimunCapacity:    8,
+		MinimunTemperature: 9,
+	}
+
+	service, handler, api := callMock(t)
+	api.POST(relativePath, handler.Create())
+
+	service.EXPECT().Create(
+		"Rua 1",
+		"555555555",
+		"ZAQ",
+		8,
+		9,
+	).Return(&wh, nil)
+
+	payload := `{"address": "Rua 1","telephone": "555555555","warehouse_code": "ZAQ","minimun_capacity": 8, "minimun_temperature": 9}`
+	req := httptest.NewRequest(http.MethodPost, relativePath, bytes.NewBuffer([]byte(payload)))
+	resp := httptest.NewRecorder()
+	api.ServeHTTP(resp, req)
+
+	assert.Equal(t, http.StatusCreated, resp.Code)
 }

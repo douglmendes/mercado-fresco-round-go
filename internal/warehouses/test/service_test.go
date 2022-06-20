@@ -108,7 +108,7 @@ func TestService_Delete_NOK(t *testing.T) {
 	assert.NotNil(t, err)
 }
 
-func TestCreate_OK(t *testing.T) {
+func TestServiceCreate_OK(t *testing.T) {
 	apiMock, service := callMock(t)
 
 	wh := []warehouses.Warehouse{
@@ -162,7 +162,7 @@ func TestCreate_OK(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func TestCreate_NOK(t *testing.T) {
+func TestServiceCreate_NOK(t *testing.T) {
 	apiMock, service := callMock(t)
 
 	wh := []warehouses.Warehouse{
