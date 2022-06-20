@@ -6,6 +6,7 @@ import (
 	"github.com/douglmendes/mercado-fresco-round-go/pkg/store"
 )
 
+//go:generate mockgen -source=./repository.go -destination=./mock/repository_mock.go
 type Repository interface {
 	GetAll() ([]Seller, error)
 	GetById(id int) (Seller, error)
