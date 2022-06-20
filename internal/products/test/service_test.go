@@ -248,3 +248,55 @@ func TestGetAll(t *testing.T) {
 		})
 	}
 }
+
+func TestGetById(t *testing.T) {
+	expected := products.Product{
+		Id:                             1,
+		ProductCode:                    "xpto",
+		Description:                    "description",
+		Width:                          6.3,
+		Height:                         2.3,
+		Length:                         5.1,
+		NetWeight:                      23.5,
+		ExpirationRate:                 0.8,
+		RecommendedFreezingTemperature: -4.3,
+		FreezingRate:                   0.4,
+		ProductTypeId:                  3,
+		SellerId:                       5,
+	}
+
+	testCases := []struct {
+		name        string
+		productId   int
+		buildStubs  func(repository *mock_products.MockRepository)
+		checkResult func(t *testing.T, result products.Product, err error)
+	}{
+		{
+			name:      "OK",
+			productId: expected.Id,
+			buildStubs: func(repository *mock_products.MockRepository) {
+				repository.
+					EXPECT().
+					GetById(expected.Id).
+					Times(1).
+					Return(expected, nil)
+			},
+			checkResult: func(t *testing.T, result products.Product, err error) {
+				assert.NoError(t, err)
+
+				assert.Equal(t, expected, result)
+			},
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			repository, service := callMock(t)
+
+			testCase.buildStubs(repository)
+
+			result, err := service.GetById(testCase.productId)
+			testCase.checkResult(t, result, err)
+		})
+	}
+}
