@@ -5,8 +5,8 @@ import "fmt"
 type Service interface {
 	GetAll() ([]Product, error)
 	GetById(id int) (Product, error)
-	Create(productCode, description string, width, height, length, netWeight, expirationRate, recommendedFreezingTemperature, freezingRate float64, productTypeId, sellerId int) (Product, error)
-	Update(id int, productCode, description string, width, height, length, netWeight, expirationRate, recommendedFreezingTemperature, freezingRate float64, productTypeId, sellerId int) (Product, error)
+	Create(arg Product) (Product, error)
+	Update(arg Product) (Product, error)
 	Delete(id int) error
 }
 
@@ -36,7 +36,7 @@ func (s service) GetById(id int) (Product, error) {
 	return product, nil
 }
 
-func (s service) Create(productCode, description string, width, height, length, netWeight, expirationRate, recommendedFreezingTemperature, freezingRate float64, productTypeId, sellerId int) (Product, error) {
+func (s service) Create(arg Product) (Product, error) {
 	lastId, err := s.repository.LastID()
 	if err != nil {
 		return Product{}, err
@@ -48,12 +48,14 @@ func (s service) Create(productCode, description string, width, height, length, 
 	}
 
 	for _, product := range products {
-		if product.ProductCode == productCode {
-			return Product{}, fmt.Errorf("the product with code \"%s\" already exists", productCode)
+		if product.ProductCode == arg.ProductCode {
+			return Product{}, fmt.Errorf("the product with code \"%s\" already exists", arg.ProductCode)
 		}
 	}
 
-	product, err := s.repository.Create(lastId+1, productCode, description, width, height, length, netWeight, expirationRate, recommendedFreezingTemperature, freezingRate, productTypeId, sellerId)
+	arg.Id = lastId + 1
+
+	product, err := s.repository.Create(arg)
 	if err != nil {
 		return Product{}, err
 	}
@@ -61,8 +63,8 @@ func (s service) Create(productCode, description string, width, height, length, 
 	return product, nil
 }
 
-func (s service) Update(id int, productCode, description string, width, height, length, netWeight, expirationRate, recommendedFreezingTemperature, freezingRate float64, productTypeId, sellerId int) (Product, error) {
-	updatedProduct, err := s.repository.Update(id, productCode, description, width, height, length, netWeight, expirationRate, recommendedFreezingTemperature, freezingRate, productTypeId, sellerId)
+func (s service) Update(arg Product) (Product, error) {
+	updatedProduct, err := s.repository.Update(arg)
 	if err != nil {
 		return Product{}, err
 	}
