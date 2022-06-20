@@ -356,6 +356,22 @@ func TestUpdate(t *testing.T) {
 				assert.Equal(t, expected, result)
 			},
 		},
+		{
+			name: "NotFound",
+			buildStubs: func(repository *mock_products.MockRepository) {
+				repository.
+					EXPECT().
+					Update(expected).
+					Times(1).
+					Return(products.Product{}, fmt.Errorf("product (%d) not found", expected.Id))
+			},
+			checkResult: func(t *testing.T, result products.Product, err error) {
+				assert.Error(t, err)
+				assert.EqualError(t, err, fmt.Sprintf("product (%d) not found", expected.Id))
+
+				assert.Equal(t, products.Product{}, result)
+			},
+		},
 	}
 
 	for _, testCase := range testCases {
