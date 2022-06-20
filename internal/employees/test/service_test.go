@@ -78,9 +78,9 @@ func TestService_Create_Nok(t *testing.T) {
 	//repository
 	apiMock.EXPECT().LastID().Return(2, nil)
 	apiMock.EXPECT().GetAll().Return(empList, nil)
-	apiMock.EXPECT().Create(3, "3030", "Renata", "Leal", 3).Return(employees.Employee{}, errors.New("this card number id already exists"))
+	apiMock.EXPECT().Create(3, "404", "Renata", "Leal", 3).Return(employees.Employee{}, errors.New("this card number id already exists"))
 	//service
-	_, err := service.Create("3030", "Renata", "Leal", 3)
+	_, err := service.Create("404", "Renata", "Leal", 3)
 	assert.NotNil(t, err)
 
 }
