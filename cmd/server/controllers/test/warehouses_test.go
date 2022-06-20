@@ -17,9 +17,9 @@ import (
 )
 
 const (
-	relativePath        = "/api/v1/warehouses/"
-	relativePathGetById = "/api/v1/warehouses/:id"
-	id                  = "1"
+	relativePath       = "/api/v1/warehouses/"
+	relativePathWithId = "/api/v1/warehouses/:id"
+	id                 = "1"
 )
 
 func callMock(t *testing.T) (*mock_warehouses.MockService, *controllers.WarehousesController, *gin.Engine) {
@@ -97,7 +97,7 @@ func TestWarehousesController_GetById(t *testing.T) {
 
 	service, handler, api := callMock(t)
 
-	api.GET(relativePathGetById, handler.GetById())
+	api.GET(relativePathWithId, handler.GetById())
 
 	service.EXPECT().GetById(gomock.Eq(1)).Return(wh, nil)
 
@@ -114,7 +114,7 @@ func TestWarehousesController_GetById(t *testing.T) {
 
 func TestWarehousesController_GetById_NOK(t *testing.T) {
 	service, handler, api := callMock(t)
-	api.GET(relativePathGetById, handler.GetById())
+	api.GET(relativePathWithId, handler.GetById())
 	service.EXPECT().GetById(gomock.Eq(1)).Return(warehouses.Warehouse{}, errors.New("warehouse not found"))
 
 	req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/warehouses/%s", id), nil)
@@ -122,6 +122,17 @@ func TestWarehousesController_GetById_NOK(t *testing.T) {
 	api.ServeHTTP(resp, req)
 
 	assert.Equal(t, http.StatusNotFound, resp.Code)
+}
+
+func TestWarehousesController_GetById_BadRequest(t *testing.T) {
+	_, handler, api := callMock(t)
+	api.GET(relativePathWithId, handler.GetById())
+
+	req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/warehouses/%s", "opsHere"), nil)
+	resp := httptest.NewRecorder()
+	api.ServeHTTP(resp, req)
+
+	assert.Equal(t, http.StatusBadRequest, resp.Code)
 }
 
 func TestWarehousesController_Create(t *testing.T) {
@@ -151,4 +162,61 @@ func TestWarehousesController_Create(t *testing.T) {
 	api.ServeHTTP(resp, req)
 
 	assert.Equal(t, http.StatusCreated, resp.Code)
+}
+
+func TestWarehousesController_Create_Conflict(t *testing.T) {
+	service, handler, api := callMock(t)
+	api.POST(relativePath, handler.Create())
+
+	service.EXPECT().Create(
+		"Rua 1",
+		"555555555",
+		"ZAQ",
+		8,
+		9,
+	).Return(nil, errors.New("this warehouse already exists"))
+
+	payload := `{"address": "Rua 1","telephone": "555555555","warehouse_code": "ZAQ","minimun_capacity": 8, "minimun_temperature": 9}`
+	req := httptest.NewRequest(http.MethodPost, relativePath, bytes.NewBuffer([]byte(payload)))
+	resp := httptest.NewRecorder()
+	api.ServeHTTP(resp, req)
+
+	assert.Equal(t, http.StatusConflict, resp.Code)
+}
+
+func TestWarehousesController_Delete_OK(t *testing.T) {
+	service, handler, api := callMock(t)
+	api.DELETE(relativePathWithId, handler.Delete())
+
+	service.EXPECT().Delete(gomock.Eq(1)).Return(nil)
+
+	req := httptest.NewRequest(http.MethodDelete, fmt.Sprintf("/api/v1/warehouses/%s", id), nil)
+	resp := httptest.NewRecorder()
+	api.ServeHTTP(resp, req)
+
+	assert.Equal(t, http.StatusNoContent, resp.Code)
+}
+
+func TestWarehousesController_Delete_NOK(t *testing.T) {
+	service, handler, api := callMock(t)
+	api.DELETE(relativePathWithId, handler.Delete())
+
+	service.EXPECT().Delete(gomock.Eq(1)).Return(errors.New("erro 404"))
+
+	req := httptest.NewRequest(http.MethodDelete, fmt.Sprintf("/api/v1/warehouses/%s", id), nil)
+	resp := httptest.NewRecorder()
+	api.ServeHTTP(resp, req)
+
+	assert.Equal(t, http.StatusNotFound, resp.Code)
+}
+
+func TestWarehousesController_Delete_BadRequest(t *testing.T) {
+	_, handler, api := callMock(t)
+	api.DELETE(relativePathWithId, handler.Delete())
+
+	req := httptest.NewRequest(http.MethodDelete, fmt.Sprintf("/api/v1/warehouses/%s", "cuidado-Mando"), nil)
+	resp := httptest.NewRecorder()
+	api.ServeHTTP(resp, req)
+
+	assert.Equal(t, http.StatusBadRequest, resp.Code)
 }
