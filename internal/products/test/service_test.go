@@ -220,6 +220,21 @@ func TestGetAll(t *testing.T) {
 				assert.ElementsMatch(t, expected, result)
 			},
 		},
+		{
+			name: "Fail",
+			buildStubs: func(repository *mock_products.MockRepository) {
+				repository.
+					EXPECT().
+					GetAll().
+					Times(1).
+					Return([]products.Product{}, os.ErrPermission)
+			},
+			checkResult: func(t *testing.T, result []products.Product, err error) {
+				assert.Error(t, err)
+
+				assert.Empty(t, result)
+			},
+		},
 	}
 
 	for _, testCase := range testCases {
