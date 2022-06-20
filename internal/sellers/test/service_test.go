@@ -89,21 +89,70 @@ func TestService_GetById_NOk(t *testing.T) {
 
 }
 
-func TestService_Delete_Ok(t *testing.T) {
+func TestCreate_Ok(t *testing.T) {
+
+	slList := []sellers.Seller{
+		{
+			ID:          1,
+			Cid:         22,
+			CompanyName: "Mercado Fresco",
+			Address:     "Rua Meli",
+			Telephone:   "34235432",
+		},
+		{
+			ID:          2,
+			Cid:         23,
+			CompanyName: "Mercado Pago",
+			Address:     "Rua Parque",
+			Telephone:   "12349870",
+		},
+	}
+
+	sl := sellers.Seller{
+		ID:          3,
+		Cid:         20,
+		CompanyName: "Mercado Livre",
+		Address:     "Melicidade",
+		Telephone:   "98787687",
+	}
+
 	apiMock, service := callMock(t)
 
-	apiMock.EXPECT().Delete(gomock.Eq(id)).Return(nil)
+	apiMock.EXPECT().LastID().Return(2, nil)
+	apiMock.EXPECT().GetAll().Return(slList, nil)
+	apiMock.EXPECT().Create(3, 20, "Mercado Livre", "Melicidade", "98787687").Return(sl, nil)
 
-	err := service.Delete(id)
+	result, err := service.Create(20, "Mercado Livre", "Melicidade", "98787687")
+	assert.Equal(t, result, sl)
 	assert.Nil(t, err)
 }
 
-func TestService_Delete_NOk(t *testing.T) {
+func TestCreate_NOk(t *testing.T) {
+
+	slList := []sellers.Seller{
+		{
+			ID:          1,
+			Cid:         22,
+			CompanyName: "Mercado Fresco",
+			Address:     "Rua Meli",
+			Telephone:   "34235432",
+		},
+		{
+			ID:          2,
+			Cid:         23,
+			CompanyName: "Mercado Pago",
+			Address:     "Rua Parque",
+			Telephone:   "12349870",
+		},
+	}
+
 	apiMock, service := callMock(t)
 
-	apiMock.EXPECT().Delete(gomock.Eq(id)).Return(errors.New("id is not valid"))
+	apiMock.EXPECT().LastID().Return(2, nil)
+	apiMock.EXPECT().GetAll().Return(slList, nil)
+	// apiMock.EXPECT().Create(3, 24, "Mercado Livre", "Melicidade", "98787687").Return(sellers.Seller{}, errors.New("this seller already exists"))
 
-	err := service.Delete(id)
+	_, err := service.Create(22, "Mercado Livre", "Melicidade", "98787687")
 	assert.NotNil(t, err)
 }
 
@@ -172,4 +221,52 @@ func TestService_Update_NOk(t *testing.T) {
 	result, err := service.Update(10, 20, "Mercado Livre", "Melicidade", "98787687")
 	assert.NotNil(t, err)
 	assert.Equal(t, result, sl)
+}
+
+func TestService_Update_ExistentCid_NOk(t *testing.T) {
+
+	sl := sellers.Seller{}
+
+	slList := []sellers.Seller{
+		{
+			ID:          1,
+			Cid:         22,
+			CompanyName: "Mercado Fresco",
+			Address:     "Rua Meli",
+			Telephone:   "34235432",
+		},
+		{
+			ID:          2,
+			Cid:         23,
+			CompanyName: "Mercado Pago",
+			Address:     "Rua Parque",
+			Telephone:   "12349870",
+		},
+	}
+
+	apiMock, service := callMock(t)
+
+	apiMock.EXPECT().GetAll().Return(slList, nil)
+
+	result, err := service.Update(10, 22, "Mercado Livre", "Melicidade", "98787687")
+	assert.NotNil(t, err)
+	assert.Equal(t, result, sl)
+}
+
+func TestService_Delete_Ok(t *testing.T) {
+	apiMock, service := callMock(t)
+
+	apiMock.EXPECT().Delete(gomock.Eq(id)).Return(nil)
+
+	err := service.Delete(id)
+	assert.Nil(t, err)
+}
+
+func TestService_Delete_NOk(t *testing.T) {
+	apiMock, service := callMock(t)
+
+	apiMock.EXPECT().Delete(gomock.Eq(id)).Return(errors.New("id is not valid"))
+
+	err := service.Delete(id)
+	assert.NotNil(t, err)
 }
