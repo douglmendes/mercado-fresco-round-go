@@ -1,6 +1,7 @@
 package products_test
 
 import (
+	"os"
 	"testing"
 
 	"github.com/douglmendes/mercado-fresco-round-go/internal/products"
@@ -55,6 +56,21 @@ func TestCreate(t *testing.T) {
 				assert.NoError(t, err)
 
 				assert.EqualValues(t, expected, result)
+			},
+		},
+		{
+			name: "LastIdError",
+			buildStubs: func(repository *mock_products.MockRepository) {
+				repository.
+					EXPECT().
+					LastID().
+					Times(1).
+					Return(0, os.ErrPermission)
+			},
+			checkResult: func(t *testing.T, result products.Product, err error) {
+				assert.Error(t, err)
+
+				assert.EqualValues(t, products.Product{}, result)
 			},
 		},
 	}
