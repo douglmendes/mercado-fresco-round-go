@@ -73,6 +73,27 @@ func TestCreate(t *testing.T) {
 				assert.EqualValues(t, products.Product{}, result)
 			},
 		},
+		{
+			name: "GetAllError",
+			buildStubs: func(repository *mock_products.MockRepository) {
+				repository.
+					EXPECT().
+					LastID().
+					Times(1).
+					Return(0, nil)
+
+				repository.
+					EXPECT().
+					GetAll().
+					Times(1).
+					Return([]products.Product{}, os.ErrPermission)
+			},
+			checkResult: func(t *testing.T, result products.Product, err error) {
+				assert.Error(t, err)
+
+				assert.EqualValues(t, products.Product{}, result)
+			},
+		},
 	}
 
 	for _, testCase := range testCases {
