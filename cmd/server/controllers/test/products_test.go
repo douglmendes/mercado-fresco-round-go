@@ -311,6 +311,39 @@ func TestProductController_Create(t *testing.T) {
 				assert.NotEmpty(t, body.Error)
 			},
 		},
+		{
+			name:    "Conflict",
+			payload: newProduct,
+			buildStubs: func(service *mock_products.MockService) {
+				service.
+					EXPECT().
+					Create(newProduct).
+					Times(1).
+					Return(
+						emptyProduct,
+						fmt.Errorf(
+							"the product with code \"%s\" already exists",
+							firstProduct.ProductCode,
+						),
+					)
+			},
+			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
+				assert.Equal(t, http.StatusConflict, res.Code)
+
+				body := productResponseBody{}
+				json.Unmarshal(res.Body.Bytes(), &body)
+
+				assert.Empty(t, body.Data)
+				assert.Equal(
+					t,
+					fmt.Sprintf(
+						"the product with code \"%s\" already exists",
+						firstProduct.ProductCode,
+					),
+					body.Error,
+				)
+			},
+		},
 	}
 
 	for _, testCase := range testCases {
