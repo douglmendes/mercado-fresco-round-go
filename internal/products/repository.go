@@ -58,27 +58,13 @@ func (r *repository) Create(arg Product) (Product, error) {
 		return Product{}, err
 	}
 
-	newProduct := Product{
-		arg.Id,
-		arg.ProductCode,
-		arg.Description,
-		arg.Width,
-		arg.Height,
-		arg.Length,
-		arg.NetWeight,
-		arg.ExpirationRate,
-		arg.RecommendedFreezingTemperature,
-		arg.FreezingRate,
-		arg.ProductTypeId,
-		arg.SellerId,
-	}
-	products = append(products, newProduct)
+	products = append(products, arg)
 
 	if err := r.db.Write(products); err != nil {
 		return Product{}, err
 	}
 
-	return newProduct, nil
+	return arg, nil
 }
 
 func (r *repository) LastID() (int, error) {
