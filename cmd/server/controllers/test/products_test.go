@@ -1,8 +1,10 @@
 package test
 
 import (
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 
 	"github.com/douglmendes/mercado-fresco-round-go/cmd/server/controllers"
@@ -80,6 +82,29 @@ func TestProductController_GetAll(t *testing.T) {
 			},
 			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
 				assert.Equal(t, http.StatusOK, res.Code)
+			},
+		},
+		{
+			name: "Fail",
+			buildStubs: func(service *mock_products.MockService) {
+				service.
+					EXPECT().
+					GetAll().
+					Times(1).
+					Return([]products.Product{}, os.ErrClosed)
+			},
+			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
+				assert.Equal(t, http.StatusInternalServerError, res.Code)
+
+				body := struct {
+					Data  []products.Product `json:"data"`
+					Error string             `json:"error"`
+				}{}
+
+				json.Unmarshal(res.Body.Bytes(), &body)
+
+				assert.Empty(t, body.Data)
+				assert.NotEmpty(t, body.Error)
 			},
 		},
 	}
