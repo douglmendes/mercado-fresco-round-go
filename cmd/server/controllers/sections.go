@@ -165,7 +165,7 @@ func (s *SectionsController) Delete(c *gin.Context) {
 		return
 	}
 
-	err = s.service.Delete(id)
+	_, err = s.service.Delete(id)
 	if err != nil {
 		c.JSON(http.StatusNotFound, response.DecodeError(err.Error()))
 		return
