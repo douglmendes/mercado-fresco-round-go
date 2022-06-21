@@ -1,6 +1,7 @@
 package test
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/douglmendes/mercado-fresco-round-go/internal/sections"
@@ -51,6 +52,17 @@ func TestService_Create_Conflict(t *testing.T) {
 	_, err := service.Create(1, 15, 5, 150, 15, 250, 1, 1)
 	assert.NotNil(t, err)
 	assert.EqualError(t, err, expectedError.Error())
+}
+
+func TestService_Create_Data_Error(t *testing.T) {
+	api, service := callMock(t)
+	api.EXPECT().GetAll().Return(nil, errors.New("error"))
+
+	api.EXPECT().Create(1, 15, 5, 150, 15, 250, 1, 1).Return(nil, errors.New("error"))
+
+	resp, err := service.Create(1, 15, 5, 150, 15, 250, 1, 1)
+	assert.NotNil(t, err)
+	assert.Nil(t, resp)
 }
 
 func TestService_Find_All(t *testing.T) {
@@ -155,6 +167,31 @@ func TestService_Update_Non_Existent(t *testing.T) {
 	assert.Nil(t, res)
 	assert.NotNil(t, err)
 	assert.EqualError(t, err, expectedError.Error())
+}
+
+func TestService_Update_Data_Error(t *testing.T) {
+	api, service := callMock(t)
+
+	api.EXPECT().Exists(1).Return(nil)
+	api.EXPECT().GetAll().Return([]sections.Section{}, errors.New("error"))
+	api.EXPECT().Update(1, map[string]int{"current_temperature": 8}).Return(nil, errors.New("error"))
+
+	res, err := service.Update(1, map[string]int{"current_temperature": 8})
+	assert.Nil(t, res)
+	assert.NotNil(t, err)
+}
+
+func TestService_Update_Conflict(t *testing.T) {
+	api, service := callMock(t)
+
+	api.EXPECT().Exists(1).Return(nil)
+	api.EXPECT().GetAll().Return([]sections.Section{}, nil)
+	api.EXPECT().Update(1, map[string]int{"current_temperature": 8}).Return(nil, &sections.ErrorConflict{SectionNumber: 1})
+
+	res, err := service.Update(1, map[string]int{"current_temperature": 8})
+	assert.Nil(t, res)
+	assert.NotNil(t, err)
+	assert.EqualError(t, err, (&sections.ErrorConflict{SectionNumber: 1}).Error())
 }
 
 func TestService_Delete_Non_Existent(t *testing.T) {
