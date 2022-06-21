@@ -551,6 +551,26 @@ func TestProductController_Delete(t *testing.T) {
 				assert.NotEmpty(t, body.Error)
 			},
 		},
+		{
+			name:      "NotFound",
+			productId: INVALID_ID,
+			buildStubs: func(service *mock_products.MockService) {
+				service.
+					EXPECT().
+					Delete(INVALID_ID).
+					Times(1).
+					Return(fmt.Errorf("product (%d) not found", INVALID_ID))
+			},
+			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
+				assert.Equal(t, http.StatusNotFound, res.Code)
+
+				body := productResponseBody{}
+				json.Unmarshal(res.Body.Bytes(), &body)
+
+				assert.Empty(t, body.Data)
+				assert.Equal(t, fmt.Sprintf("product (%d) not found", INVALID_ID), body.Error)
+			},
+		},
 	}
 
 	for _, testCase := range testCases {
