@@ -81,75 +81,8 @@ func (r *repository) LastID() (int, error) {
 	return products[len(products)-1].Id, nil
 }
 
-func (r *repository) productCodeExists(arg Product) bool {
-	var products []Product
-
-	r.db.Read(&products)
-
-	for _, product := range products {
-		if product.Id != arg.Id && product.ProductCode == arg.ProductCode {
-			return true
-		}
-	}
-
-	return false
-}
-
-func (r *repository) updateProduct(product, arg Product) (Product, error) {
-	if arg.ProductCode != "" {
-		if r.productCodeExists(arg) {
-			return Product{}, fmt.Errorf("the product with code \"%s\" already exists", arg.ProductCode)
-		}
-
-		product.ProductCode = arg.ProductCode
-	}
-
-	if arg.Description != "" {
-		product.Description = arg.Description
-	}
-
-	if arg.Width != 0 {
-		product.Width = arg.Width
-	}
-
-	if arg.Height != 0 {
-		product.Height = arg.Height
-	}
-
-	if arg.Length != 0 {
-		product.Length = arg.Length
-	}
-
-	if arg.NetWeight != 0 {
-		product.NetWeight = arg.NetWeight
-	}
-
-	if arg.ExpirationRate != 0 {
-		product.ExpirationRate = arg.ExpirationRate
-	}
-
-	if arg.RecommendedFreezingTemperature != 0 {
-		product.RecommendedFreezingTemperature = arg.RecommendedFreezingTemperature
-	}
-
-	if arg.FreezingRate != 0 {
-		product.FreezingRate = arg.FreezingRate
-	}
-
-	if arg.ProductTypeId != 0 {
-		product.ProductTypeId = arg.ProductTypeId
-	}
-
-	if arg.SellerId != 0 {
-		product.SellerId = arg.SellerId
-	}
-
-	return product, nil
-}
-
 func (r *repository) Update(arg Product) (Product, error) {
 	var products []Product
-	var updatedProduct Product
 	updated := false
 
 	if err := r.db.Read(&products); err != nil {
@@ -158,14 +91,8 @@ func (r *repository) Update(arg Product) (Product, error) {
 
 	for index, product := range products {
 		if product.Id == arg.Id {
-			patchedProduct, err := r.updateProduct(product, arg)
-			if err != nil {
-				return Product{}, err
-			}
-
-			products[index] = patchedProduct
+			products[index] = arg
 			updated = true
-			updatedProduct = product
 		}
 	}
 
@@ -175,7 +102,7 @@ func (r *repository) Update(arg Product) (Product, error) {
 
 	r.db.Write(products)
 
-	return updatedProduct, nil
+	return arg, nil
 }
 
 func (r *repository) Delete(id int) error {

@@ -12,5 +12,19 @@
     "freezing_rate": 2,
     "product_type_id": 2,
     "seller_id": 2
+  },
+  {
+    "id": 2,
+    "product_code": "PROD02",
+    "description": "Apple Pie",
+    "width": 12.2,
+    "height": 6.4,
+    "length": 4.5,
+    "net_weight": 3.4,
+    "expiration_rate": 2,
+    "recommended_freezing_temperature": 2.3,
+    "freezing_rate": 2,
+    "product_type_id": 2,
+    "seller_id": 2
   }
 ]
