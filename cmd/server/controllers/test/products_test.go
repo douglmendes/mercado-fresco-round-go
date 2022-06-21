@@ -508,3 +508,53 @@ func TestProductController_Update(t *testing.T) {
 		})
 	}
 }
+
+func TestProductController_Delete(t *testing.T) {
+	testCases := []struct {
+		name        string
+		productId   int
+		buildStubs  func(service *mock_products.MockService)
+		checkResult func(t *testing.T, res *httptest.ResponseRecorder)
+	}{
+		{
+			name:      "OK",
+			productId: firstProduct.Id,
+			buildStubs: func(service *mock_products.MockService) {
+				service.
+					EXPECT().
+					Delete(firstProduct.Id).
+					Times(1).
+					Return(nil)
+			},
+			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
+				assert.Equal(t, http.StatusNoContent, res.Code)
+
+				body := productResponseBody{}
+				json.Unmarshal(res.Body.Bytes(), &body)
+
+				assert.Empty(t, body.Data)
+				assert.Empty(t, body.Error)
+			},
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			service, handler, api := callMock(t)
+
+			api.DELETE(RELATIVE_PATH_WITH_ID, handler.Delete())
+
+			testCase.buildStubs(service)
+
+			req := httptest.NewRequest(
+				http.MethodDelete,
+				fmt.Sprintf("%s%d", RELATIVE_PATH, testCase.productId),
+				nil,
+			)
+			res := httptest.NewRecorder()
+			api.ServeHTTP(res, req)
+
+			testCase.checkResult(t, res)
+		})
+	}
+}
