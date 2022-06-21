@@ -367,6 +367,11 @@ func TestProductController_Create(t *testing.T) {
 func TestProductController_Update(t *testing.T) {
 	updatedProduct := secondProduct
 	updatedProduct.Id = firstProduct.Id
+	invalidProduct := struct {
+		Width string
+	}{
+		Width: "invalid",
+	}
 
 	testCases := []struct {
 		name        string
@@ -394,6 +399,21 @@ func TestProductController_Update(t *testing.T) {
 
 				assert.Equal(t, updatedProduct, body.Data)
 				assert.Empty(t, body.Error)
+			},
+		},
+		{
+			name:       "Fail",
+			payload:    invalidProduct,
+			productId:  firstProduct.Id,
+			buildStubs: func(service *mock_products.MockService) {},
+			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
+				assert.Equal(t, http.StatusUnprocessableEntity, res.Code)
+
+				body := productResponseBody{}
+				json.Unmarshal(res.Body.Bytes(), &body)
+
+				assert.Empty(t, body.Data)
+				assert.NotEmpty(t, body.Error)
 			},
 		},
 	}
