@@ -374,11 +374,12 @@ func TestProductController_Update(t *testing.T) {
 	}
 
 	testCases := []struct {
-		name        string
-		payload     interface{}
-		productId   int
-		buildStubs  func(service *mock_products.MockService)
-		checkResult func(t *testing.T, res *httptest.ResponseRecorder)
+		name               string
+		payload            interface{}
+		wrongTypeProductId string
+		productId          int
+		buildStubs         func(service *mock_products.MockService)
+		checkResult        func(t *testing.T, res *httptest.ResponseRecorder)
 	}{
 		{
 			name:      "OK",
@@ -416,6 +417,21 @@ func TestProductController_Update(t *testing.T) {
 				assert.NotEmpty(t, body.Error)
 			},
 		},
+		{
+			name:               "BadRequest",
+			payload:            updatedProduct,
+			wrongTypeProductId: WRONG_TYPE_ID,
+			buildStubs:         func(service *mock_products.MockService) {},
+			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
+				assert.Equal(t, http.StatusBadRequest, res.Code)
+
+				body := productResponseBody{}
+				json.Unmarshal(res.Body.Bytes(), &body)
+
+				assert.Empty(t, body.Data)
+				assert.NotEmpty(t, body.Error)
+			},
+		},
 	}
 
 	for _, testCase := range testCases {
@@ -427,11 +443,20 @@ func TestProductController_Update(t *testing.T) {
 			testCase.buildStubs(service)
 
 			payload, _ := json.Marshal(testCase.payload)
-			req := httptest.NewRequest(
-				http.MethodPatch,
-				fmt.Sprintf("%s%d", RELATIVE_PATH, testCase.productId),
-				bytes.NewBuffer(payload),
-			)
+			var req *http.Request
+			if testCase.wrongTypeProductId != "" {
+				req = httptest.NewRequest(
+					http.MethodPatch,
+					fmt.Sprintf("%s%s", RELATIVE_PATH, testCase.wrongTypeProductId),
+					bytes.NewBuffer(payload),
+				)
+			} else {
+				req = httptest.NewRequest(
+					http.MethodPatch,
+					fmt.Sprintf("%s%d", RELATIVE_PATH, testCase.productId),
+					bytes.NewBuffer(payload),
+				)
+			}
 			res := httptest.NewRecorder()
 			api.ServeHTTP(res, req)
 
