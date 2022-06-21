@@ -1,8 +1,8 @@
 package test
 
 import (
-	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -17,18 +17,53 @@ import (
 )
 
 const (
-	RELATIVE_PATH = "/api/v1/products/"
+	RELATIVE_PATH         = "/api/v1/products/"
+	RELATIVE_PATH_WITH_ID = RELATIVE_PATH + ":id"
 )
 
-type responseBody struct {
+var (
+	firstProduct = products.Product{
+		Id:                             1,
+		ProductCode:                    "xpto",
+		Description:                    "description",
+		Width:                          6.3,
+		Height:                         2.3,
+		Length:                         5.1,
+		NetWeight:                      23.5,
+		ExpirationRate:                 0.8,
+		RecommendedFreezingTemperature: -4.3,
+		FreezingRate:                   0.4,
+		ProductTypeId:                  3,
+		SellerId:                       5,
+	}
+	secondProduct = products.Product{
+		Id:                             2,
+		ProductCode:                    "xablau",
+		Description:                    "description",
+		Width:                          3.6,
+		Height:                         3.2,
+		Length:                         1.5,
+		NetWeight:                      5.23,
+		ExpirationRate:                 0.08,
+		RecommendedFreezingTemperature: -3.4,
+		FreezingRate:                   0.8,
+		ProductTypeId:                  2,
+		SellerId:                       3,
+	}
+	allProducts = []products.Product{
+		firstProduct,
+		secondProduct,
+	}
+)
+
+type sliceResponseBody struct {
 	Data  []products.Product `json:"data"`
 	Error string             `json:"error"`
 }
 
-func decodeBody(resBody *bytes.Buffer) (body responseBody) {
-	json.Unmarshal(resBody.Bytes(), &body)
-
-	return
+type productResponseBody struct {
+	Data  products.Product `json:"data"`
+	Error string           `json:"error"`
 }
 
 func callMock(t *testing.T) (
@@ -47,37 +82,6 @@ func callMock(t *testing.T) (
 }
 
 func TestProductController_GetAll(t *testing.T) {
-	allProducts := []products.Product{
-		{
-			Id:                             1,
-			ProductCode:                    "xpto",
-			Description:                    "description",
-			Width:                          6.3,
-			Height:                         2.3,
-			Length:                         5.1,
-			NetWeight:                      23.5,
-			ExpirationRate:                 0.8,
-			RecommendedFreezingTemperature: -4.3,
-			FreezingRate:                   0.4,
-			ProductTypeId:                  3,
-			SellerId:                       5,
-		},
-		{
-			Id:                             2,
-			ProductCode:                    "xablau",
-			Description:                    "description",
-			Width:                          3.6,
-			Height:                         3.2,
-			Length:                         1.5,
-			NetWeight:                      5.23,
-			ExpirationRate:                 0.08,
-			RecommendedFreezingTemperature: -3.4,
-			FreezingRate:                   0.8,
-			ProductTypeId:                  2,
-			SellerId:                       3,
-		},
-	}
-
 	testCases := []struct {
 		name        string
 		buildStubs  func(service *mock_products.MockService)
@@ -108,7 +112,8 @@ func TestProductController_GetAll(t *testing.T) {
 			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
 				assert.Equal(t, http.StatusInternalServerError, res.Code)
 
-				body := decodeBody(res.Body)
+				body := sliceResponseBody{}
+				json.Unmarshal(res.Body.Bytes(), &body)
 
 				assert.Empty(t, body.Data)
 				assert.NotEmpty(t, body.Error)
@@ -126,7 +131,8 @@ func TestProductController_GetAll(t *testing.T) {
 			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
 				assert.Equal(t, http.StatusNoContent, res.Code)
 
-				body := decodeBody(res.Body)
+				body := sliceResponseBody{}
+				json.Unmarshal(res.Body.Bytes(), &body)
 
 				assert.Empty(t, body.Data)
 				assert.Empty(t, body.Error)
@@ -143,6 +149,52 @@ func TestProductController_GetAll(t *testing.T) {
 			testCase.buildStubs(service)
 
 			req := httptest.NewRequest(http.MethodGet, RELATIVE_PATH, nil)
+			res := httptest.NewRecorder()
+			api.ServeHTTP(res, req)
+
+			testCase.checkResult(t, res)
+		})
+	}
+}
+
+func TestProductController_GetById(t *testing.T) {
+	testCases := []struct {
+		name        string
+		productId   int
+		buildStubs  func(service *mock_products.MockService)
+		checkResult func(t *testing.T, res *httptest.ResponseRecorder)
+	}{
+		{
+			name:      "OK",
+			productId: firstProduct.Id,
+			buildStubs: func(service *mock_products.MockService) {
+				service.
+					EXPECT().
+					GetById(firstProduct.Id).
+					Times(1).
+					Return(firstProduct, nil)
+			},
+			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
+				assert.Equal(t, http.StatusOK, res.Code)
+
+				body := productResponseBody{}
+				json.Unmarshal(res.Body.Bytes(), &body)
+
+				assert.Equal(t, firstProduct, body.Data)
+				assert.Empty(t, body.Error)
+			},
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			service, handler, api := callMock(t)
+
+			api.GET(RELATIVE_PATH_WITH_ID, handler.GetById())
+
+			testCase.buildStubs(service)
+
+			req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("%s%d", RELATIVE_PATH, testCase.productId), nil)
 			res := httptest.NewRecorder()
 			api.ServeHTTP(res, req)
 
