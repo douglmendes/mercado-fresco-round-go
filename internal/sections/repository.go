@@ -2,18 +2,19 @@ package sections
 
 import "github.com/douglmendes/mercado-fresco-round-go/pkg/store"
 
+//go:generate mockgen -source=./repository.go -destination=./mock/repository_mock.go
 type Repository interface {
 	GetAll() ([]Section, error)
-	GetById(id int) (Section, error)
+	GetById(id int) (*Section, error)
 	LastID() (int, error)
 	Create(
 		sectionNumber, currentCapacity, minimumCapacity,
 		maximumCapacity, warehouseId, productTypeId,
 		currentTemperature, minimumTemperature int,
-	) (Section, error)
+	) (*Section, error)
 	Exists(id int) error
-	Update(id int, args map[string]int) (Section, error)
-	Delete(id int) error
+	Update(id int, args map[string]int) (*Section, error)
+	Delete(id int) (*Section, error)
 }
 
 type repository struct {
@@ -30,19 +31,19 @@ func (r *repository) GetAll() ([]Section, error) {
 	return data, nil
 }
 
-func (r *repository) GetById(id int) (Section, error) {
+func (r *repository) GetById(id int) (*Section, error) {
 	data, err := r.GetAll()
 	if err != nil {
-		return Section{}, err
+		return nil, err
 	}
 
 	for _, section := range data {
 		if section.Id == id {
-			return section, nil
+			return &section, nil
 		}
 	}
 
-	return Section{}, &ErrorNotFound{id}
+	return nil, &ErrorNotFound{id}
 }
 
 func (r *repository) LastID() (int, error) {
@@ -63,15 +64,15 @@ func (r *repository) Create(
 	sectionNumber, currentCapacity, minimumCapacity,
 	maximumCapacity, warehouseId, productTypeId,
 	currentTemperature, minimumTemperature int,
-) (Section, error) {
+) (*Section, error) {
 	lastID, err := r.LastID()
 	if err != nil {
-		return Section{}, err
+		return nil, err
 	}
 
 	data, err := r.GetAll()
 	if err != nil {
-		return Section{}, err
+		return nil, err
 	}
 
 	section := Section{
@@ -89,26 +90,30 @@ func (r *repository) Create(
 	data = append(data, section)
 
 	if err := r.database.Write(data); err != nil {
-		return Section{}, err
+		return nil, err
 	}
 
-	return section, nil
+	return &section, nil
 }
 
-func (r *repository) Delete(id int) error {
+func (r *repository) Delete(id int) (*Section, error) {
 	data, err := r.GetAll()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	for i, section := range data {
 		if section.Id == id {
 			data = append(data[:i], data[i+1:]...)
-			return r.database.Write(data)
+			err := r.database.Write(data)
+			if err != nil {
+				return nil, err
+			}
+			return &section, nil
 		}
 	}
 
-	return &ErrorNotFound{id}
+	return nil, &ErrorNotFound{id}
 }
 
 func (r *repository) Exists(id int) error {
@@ -116,10 +121,10 @@ func (r *repository) Exists(id int) error {
 	return err
 }
 
-func (r *repository) Update(id int, args map[string]int) (Section, error) {
+func (r *repository) Update(id int, args map[string]int) (*Section, error) {
 	data, err := r.GetAll()
 	if err != nil {
-		return Section{}, err
+		return nil, err
 	}
 
 	var selectedSection *Section
@@ -152,10 +157,10 @@ func (r *repository) Update(id int, args map[string]int) (Section, error) {
 	}
 
 	if err := r.database.Write(data); err != nil {
-		return Section{}, err
+		return nil, err
 	}
 
-	return *selectedSection, nil
+	return selectedSection, nil
 }
 
 func NewRepository(s store.Store) Repository {
