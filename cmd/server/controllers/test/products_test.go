@@ -19,6 +19,7 @@ import (
 const (
 	RELATIVE_PATH         = "/api/v1/products/"
 	RELATIVE_PATH_WITH_ID = RELATIVE_PATH + ":id"
+	INVALID_ID            = 0
 )
 
 var (
@@ -182,6 +183,26 @@ func TestProductController_GetById(t *testing.T) {
 
 				assert.Equal(t, firstProduct, body.Data)
 				assert.Empty(t, body.Error)
+			},
+		},
+		{
+			name:      "NotFound",
+			productId: INVALID_ID,
+			buildStubs: func(service *mock_products.MockService) {
+				service.
+					EXPECT().
+					GetById(INVALID_ID).
+					Times(1).
+					Return(products.Product{}, fmt.Errorf("product (%d) not found", INVALID_ID))
+			},
+			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
+				assert.Equal(t, http.StatusNotFound, res.Code)
+
+				body := productResponseBody{}
+				json.Unmarshal(res.Body.Bytes(), &body)
+
+				assert.Empty(t, body.Data)
+				assert.Equal(t, fmt.Sprintf("product (%d) not found", INVALID_ID), body.Error)
 			},
 		},
 	}
