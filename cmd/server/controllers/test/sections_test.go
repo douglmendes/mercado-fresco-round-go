@@ -2,6 +2,7 @@ package test
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -89,7 +90,7 @@ func TestSections_Create_Fail(t *testing.T) {
 	assert.Equal(t, http.StatusUnprocessableEntity, resp.Code)
 }
 
-func TestService_Create_Conflict(t *testing.T) {
+func TestSections_Create_Conflict(t *testing.T) {
 	service, handler, api := mockSections(t)
 	api.POST(pathSections, handler.Create)
 
@@ -115,7 +116,7 @@ func TestService_Create_Conflict(t *testing.T) {
 	assert.Equal(t, http.StatusConflict, resp.Code)
 }
 
-func TestService_Find_All(t *testing.T) {
+func TestSections_Find_All(t *testing.T) {
 	service, handler, api := mockSections(t)
 
 	db := []sections.Section{
@@ -159,7 +160,33 @@ func TestService_Find_All(t *testing.T) {
 	assert.Equal(t, db, expecBody.Data)
 }
 
-func TestService_Find_By_Id_Non_Existent(t *testing.T) {
+func TestSections_Find_All_Error(t *testing.T) {
+	service, handler, api := mockSections(t)
+	api.GET(pathSections, handler.GetAll)
+
+	service.EXPECT().GetAll().Return([]sections.Section{}, errors.New("internal server error"))
+
+	req := httptest.NewRequest(http.MethodGet, pathSections, nil)
+	resp := httptest.NewRecorder()
+	api.ServeHTTP(resp, req)
+
+	assert.Equal(t, http.StatusInternalServerError, resp.Code)
+}
+
+func TestSections_Find_All_Empty(t *testing.T) {
+	service, handler, api := mockSections(t)
+	api.GET(pathSections, handler.GetAll)
+
+	service.EXPECT().GetAll().Return([]sections.Section{}, nil)
+
+	req := httptest.NewRequest(http.MethodGet, pathSections, nil)
+	resp := httptest.NewRecorder()
+	api.ServeHTTP(resp, req)
+
+	assert.Equal(t, http.StatusNoContent, resp.Code)
+}
+
+func TestSections_Find_By_Id_Non_Existent(t *testing.T) {
 	service, handler, api := mockSections(t)
 	api.GET(pathIdSections, handler.GetById)
 
@@ -172,7 +199,7 @@ func TestService_Find_By_Id_Non_Existent(t *testing.T) {
 	assert.Equal(t, http.StatusNotFound, resp.Code)
 }
 
-func TestService_Find_By_Id_Existent(t *testing.T) {
+func TestSections_Find_By_Id_Existent(t *testing.T) {
 	service, handler, api := mockSections(t)
 	api.GET(pathIdSections, handler.GetById)
 
@@ -196,14 +223,27 @@ func TestService_Find_By_Id_Existent(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, resp.Code)
 
-	expecBody := struct{ Data sections.Section }{}
-	err := json.Unmarshal(resp.Body.Bytes(), &expecBody)
+	expectBody := struct{ Data sections.Section }{}
+	err := json.Unmarshal(resp.Body.Bytes(), &expectBody)
 	assert.Nil(t, err)
 
-	assert.Equal(t, db, expecBody.Data)
+	assert.Equal(t, db, expectBody.Data)
 }
 
-func TestService_Update_OK(t *testing.T) {
+func TestSections_Find_By_Id_Bad_Request(t *testing.T) {
+	_, handler, api := mockSections(t)
+	api.GET(pathIdSections, handler.GetById)
+
+	//service.EXPECT().GetById(1).Return(nil, &sections.ErrorNotFound{Id: 1})
+
+	req := httptest.NewRequest(http.MethodGet, pathSections+"a", nil)
+	resp := httptest.NewRecorder()
+	api.ServeHTTP(resp, req)
+
+	assert.Equal(t, http.StatusBadRequest, resp.Code)
+}
+
+func TestSections_Update_OK(t *testing.T) {
 	service, handler, api := mockSections(t)
 	api.PATCH(pathIdSections, handler.Update)
 
@@ -239,7 +279,7 @@ func TestService_Update_OK(t *testing.T) {
 	assert.Equal(t, db, expecBody.Data)
 }
 
-func TestService_Update_Non_Existent(t *testing.T) {
+func TestSections_Update_Non_Existent(t *testing.T) {
 	service, handler, api := mockSections(t)
 	api.PATCH(pathIdSections, handler.Update)
 
@@ -257,7 +297,7 @@ func TestService_Update_Non_Existent(t *testing.T) {
 	assert.Equal(t, http.StatusNotFound, resp.Code)
 }
 
-func TestService_Delete_Non_Existent(t *testing.T) {
+func TestSections_Delete_Non_Existent(t *testing.T) {
 	service, handler, api := mockSections(t)
 	api.DELETE(pathIdSections, handler.Delete)
 
@@ -270,7 +310,7 @@ func TestService_Delete_Non_Existent(t *testing.T) {
 	assert.Equal(t, http.StatusNotFound, resp.Code)
 }
 
-func TestService_Delete_OK(t *testing.T) {
+func TestSections_Delete_OK(t *testing.T) {
 	service, handler, api := mockSections(t)
 	api.DELETE(pathIdSections, handler.Delete)
 
