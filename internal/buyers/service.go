@@ -2,6 +2,7 @@ package buyers
 
 import "fmt"
 
+//go:generate mockgen -source=./service.go -destination=./mock/service_mock.go
 type Service interface {
 	GetById(id int) (Buyer, error)
 	GetAll() ([]Buyer, error)

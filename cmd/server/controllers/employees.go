@@ -100,11 +100,11 @@ func (c *EmployeesController) Create() gin.HandlerFunc {
 		}
 		e, err := c.service.Create(req.CardNumberId, req.FirstName, req.LastName, req.WarehouseId)
 		if err != nil {
-			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+			ctx.JSON(http.StatusConflict, gin.H{"error": err.Error()})
 			return
 		}
 
-		ctx.JSON(http.StatusOK, response.NewResponse(e))
+		ctx.JSON(http.StatusCreated, response.NewResponse(e))
 	}
 
 }

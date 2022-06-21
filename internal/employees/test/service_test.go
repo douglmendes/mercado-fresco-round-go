@@ -55,8 +55,9 @@ func TestService_Create_Ok(t *testing.T) {
 
 }
 
-//TODO tá passando tudo - REVISAR
+//CREATE create_conflict Se o card_number_id já existir, ele não pode ser criado
 func TestService_Create_Nok(t *testing.T) {
+	emp := employees.Employee{}
 	empList := []employees.Employee{
 		{
 			1,
@@ -78,10 +79,11 @@ func TestService_Create_Nok(t *testing.T) {
 	//repository
 	apiMock.EXPECT().LastID().Return(2, nil)
 	apiMock.EXPECT().GetAll().Return(empList, nil)
-	apiMock.EXPECT().Create(3, "404", "Renata", "Leal", 3).Return(employees.Employee{}, errors.New("this card number id already exists"))
+	apiMock.EXPECT().Create(3, "3030", "Renata", "Leal", 3).Return(employees.Employee{}, errors.New("this card number id already exists"))
 	//service
-	_, err := service.Create("404", "Renata", "Leal", 3)
+	result, err := service.Create("3030", "Renata", "Leal", 3)
 	assert.NotNil(t, err)
+	assert.Equal(t, result, emp)
 
 }
 
@@ -103,10 +105,10 @@ func TestService_GetAll(t *testing.T) {
 			33,
 		},
 	}
-
+	//repository
 	apiMock, service := callMock(t)
 	apiMock.EXPECT().GetAll().Return(emp, nil)
-
+	//service
 	result, err := service.GetAll()
 	assert.Equal(t, len(result), len(emp))
 	assert.Nil(t, err)

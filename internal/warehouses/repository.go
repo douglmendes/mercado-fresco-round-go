@@ -55,7 +55,7 @@ func (r *repository) Create(
 
 	var warehouses []Warehouse
 	if err := r.db.Read(&warehouses); err != nil {
-		return Warehouse{}, nil
+		return Warehouse{}, err
 	}
 
 	warehouse := Warehouse{
