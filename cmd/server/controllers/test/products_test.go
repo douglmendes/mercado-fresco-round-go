@@ -1,11 +1,13 @@
 package test
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"strconv"
 	"testing"
 
 	"github.com/douglmendes/mercado-fresco-round-go/cmd/server/controllers"
@@ -20,6 +22,7 @@ const (
 	RELATIVE_PATH         = "/api/v1/products/"
 	RELATIVE_PATH_WITH_ID = RELATIVE_PATH + ":id"
 	INVALID_ID            = 0
+	WRONG_TYPE_ID         = "xpto"
 )
 
 var (
@@ -160,10 +163,11 @@ func TestProductController_GetAll(t *testing.T) {
 
 func TestProductController_GetById(t *testing.T) {
 	testCases := []struct {
-		name        string
-		productId   int
-		buildStubs  func(service *mock_products.MockService)
-		checkResult func(t *testing.T, res *httptest.ResponseRecorder)
+		name               string
+		productId          int
+		wrongTypeProductId string
+		buildStubs         func(service *mock_products.MockService)
+		checkResult        func(t *testing.T, res *httptest.ResponseRecorder)
 	}{
 		{
 			name:      "OK",
@@ -205,6 +209,20 @@ func TestProductController_GetById(t *testing.T) {
 				assert.Equal(t, fmt.Sprintf("product (%d) not found", INVALID_ID), body.Error)
 			},
 		},
+		{
+			name:               "InvalidId",
+			wrongTypeProductId: WRONG_TYPE_ID,
+			buildStubs:         func(service *mock_products.MockService) {},
+			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
+				assert.Equal(t, http.StatusBadRequest, res.Code)
+
+				body := productResponseBody{}
+				json.Unmarshal(res.Body.Bytes(), &body)
+
+				assert.Empty(t, body.Data)
+				assert.Contains(t, body.Error, strconv.ErrSyntax.Error())
+			},
+		},
 	}
 
 	for _, testCase := range testCases {
@@ -215,7 +233,72 @@ func TestProductController_GetById(t *testing.T) {
 
 			testCase.buildStubs(service)
 
-			req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("%s%d", RELATIVE_PATH, testCase.productId), nil)
+			var req *http.Request
+			if testCase.wrongTypeProductId != "" {
+				req = httptest.
+					NewRequest(
+						http.MethodGet,
+						fmt.Sprintf("%s%s", RELATIVE_PATH, testCase.wrongTypeProductId),
+						nil,
+					)
+			} else {
+				req = httptest.
+					NewRequest(
+						http.MethodGet,
+						fmt.Sprintf("%s%d", RELATIVE_PATH, testCase.productId),
+						nil,
+					)
+			}
+			res := httptest.NewRecorder()
+			api.ServeHTTP(res, req)
+
+			testCase.checkResult(t, res)
+		})
+	}
+}
+
+func TestProductController_Create(t *testing.T) {
+	newProduct := firstProduct
+	newProduct.Id = 0
+
+	testCases := []struct {
+		name        string
+		payload     products.Product
+		buildStubs  func(service *mock_products.MockService)
+		checkResult func(t *testing.T, res *httptest.ResponseRecorder)
+	}{
+		{
+			name:    "OK",
+			payload: newProduct,
+			buildStubs: func(service *mock_products.MockService) {
+				service.
+					EXPECT().
+					Create(newProduct).
+					Times(1).
+					Return(firstProduct, nil)
+			},
+			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
+				assert.Equal(t, http.StatusCreated, res.Code)
+
+				body := productResponseBody{}
+				json.Unmarshal(res.Body.Bytes(), &body)
+
+				assert.Equal(t, firstProduct, body.Data)
+				assert.Empty(t, body.Error)
+			},
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			service, handler, api := callMock(t)
+
+			api.POST(RELATIVE_PATH, handler.Create())
+
+			testCase.buildStubs(service)
+
+			payload, _ := json.Marshal(testCase.payload)
+			req := httptest.NewRequest(http.MethodPost, RELATIVE_PATH, bytes.NewBuffer(payload))
 			res := httptest.NewRecorder()
 			api.ServeHTTP(res, req)
 
