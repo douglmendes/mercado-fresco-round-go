@@ -95,13 +95,13 @@ func (r *repository) LastID() (int, error) {
 	return products[len(products)-1].Id, nil
 }
 
-func (r *repository) productCodeExists(productCode string) bool {
+func (r *repository) productCodeExists(arg Product) bool {
 	var products []Product
 
 	r.db.Read(&products)
 
 	for _, product := range products {
-		if product.ProductCode == productCode {
+		if product.Id != arg.Id && product.ProductCode == arg.ProductCode {
 			return true
 		}
 	}
@@ -111,7 +111,7 @@ func (r *repository) productCodeExists(productCode string) bool {
 
 func (r *repository) updateProduct(product, arg Product) (Product, error) {
 	if arg.ProductCode != "" {
-		if r.productCodeExists(arg.ProductCode) {
+		if r.productCodeExists(arg) {
 			return Product{}, fmt.Errorf("the product with code \"%s\" already exists", arg.ProductCode)
 		}
 
