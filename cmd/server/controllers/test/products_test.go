@@ -511,10 +511,11 @@ func TestProductController_Update(t *testing.T) {
 
 func TestProductController_Delete(t *testing.T) {
 	testCases := []struct {
-		name        string
-		productId   int
-		buildStubs  func(service *mock_products.MockService)
-		checkResult func(t *testing.T, res *httptest.ResponseRecorder)
+		name               string
+		wrongTypeProductId string
+		productId          int
+		buildStubs         func(service *mock_products.MockService)
+		checkResult        func(t *testing.T, res *httptest.ResponseRecorder)
 	}{
 		{
 			name:      "OK",
@@ -536,6 +537,20 @@ func TestProductController_Delete(t *testing.T) {
 				assert.Empty(t, body.Error)
 			},
 		},
+		{
+			name:               "Fail",
+			wrongTypeProductId: WRONG_TYPE_ID,
+			buildStubs:         func(service *mock_products.MockService) {},
+			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
+				assert.Equal(t, http.StatusBadRequest, res.Code)
+
+				body := productResponseBody{}
+				json.Unmarshal(res.Body.Bytes(), &body)
+
+				assert.Empty(t, body.Data)
+				assert.NotEmpty(t, body.Error)
+			},
+		},
 	}
 
 	for _, testCase := range testCases {
@@ -546,11 +561,20 @@ func TestProductController_Delete(t *testing.T) {
 
 			testCase.buildStubs(service)
 
-			req := httptest.NewRequest(
-				http.MethodDelete,
-				fmt.Sprintf("%s%d", RELATIVE_PATH, testCase.productId),
-				nil,
-			)
+			var req *http.Request
+			if testCase.wrongTypeProductId != "" {
+				req = httptest.NewRequest(
+					http.MethodDelete,
+					fmt.Sprintf("%s%s", RELATIVE_PATH, testCase.wrongTypeProductId),
+					nil,
+				)
+			} else {
+				req = httptest.NewRequest(
+					http.MethodDelete,
+					fmt.Sprintf("%s%d", RELATIVE_PATH, testCase.productId),
+					nil,
+				)
+			}
 			res := httptest.NewRecorder()
 			api.ServeHTTP(res, req)
 
