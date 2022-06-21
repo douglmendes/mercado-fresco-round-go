@@ -367,6 +367,8 @@ func TestProductController_Create(t *testing.T) {
 func TestProductController_Update(t *testing.T) {
 	updatedProduct := secondProduct
 	updatedProduct.Id = firstProduct.Id
+	updatedProductWithInvalidId := secondProduct
+	updatedProductWithInvalidId.Id = INVALID_ID
 	invalidProduct := struct {
 		Width string
 	}{
@@ -430,6 +432,27 @@ func TestProductController_Update(t *testing.T) {
 
 				assert.Empty(t, body.Data)
 				assert.NotEmpty(t, body.Error)
+			},
+		},
+		{
+			name:      "NotFound",
+			payload:   updatedProduct,
+			productId: INVALID_ID,
+			buildStubs: func(service *mock_products.MockService) {
+				service.
+					EXPECT().
+					Update(updatedProductWithInvalidId).
+					Times(1).
+					Return(emptyProduct, fmt.Errorf("product (%d) not found", INVALID_ID))
+			},
+			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
+				assert.Equal(t, http.StatusNotFound, res.Code)
+
+				body := productResponseBody{}
+				json.Unmarshal(res.Body.Bytes(), &body)
+
+				assert.Empty(t, body.Data)
+				assert.Equal(t, fmt.Sprintf("product (%d) not found", INVALID_ID), body.Error)
 			},
 		},
 	}
