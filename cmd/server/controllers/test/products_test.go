@@ -363,3 +363,59 @@ func TestProductController_Create(t *testing.T) {
 		})
 	}
 }
+
+func TestProductController_Update(t *testing.T) {
+	updatedProduct := secondProduct
+	updatedProduct.Id = firstProduct.Id
+
+	testCases := []struct {
+		name        string
+		payload     interface{}
+		productId   int
+		buildStubs  func(service *mock_products.MockService)
+		checkResult func(t *testing.T, res *httptest.ResponseRecorder)
+	}{
+		{
+			name:      "OK",
+			payload:   updatedProduct,
+			productId: updatedProduct.Id,
+			buildStubs: func(service *mock_products.MockService) {
+				service.
+					EXPECT().
+					Update(updatedProduct).
+					Times(1).
+					Return(updatedProduct, nil)
+			},
+			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
+				assert.Equal(t, http.StatusOK, res.Code)
+
+				body := productResponseBody{}
+				json.Unmarshal(res.Body.Bytes(), &body)
+
+				assert.Equal(t, updatedProduct, body.Data)
+				assert.Empty(t, body.Error)
+			},
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			service, handler, api := callMock(t)
+
+			api.PATCH(RELATIVE_PATH_WITH_ID, handler.Update())
+
+			testCase.buildStubs(service)
+
+			payload, _ := json.Marshal(testCase.payload)
+			req := httptest.NewRequest(
+				http.MethodPatch,
+				fmt.Sprintf("%s%d", RELATIVE_PATH, testCase.productId),
+				bytes.NewBuffer(payload),
+			)
+			res := httptest.NewRecorder()
+			api.ServeHTTP(res, req)
+
+			testCase.checkResult(t, res)
+		})
+	}
+}
