@@ -455,6 +455,27 @@ func TestProductController_Update(t *testing.T) {
 				assert.Equal(t, fmt.Sprintf("product (%d) not found", INVALID_ID), body.Error)
 			},
 		},
+		{
+			name:      "InternalServerError",
+			payload:   updatedProduct,
+			productId: updatedProduct.Id,
+			buildStubs: func(service *mock_products.MockService) {
+				service.
+					EXPECT().
+					Update(updatedProduct).
+					Times(1).
+					Return(emptyProduct, os.ErrClosed)
+			},
+			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
+				assert.Equal(t, http.StatusInternalServerError, res.Code)
+
+				body := productResponseBody{}
+				json.Unmarshal(res.Body.Bytes(), &body)
+
+				assert.Empty(t, body.Data)
+				assert.NotEmpty(t, body.Error)
+			},
+		},
 	}
 
 	for _, testCase := range testCases {
