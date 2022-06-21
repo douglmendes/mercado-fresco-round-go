@@ -26,6 +26,7 @@ const (
 )
 
 var (
+	emptyProduct = products.Product{}
 	firstProduct = products.Product{
 		Id:                             1,
 		ProductCode:                    "xpto",
@@ -260,10 +261,19 @@ func TestProductController_GetById(t *testing.T) {
 func TestProductController_Create(t *testing.T) {
 	newProduct := firstProduct
 	newProduct.Id = 0
+	productWithMissingFields := struct {
+		Id          int
+		ProductCode string
+		Description string
+	}{
+		Id:          1,
+		ProductCode: "xpto",
+		Description: "description",
+	}
 
 	testCases := []struct {
 		name        string
-		payload     products.Product
+		payload     interface{}
 		buildStubs  func(service *mock_products.MockService)
 		checkResult func(t *testing.T, res *httptest.ResponseRecorder)
 	}{
@@ -285,6 +295,20 @@ func TestProductController_Create(t *testing.T) {
 
 				assert.Equal(t, firstProduct, body.Data)
 				assert.Empty(t, body.Error)
+			},
+		},
+		{
+			name:       "Fail",
+			payload:    productWithMissingFields,
+			buildStubs: func(service *mock_products.MockService) {},
+			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
+				assert.Equal(t, http.StatusUnprocessableEntity, res.Code)
+
+				body := productResponseBody{}
+				json.Unmarshal(res.Body.Bytes(), &body)
+
+				assert.Empty(t, body.Data)
+				assert.NotEmpty(t, body.Error)
 			},
 		},
 	}
