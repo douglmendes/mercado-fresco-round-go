@@ -1,6 +1,7 @@
 package test
 
 import (
+	"bytes"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -18,6 +19,17 @@ import (
 const (
 	RELATIVE_PATH = "/api/v1/products/"
 )
+
+type responseBody struct {
+	Data  []products.Product `json:"data"`
+	Error string             `json:"error"`
+}
+
+func decodeBody(resBody *bytes.Buffer) (body responseBody) {
+	json.Unmarshal(resBody.Bytes(), &body)
+
+	return
+}
 
 func callMock(t *testing.T) (
 	*mock_products.MockService,
@@ -96,15 +108,28 @@ func TestProductController_GetAll(t *testing.T) {
 			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
 				assert.Equal(t, http.StatusInternalServerError, res.Code)
 
-				body := struct {
-					Data  []products.Product `json:"data"`
-					Error string             `json:"error"`
-				}{}
-
-				json.Unmarshal(res.Body.Bytes(), &body)
+				body := decodeBody(res.Body)
 
 				assert.Empty(t, body.Data)
 				assert.NotEmpty(t, body.Error)
+			},
+		},
+		{
+			name: "Empty",
+			buildStubs: func(service *mock_products.MockService) {
+				service.
+					EXPECT().
+					GetAll().
+					Times(1).
+					Return([]products.Product{}, nil)
+			},
+			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
+				assert.Equal(t, http.StatusNoContent, res.Code)
+
+				body := decodeBody(res.Body)
+
+				assert.Empty(t, body.Data)
+				assert.Empty(t, body.Error)
 			},
 		},
 	}
