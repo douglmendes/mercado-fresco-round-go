@@ -401,6 +401,33 @@ func TestUpdate(t *testing.T) {
 				assert.Equal(t, products.Product{}, result)
 			},
 		},
+		{
+			name: "Fail",
+			buildStubs: func(repository *mock_products.MockRepository) {
+				repository.
+					EXPECT().
+					GetById(updatedProduct.Id).
+					Times(1).
+					Return(product, nil)
+
+				repository.
+					EXPECT().
+					GetAll().
+					Times(1).
+					Return(allProducts, nil)
+
+				repository.
+					EXPECT().
+					Update(updatedProduct).
+					Times(1).
+					Return(products.Product{}, os.ErrClosed)
+			},
+			checkResult: func(t *testing.T, result products.Product, err error) {
+				assert.Error(t, err)
+
+				assert.Equal(t, products.Product{}, result)
+			},
+		},
 	}
 
 	for _, testCase := range testCases {
