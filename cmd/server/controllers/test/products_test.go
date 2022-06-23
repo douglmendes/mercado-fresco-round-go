@@ -71,7 +71,7 @@ type productResponseBody struct {
 	Error string           `json:"error"`
 }
 
-func callMock(t *testing.T) (
+func callProductsMock(t *testing.T) (
 	*mock_products.MockService,
 	*controllers.ProductController,
 	*gin.Engine,
@@ -147,7 +147,7 @@ func TestProductController_GetAll(t *testing.T) {
 
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
-			service, handler, api := callMock(t)
+			service, handler, api := callProductsMock(t)
 
 			api.GET(RELATIVE_PATH, handler.GetAll())
 
@@ -228,7 +228,7 @@ func TestProductController_GetById(t *testing.T) {
 
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
-			service, handler, api := callMock(t)
+			service, handler, api := callProductsMock(t)
 
 			api.GET(RELATIVE_PATH_WITH_ID, handler.GetById())
 
@@ -348,7 +348,7 @@ func TestProductController_Create(t *testing.T) {
 
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
-			service, handler, api := callMock(t)
+			service, handler, api := callProductsMock(t)
 
 			api.POST(RELATIVE_PATH, handler.Create())
 
@@ -480,7 +480,7 @@ func TestProductController_Update(t *testing.T) {
 
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
-			service, handler, api := callMock(t)
+			service, handler, api := callProductsMock(t)
 
 			api.PATCH(RELATIVE_PATH_WITH_ID, handler.Update())
 
@@ -575,7 +575,7 @@ func TestProductController_Delete(t *testing.T) {
 
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
-			service, handler, api := callMock(t)
+			service, handler, api := callProductsMock(t)
 
 			api.DELETE(RELATIVE_PATH_WITH_ID, handler.Delete())
 

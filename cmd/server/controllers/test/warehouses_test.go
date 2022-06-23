@@ -22,7 +22,7 @@ const (
 	id                 = "1"
 )
 
-func callMock(t *testing.T) (*mock_warehouses.MockService, *controllers.WarehousesController, *gin.Engine) {
+func callWarehousesMock(t *testing.T) (*mock_warehouses.MockService, *controllers.WarehousesController, *gin.Engine) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	service := mock_warehouses.NewMockService(ctrl)
@@ -51,7 +51,7 @@ func TestWarehousesController_GetAll(t *testing.T) {
 		},
 	}
 
-	service, handler, api := callMock(t)
+	service, handler, api := callWarehousesMock(t)
 
 	api.GET(relativePath, handler.GetAll())
 
@@ -70,7 +70,7 @@ func TestWarehousesController_GetAll(t *testing.T) {
 }
 
 func TestWarehousesController_GetAll_NOK(t *testing.T) {
-	service, handler, api := callMock(t)
+	service, handler, api := callWarehousesMock(t)
 
 	api.GET(relativePath, handler.GetAll())
 
@@ -95,7 +95,7 @@ func TestWarehousesController_GetById(t *testing.T) {
 		MinimunTemperature: 2,
 	}
 
-	service, handler, api := callMock(t)
+	service, handler, api := callWarehousesMock(t)
 
 	api.GET(relativePathWithId, handler.GetById())
 
@@ -113,7 +113,7 @@ func TestWarehousesController_GetById(t *testing.T) {
 }
 
 func TestWarehousesController_GetById_NOK(t *testing.T) {
-	service, handler, api := callMock(t)
+	service, handler, api := callWarehousesMock(t)
 	api.GET(relativePathWithId, handler.GetById())
 	service.EXPECT().GetById(gomock.Eq(1)).Return(warehouses.Warehouse{}, errors.New("warehouse not found"))
 
@@ -125,7 +125,7 @@ func TestWarehousesController_GetById_NOK(t *testing.T) {
 }
 
 func TestWarehousesController_GetById_BadRequest(t *testing.T) {
-	_, handler, api := callMock(t)
+	_, handler, api := callWarehousesMock(t)
 	api.GET(relativePathWithId, handler.GetById())
 
 	req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/warehouses/%s", "opsHere"), nil)
@@ -145,7 +145,7 @@ func TestWarehousesController_Create(t *testing.T) {
 		MinimunTemperature: 9,
 	}
 
-	service, handler, api := callMock(t)
+	service, handler, api := callWarehousesMock(t)
 	api.POST(relativePath, handler.Create())
 
 	service.EXPECT().Create(
@@ -165,7 +165,7 @@ func TestWarehousesController_Create(t *testing.T) {
 }
 
 func TestWarehousesController_Create_Conflict(t *testing.T) {
-	service, handler, api := callMock(t)
+	service, handler, api := callWarehousesMock(t)
 	api.POST(relativePath, handler.Create())
 
 	service.EXPECT().Create(
@@ -185,7 +185,7 @@ func TestWarehousesController_Create_Conflict(t *testing.T) {
 }
 
 func TestWarehousesController_Create_Fail(t *testing.T) {
-	_, handler, api := callMock(t)
+	_, handler, api := callWarehousesMock(t)
 	api.POST(relativePath, handler.Create())
 
 	payload := `{"address": "Rua 1","minimun_capacity": 8, "minimun_temperature": 9}`
@@ -197,7 +197,7 @@ func TestWarehousesController_Create_Fail(t *testing.T) {
 }
 
 func TestWarehousesController_Delete_OK(t *testing.T) {
-	service, handler, api := callMock(t)
+	service, handler, api := callWarehousesMock(t)
 	api.DELETE(relativePathWithId, handler.Delete())
 
 	service.EXPECT().Delete(gomock.Eq(1)).Return(nil)
@@ -210,7 +210,7 @@ func TestWarehousesController_Delete_OK(t *testing.T) {
 }
 
 func TestWarehousesController_Delete_NOK(t *testing.T) {
-	service, handler, api := callMock(t)
+	service, handler, api := callWarehousesMock(t)
 	api.DELETE(relativePathWithId, handler.Delete())
 
 	service.EXPECT().Delete(gomock.Eq(1)).Return(errors.New("erro 404"))
@@ -223,7 +223,7 @@ func TestWarehousesController_Delete_NOK(t *testing.T) {
 }
 
 func TestWarehousesController_Delete_BadRequest(t *testing.T) {
-	_, handler, api := callMock(t)
+	_, handler, api := callWarehousesMock(t)
 	api.DELETE(relativePathWithId, handler.Delete())
 
 	req := httptest.NewRequest(http.MethodDelete, fmt.Sprintf("/api/v1/warehouses/%s", "cuidado-Mando"), nil)
@@ -243,7 +243,7 @@ func TestWarehousesController_Update(t *testing.T) {
 		MinimunTemperature: 10,
 	}
 
-	service, handler, api := callMock(t)
+	service, handler, api := callWarehousesMock(t)
 	api.PATCH(relativePathWithId, handler.Update())
 
 	service.EXPECT().Update(
@@ -270,7 +270,7 @@ func TestWarehousesController_Update(t *testing.T) {
 }
 
 func TestWarehousesController_Update_NOK(t *testing.T) {
-	service, handler, api := callMock(t)
+	service, handler, api := callWarehousesMock(t)
 	api.PATCH(relativePathWithId, handler.Update())
 
 	service.EXPECT().Update(
@@ -297,7 +297,7 @@ func TestWarehousesController_Update_NOK(t *testing.T) {
 }
 
 func TestWarehousesController_Update_Fail(t *testing.T) {
-	_, handler, api := callMock(t)
+	_, handler, api := callWarehousesMock(t)
 	api.PATCH(relativePathWithId, handler.Update())
 
 	payload := `{"address": "Rua Sem Saida","telephone": 888888888,"warehouse_code": 25,"minimun_capacity": "Nice!!", "minimun_temperature": 9}`
@@ -315,7 +315,7 @@ func TestWarehousesController_Update_Fail(t *testing.T) {
 }
 
 func TestWarehousesController_Update_BadRequest(t *testing.T) {
-	_, handler, api := callMock(t)
+	_, handler, api := callWarehousesMock(t)
 	api.PATCH(relativePathWithId, handler.Update())
 
 	payload := `{"address": "Rua Sem Saida","telephone": "888888888","warehouse_code": "LSW","minimun_capacity": 8, "minimun_temperature": 9}`
