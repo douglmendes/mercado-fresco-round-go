@@ -321,7 +321,7 @@ func TestGetById(t *testing.T) {
 }
 
 func TestUpdate(t *testing.T) {
-	product := products.Product{
+	firstProduct := products.Product{
 		Id:                             1,
 		ProductCode:                    "xpto",
 		Description:                    "description",
@@ -336,7 +336,22 @@ func TestUpdate(t *testing.T) {
 		SellerId:                       5,
 	}
 
-	allProducts := []products.Product{product}
+	secondProduct := products.Product{
+		Id:                             2,
+		ProductCode:                    "xablau",
+		Description:                    "description",
+		Width:                          6.3,
+		Height:                         2.3,
+		Length:                         5.1,
+		NetWeight:                      23.5,
+		ExpirationRate:                 0.8,
+		RecommendedFreezingTemperature: -4.3,
+		FreezingRate:                   0.4,
+		ProductTypeId:                  3,
+		SellerId:                       5,
+	}
+
+	allProducts := []products.Product{firstProduct, secondProduct}
 
 	updatedProduct := products.Product{
 		Id:                             1,
@@ -353,19 +368,36 @@ func TestUpdate(t *testing.T) {
 		SellerId:                       5,
 	}
 
+	conflictingUpdatedProduct := products.Product{
+		Id:                             1,
+		ProductCode:                    "xablau",
+		Description:                    "description",
+		Width:                          6.3,
+		Height:                         2.3,
+		Length:                         5.1,
+		NetWeight:                      23.5,
+		ExpirationRate:                 0.8,
+		RecommendedFreezingTemperature: -4.3,
+		FreezingRate:                   0.4,
+		ProductTypeId:                  3,
+		SellerId:                       5,
+	}
+
 	testCases := []struct {
-		name        string
-		buildStubs  func(repository *mock_products.MockRepository)
-		checkResult func(t *testing.T, result products.Product, err error)
+		name           string
+		updatedProduct products.Product
+		buildStubs     func(repository *mock_products.MockRepository)
+		checkResult    func(t *testing.T, result products.Product, err error)
 	}{
 		{
-			name: "OK",
+			name:           "OK",
+			updatedProduct: updatedProduct,
 			buildStubs: func(repository *mock_products.MockRepository) {
 				repository.
 					EXPECT().
 					GetById(updatedProduct.Id).
 					Times(1).
-					Return(product, nil)
+					Return(firstProduct, nil)
 
 				repository.
 					EXPECT().
@@ -386,29 +418,31 @@ func TestUpdate(t *testing.T) {
 			},
 		},
 		{
-			name: "NotFound",
+			name:           "NotFound",
+			updatedProduct: updatedProduct,
 			buildStubs: func(repository *mock_products.MockRepository) {
 				repository.
 					EXPECT().
 					GetById(updatedProduct.Id).
 					Times(1).
-					Return(products.Product{}, fmt.Errorf("product (%d) not found", updatedProduct.Id))
+					Return(products.Product{}, fmt.Errorf("firstProduct (%d) not found", updatedProduct.Id))
 			},
 			checkResult: func(t *testing.T, result products.Product, err error) {
 				assert.Error(t, err)
-				assert.EqualError(t, err, fmt.Sprintf("product (%d) not found", updatedProduct.Id))
+				assert.EqualError(t, err, fmt.Sprintf("firstProduct (%d) not found", updatedProduct.Id))
 
 				assert.Equal(t, products.Product{}, result)
 			},
 		},
 		{
-			name: "Fail",
+			name:           "Fail",
+			updatedProduct: updatedProduct,
 			buildStubs: func(repository *mock_products.MockRepository) {
 				repository.
 					EXPECT().
 					GetById(updatedProduct.Id).
 					Times(1).
-					Return(product, nil)
+					Return(firstProduct, nil)
 
 				repository.
 					EXPECT().
@@ -428,6 +462,35 @@ func TestUpdate(t *testing.T) {
 				assert.Equal(t, products.Product{}, result)
 			},
 		},
+		{
+			name:           "Conflict",
+			updatedProduct: conflictingUpdatedProduct,
+			buildStubs: func(repository *mock_products.MockRepository) {
+				repository.
+					EXPECT().
+					GetById(conflictingUpdatedProduct.Id).
+					Times(1).
+					Return(firstProduct, nil)
+
+				repository.
+					EXPECT().
+					GetAll().
+					Times(1).
+					Return(allProducts, nil)
+			},
+			checkResult: func(t *testing.T, result products.Product, err error) {
+				assert.Equal(
+					t,
+					fmt.Errorf(
+						"the product with code \"%s\" already exists",
+						conflictingUpdatedProduct.ProductCode,
+					),
+					err,
+				)
+
+				assert.Equal(t, products.Product{}, result)
+			},
+		},
 	}
 
 	for _, testCase := range testCases {
@@ -436,7 +499,7 @@ func TestUpdate(t *testing.T) {
 
 			testCase.buildStubs(repository)
 
-			result, err := service.Update(updatedProduct)
+			result, err := service.Update(testCase.updatedProduct)
 			testCase.checkResult(t, result, err)
 		})
 	}
