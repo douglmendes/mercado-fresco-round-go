@@ -1,17 +1,17 @@
-package controllers
+package controller
 
 import (
 	"fmt"
+	"github.com/douglmendes/mercado-fresco-round-go/internal/employees/domain"
 	"net/http"
 	"strconv"
 
-	"github.com/douglmendes/mercado-fresco-round-go/internal/employees"
 	"github.com/douglmendes/mercado-fresco-round-go/pkg/response"
 	"github.com/gin-gonic/gin"
 )
 
 type EmployeesController struct {
-	service employees.Service
+	service domain.Service
 }
 
 type requestEmployee struct {
@@ -22,7 +22,7 @@ type requestEmployee struct {
 	WarehouseId  int    `json:"warehouse_id"`
 }
 
-func NewEmployees(e employees.Service) *EmployeesController {
+func NewEmployees(e domain.Service) *EmployeesController {
 	return &EmployeesController{
 		service: e,
 	}

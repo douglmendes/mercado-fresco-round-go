@@ -1,13 +1,15 @@
 package main
 
 import (
+	"github.com/douglmendes/mercado-fresco-round-go/internal/employees/controller"
+	"github.com/douglmendes/mercado-fresco-round-go/internal/employees/repository"
+	"github.com/douglmendes/mercado-fresco-round-go/internal/employees/service"
 	"log"
 	"os"
 
 	"github.com/douglmendes/mercado-fresco-round-go/cmd/server/controllers"
 	"github.com/douglmendes/mercado-fresco-round-go/cmd/server/docs"
 	"github.com/douglmendes/mercado-fresco-round-go/internal/buyers"
-	"github.com/douglmendes/mercado-fresco-round-go/internal/employees"
 	"github.com/douglmendes/mercado-fresco-round-go/internal/products"
 	"github.com/douglmendes/mercado-fresco-round-go/internal/sections"
 	"github.com/douglmendes/mercado-fresco-round-go/internal/sellers"
@@ -99,10 +101,10 @@ func main() {
 	}
 
 	employeesDb := store.New(store.FileType, store.PathBuilder("/employees.json"))
-	employeesRepo := employees.NewRepository(employeesDb)
-	employeesService := employees.NewService(employeesRepo)
+	employeesRepo := repository.NewRepository(employeesDb)
+	employeesService := service.NewService(employeesRepo)
 
-	e := controllers.NewEmployees(employeesService)
+	e := controller.NewEmployees(employeesService)
 
 	emp := router.Group("/api/v1/employees")
 	{

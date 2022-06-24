@@ -1,25 +1,25 @@
-package test
+package service
 
 import (
 	"errors"
-	"github.com/douglmendes/mercado-fresco-round-go/internal/employees"
-	mock_employees "github.com/douglmendes/mercado-fresco-round-go/internal/employees/mock"
+	"github.com/douglmendes/mercado-fresco-round-go/internal/employees/domain"
+	"github.com/douglmendes/mercado-fresco-round-go/internal/employees/domain/mock"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
-func callMock(t *testing.T) (*mock_employees.MockRepository, employees.Service) {
+func callMock(t *testing.T) (*mock_domain.MockRepository, domain.Service) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	apiMock := mock_employees.NewMockRepository(ctrl)
-	service := employees.NewService(apiMock)
+	apiMock := mock_domain.NewMockRepository(ctrl)
+	service := NewService(apiMock)
 	return apiMock, service
 }
 
 //CREATE create_ok Se contiver os campos necessários, será criado
 func TestService_Create_Ok(t *testing.T) {
-	empList := []employees.Employee{
+	empList := []domain.Employee{
 		{
 			1,
 			"3030",
@@ -36,7 +36,7 @@ func TestService_Create_Ok(t *testing.T) {
 		},
 	}
 
-	emp := employees.Employee{
+	emp := domain.Employee{
 		Id:           3,
 		CardNumberId: "5050",
 		FirstName:    "Renata",
@@ -57,8 +57,8 @@ func TestService_Create_Ok(t *testing.T) {
 
 //CREATE create_conflict Se o card_number_id já existir, ele não pode ser criado
 func TestService_Create_Nok(t *testing.T) {
-	emp := employees.Employee{}
-	empList := []employees.Employee{
+	emp := domain.Employee{}
+	empList := []domain.Employee{
 		{
 			1,
 			"3030",
@@ -79,7 +79,7 @@ func TestService_Create_Nok(t *testing.T) {
 	//repository
 	apiMock.EXPECT().LastID().Return(2, nil)
 	apiMock.EXPECT().GetAll().Return(empList, nil)
-	apiMock.EXPECT().Create(3, "3030", "Renata", "Leal", 3).Return(employees.Employee{}, errors.New("this card number id already exists"))
+	apiMock.EXPECT().Create(3, "3030", "Renata", "Leal", 3).Return(domain.Employee{}, errors.New("this card number id already exists"))
 	//service
 	result, err := service.Create("3030", "Renata", "Leal", 3)
 	assert.NotNil(t, err)
@@ -89,7 +89,7 @@ func TestService_Create_Nok(t *testing.T) {
 
 //READ find_all Se a lista tiver "n" elementos, retornará uma quantidade do total de elementos
 func TestService_GetAll(t *testing.T) {
-	emp := []employees.Employee{
+	emp := []domain.Employee{
 		{
 			1,
 			"3030",
@@ -118,7 +118,7 @@ func TestService_GetAll(t *testing.T) {
 func TestService_GetById_Nok(t *testing.T) {
 
 	apiMock, service := callMock(t)
-	apiMock.EXPECT().GetById(gomock.Eq(1)).Return(employees.Employee{}, errors.New("Employee 1 not found id"))
+	apiMock.EXPECT().GetById(gomock.Eq(1)).Return(domain.Employee{}, errors.New("Employee 1 not found id"))
 
 	_, err := service.GetById(1)
 	assert.NotNil(t, err)
@@ -126,7 +126,7 @@ func TestService_GetById_Nok(t *testing.T) {
 
 //READ find_by_id_existent Se o elemento procurado por id existir, ele
 func TestService_GetById_Ok(t *testing.T) {
-	emp := employees.Employee{
+	emp := domain.Employee{
 		Id:           1,
 		CardNumberId: "3030",
 		FirstName:    "Douglas",
@@ -162,14 +162,14 @@ func TestService_Delete_Nok(t *testing.T) {
 //funcionário será devolvido com as informações atualizadas
 func TestService_Update_Ok(t *testing.T) {
 
-	emp := employees.Employee{
+	emp := domain.Employee{
 		Id:           1,
 		CardNumberId: "5050",
 		FirstName:    "Douglas",
 		LastName:     "Mendes",
 		WarehouseId:  3,
 	}
-	empList := []employees.Employee{
+	empList := []domain.Employee{
 		{
 			1,
 			"3030",
@@ -199,8 +199,8 @@ func TestService_Update_Ok(t *testing.T) {
 //UPDATE update_non_existent Se o funcionário a ser atualizado não existir, será retornado null.
 func TestService_Update_Nok(t *testing.T) {
 
-	emp := employees.Employee{}
-	empList := []employees.Employee{
+	emp := domain.Employee{}
+	empList := []domain.Employee{
 		{
 			1,
 			"3030",
