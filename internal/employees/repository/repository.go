@@ -1,37 +1,28 @@
-package employees
+package repository
 
 import (
 	"fmt"
+	"github.com/douglmendes/mercado-fresco-round-go/internal/employees/domain"
 
 	"github.com/douglmendes/mercado-fresco-round-go/pkg/store"
 )
-
-//go:generate mockgen -source=./repository.go -destination=./mock/repository_mock.go
-type Repository interface {
-	GetAll() ([]Employee, error)
-	GetById(id int) (Employee, error)
-	LastID() (int, error)
-	Create(id int, cardNumberId string, firstName string, lastName string, warehouseId int) (Employee, error)
-	Update(id int, cardNumberId string, firstName string, lastName string, warehouseId int) (Employee, error)
-	Delete(id int) error
-}
 
 type repository struct {
 	db store.Store
 }
 
-func (r *repository) GetAll() ([]Employee, error) {
-	var emp []Employee
+func (r *repository) GetAll() ([]domain.Employee, error) {
+	var emp []domain.Employee
 	if err := r.db.Read(&emp); err != nil {
-		return []Employee{}, nil
+		return []domain.Employee{}, nil
 	}
 	return emp, nil
 }
 
-func (r *repository) GetById(id int) (Employee, error) {
-	var emp []Employee
+func (r *repository) GetById(id int) (domain.Employee, error) {
+	var emp []domain.Employee
 	if err := r.db.Read(&emp); err != nil {
-		return Employee{}, nil
+		return domain.Employee{}, nil
 	}
 
 	for i := range emp {
@@ -39,11 +30,11 @@ func (r *repository) GetById(id int) (Employee, error) {
 			return emp[i], nil
 		}
 	}
-	return Employee{}, fmt.Errorf("Employee %d not found", id)
+	return domain.Employee{}, fmt.Errorf("Employee %d not found", id)
 }
 
 func (r *repository) LastID() (int, error) {
-	var emp []Employee
+	var emp []domain.Employee
 	if err := r.db.Read(&emp); err != nil {
 		return 0, err
 	}
@@ -53,26 +44,26 @@ func (r *repository) LastID() (int, error) {
 	return emp[len(emp)-1].Id, nil
 }
 
-func (r *repository) Create(id int, cardNumberId string, firstName string, lastName string, warehouseId int) (Employee, error) {
-	var emp []Employee
+func (r *repository) Create(id int, cardNumberId string, firstName string, lastName string, warehouseId int) (domain.Employee, error) {
+	var emp []domain.Employee
 	if err := r.db.Read(&emp); err != nil {
-		return Employee{}, err
+		return domain.Employee{}, err
 	}
-	s := Employee{id, cardNumberId, firstName, lastName, warehouseId}
+	s := domain.Employee{id, cardNumberId, firstName, lastName, warehouseId}
 	emp = append(emp, s)
 	if err := r.db.Write(emp); err != nil {
-		return Employee{}, err
+		return domain.Employee{}, err
 	}
 	return s, nil
 }
 
-func (r *repository) Update(id int, cardNumberId string, firstName string, lastName string, warehouseId int) (Employee, error) {
-	var emp []Employee
+func (r *repository) Update(id int, cardNumberId string, firstName string, lastName string, warehouseId int) (domain.Employee, error) {
+	var emp []domain.Employee
 	if err := r.db.Read(&emp); err != nil {
-		return Employee{}, nil
+		return domain.Employee{}, nil
 	}
 
-	e := Employee{}
+	e := domain.Employee{}
 
 	updated := false
 	for i := range emp {
@@ -99,20 +90,20 @@ func (r *repository) Update(id int, cardNumberId string, firstName string, lastN
 			emp[i] = e
 			updated = true
 			if err := r.db.Write(emp); err != nil {
-				return Employee{}, err
+				return domain.Employee{}, err
 			}
 		}
 	}
 
 	if !updated {
-		return Employee{}, fmt.Errorf("employee %d not found", id)
+		return domain.Employee{}, fmt.Errorf("employee %d not found", id)
 	}
 	return e, nil
 
 }
 
 func (r *repository) Delete(id int) error {
-	var emp []Employee
+	var emp []domain.Employee
 	if err := r.db.Read(&emp); err != nil {
 		return err
 	}
@@ -138,7 +129,7 @@ func (r *repository) Delete(id int) error {
 	return nil
 }
 
-func NewRepository(db store.Store) Repository {
+func NewRepository(db store.Store) domain.Repository {
 	return &repository{
 		db: db,
 	}
