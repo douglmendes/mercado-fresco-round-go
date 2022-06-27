@@ -262,7 +262,7 @@ func TestBuyersController_Update_Fail(t *testing.T) {
 
 	req := httptest.NewRequest(
 		http.MethodPatch,
-		fmt.Sprintf("/api/v1/buyers/%s", id),
+		fmt.Sprintf("/api/v1/buyers/%s", idBuyers),
 		bytes.NewBuffer([]byte(payload)),
 	)
 
