@@ -26,3 +26,7 @@ __debug_bin
 
 # IDE
 *.idea
+
+#database files
+/db/.data
+

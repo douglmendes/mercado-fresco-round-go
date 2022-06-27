@@ -2,10 +2,14 @@ version: "3"
 
 
 services:
-  app:
-    build: .
-    container_name: mercado-fresco
+  database:
+    image: mariadb:10.8.3
+    container_name: mercado-fresco-db
+    hostname: mercado-fresco-db
     volumes:
-      - .:/go/src/
-    extra_hosts:
-      - "host.docker.internal:172.17.0.1"
+      - ./db/:/docker-entrypoint-initdb.d
+      - ./db/.data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    environment:
+      - MARIADB_ROOT_PASSWORD=12345

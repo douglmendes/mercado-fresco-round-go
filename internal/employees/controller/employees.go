@@ -1,13 +1,10 @@
 package controller
 
 import (
-	"fmt"
 	"github.com/douglmendes/mercado-fresco-round-go/internal/employees/domain"
-	"net/http"
-	"strconv"
-
 	"github.com/douglmendes/mercado-fresco-round-go/pkg/response"
 	"github.com/gin-gonic/gin"
+	"net/http"
 )
 
 type EmployeesController struct {
@@ -49,6 +46,7 @@ func (c *EmployeesController) GetAll() gin.HandlerFunc {
 	}
 }
 
+/*
 // GetEmployee godoc
 // @Summary      Get a employee by id
 // @Description  Get a employee from the system searching by id
@@ -170,3 +168,4 @@ func (c *EmployeesController) Delete() gin.HandlerFunc {
 		ctx.JSON(200, gin.H{"data": fmt.Sprintf("employee %d was removed", id)})
 	}
 }
+*/

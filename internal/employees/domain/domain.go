@@ -11,17 +11,17 @@ type Employee struct {
 //go:generate mockgen -source=./domain.go -destination=./mock/domain_mock.go
 type Repository interface {
 	GetAll() ([]Employee, error)
-	GetById(id int) (Employee, error)
+	/*GetById(id int) (Employee, error)
 	LastID() (int, error)
 	Create(id int, cardNumberId string, firstName string, lastName string, warehouseId int) (Employee, error)
 	Update(id int, cardNumberId string, firstName string, lastName string, warehouseId int) (Employee, error)
-	Delete(id int) error
+	Delete(id int) error*/
 }
 
 type Service interface {
 	GetAll() ([]Employee, error)
-	GetById(id int) (Employee, error)
+	/*GetById(id int) (Employee, error)
 	Create(cardNumberId string, firstName string, lastName string, warehouseId int) (Employee, error)
 	Update(id int, cardNumberId string, firstName string, lastName string, warehouseId int) (Employee, error)
-	Delete(id int) error
+	Delete(id int) error*/
 }

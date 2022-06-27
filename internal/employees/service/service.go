@@ -1,7 +1,6 @@
 package service
 
 import (
-	"fmt"
 	"github.com/douglmendes/mercado-fresco-round-go/internal/employees/domain"
 )
 
@@ -25,6 +24,7 @@ func (s service) GetAll() ([]domain.Employee, error) {
 
 }
 
+/*
 func (s service) GetById(id int) (domain.Employee, error) {
 	sl, err := s.repository.GetById(id)
 	if err != nil {
@@ -88,3 +88,4 @@ func (s service) Delete(id int) error {
 	}
 	return err
 }
+*/

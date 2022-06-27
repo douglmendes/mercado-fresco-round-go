@@ -1,24 +1,37 @@
 package repository
 
 import (
-	"fmt"
+	"database/sql"
 	"github.com/douglmendes/mercado-fresco-round-go/internal/employees/domain"
-
-	"github.com/douglmendes/mercado-fresco-round-go/pkg/store"
+	"log"
 )
 
 type repository struct {
-	db store.Store
+	db *sql.DB
 }
 
 func (r *repository) GetAll() ([]domain.Employee, error) {
-	var emp []domain.Employee
-	if err := r.db.Read(&emp); err != nil {
-		return []domain.Employee{}, nil
+	getAllSql := "SELECT id, id_card_number, first_name, last_name, warehouse_id FROM employees"
+	rows, err := r.db.Query(getAllSql)
+	if err != nil {
+		log.Println("Error while querying customer table" + err.Error())
+		return nil, err
 	}
-	return emp, nil
+	employees := make([]domain.Employee, 0)
+	for rows.Next() {
+		var e domain.Employee
+		err := rows.Scan(&e.Id, &e.CardNumberId, &e.FirstName, &e.LastName, &e.WarehouseId)
+		if err != nil {
+			log.Println("Error while scanning employees " + err.Error())
+			return nil, err
+		}
+		employees = append(employees, e)
+	}
+	return employees, nil
+
 }
 
+/*
 func (r *repository) GetById(id int) (domain.Employee, error) {
 	var emp []domain.Employee
 	if err := r.db.Read(&emp); err != nil {
@@ -127,9 +140,9 @@ func (r *repository) Delete(id int) error {
 	}
 
 	return nil
-}
+}*/
 
-func NewRepository(db store.Store) domain.Repository {
+func NewRepository(db *sql.DB) domain.Repository {
 	return &repository{
 		db: db,
 	}
