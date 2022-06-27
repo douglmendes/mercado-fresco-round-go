@@ -4,6 +4,9 @@ import (
 	"github.com/douglmendes/mercado-fresco-round-go/internal/employees/controller"
 	"github.com/douglmendes/mercado-fresco-round-go/internal/employees/repository"
 	"github.com/douglmendes/mercado-fresco-round-go/internal/employees/service"
+	sellersController "github.com/douglmendes/mercado-fresco-round-go/internal/sellers/controller"
+	sellersRepository "github.com/douglmendes/mercado-fresco-round-go/internal/sellers/repository"
+	sellersService "github.com/douglmendes/mercado-fresco-round-go/internal/sellers/service"
 	"log"
 	"os"
 
@@ -12,7 +15,6 @@ import (
 	"github.com/douglmendes/mercado-fresco-round-go/internal/buyers"
 	"github.com/douglmendes/mercado-fresco-round-go/internal/products"
 	"github.com/douglmendes/mercado-fresco-round-go/internal/sections"
-	"github.com/douglmendes/mercado-fresco-round-go/internal/sellers"
 	"github.com/douglmendes/mercado-fresco-round-go/internal/warehouses"
 	"github.com/douglmendes/mercado-fresco-round-go/pkg/store"
 	"github.com/gin-gonic/gin"
@@ -45,10 +47,10 @@ func main() {
 	router.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	sellersDb := store.New(store.FileType, store.PathBuilder("/sellers.json"))
-	sellersRepo := sellers.NewRepository(sellersDb)
-	sellersService := sellers.NewService(sellersRepo)
+	sellersRepo := sellersRepository.NewRepository(sellersDb)
+	sellersService := sellersService.NewService(sellersRepo)
 
-	s := controllers.NewSeller(sellersService)
+	s := sellersController.NewSeller(sellersService)
 
 	sl := router.Group("/api/v1/sellers")
 	{
