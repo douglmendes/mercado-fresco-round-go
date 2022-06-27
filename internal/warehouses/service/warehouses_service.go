@@ -1,33 +1,27 @@
-package warehouses
+package service
 
-import "fmt"
-
-//go:generate mockgen -source=./service.go -destination=./mock/service_mock.go
-type Service interface {
-	Create(address, telephone, warehouseCode string, minimunCapacity, minimunTemperature int) (*Warehouse, error)
-	GetAll() ([]Warehouse, error)
-	GetById(id int) (Warehouse, error)
-	Update(id int, address, telephone, warehouseCode string, minimunCapacity, minimunTemperature int) (Warehouse, error)
-	Delete(id int) error
-}
+import (
+	"fmt"
+	"github.com/douglmendes/mercado-fresco-round-go/internal/warehouses/domain"
+)
 
 type service struct {
-	repository Repository
+	repository domain.WarehouseRepository
 }
 
-func (s *service) GetById(id int) (Warehouse, error) {
+func (s *service) GetById(id int) (domain.Warehouse, error) {
 	warehouse, err := s.repository.GetById(id)
 	if err != nil {
-		return Warehouse{}, err
+		return domain.Warehouse{}, err
 	}
 
 	return warehouse, nil
 }
 
-func (s *service) GetAll() ([]Warehouse, error) {
+func (s *service) GetAll() ([]domain.Warehouse, error) {
 	warehouses, err := s.repository.GetAll()
 	if err != nil {
-		return []Warehouse{}, err
+		return []domain.Warehouse{}, err
 	}
 	return warehouses, nil
 }
@@ -38,7 +32,7 @@ func (s *service) Create(
 	warehouseCode string,
 	minimunCapacity,
 	minimunTemperature int,
-) (*Warehouse, error) {
+) (*domain.Warehouse, error) {
 
 	lastID, err := s.repository.LastID()
 	if err != nil {
@@ -67,11 +61,11 @@ func (s *service) Create(
 
 }
 
-func (s *service) Update(id int, address, telephone, warehouseCode string, minimunCapacity, minimunTemperature int) (Warehouse, error) {
+func (s *service) Update(id int, address, telephone, warehouseCode string, minimunCapacity, minimunTemperature int) (domain.Warehouse, error) {
 
 	warehouse, err := s.repository.GetById(id)
 	if err != nil {
-		return Warehouse{}, err
+		return domain.Warehouse{}, err
 	}
 
 	if warehouse.WarehouseCode == warehouseCode {
@@ -80,12 +74,12 @@ func (s *service) Update(id int, address, telephone, warehouseCode string, minim
 
 	whList, err := s.repository.GetAll()
 	if err != nil {
-		return Warehouse{}, err
+		return domain.Warehouse{}, err
 	}
 
 	for _, warehouse := range whList {
 		if warehouse.WarehouseCode == warehouseCode {
-			return Warehouse{}, fmt.Errorf("this warehouse already exists")
+			return domain.Warehouse{}, fmt.Errorf("this warehouse already exists")
 		}
 	}
 
@@ -100,7 +94,7 @@ func (s *service) Delete(id int) error {
 	return err
 }
 
-func NewService(r Repository) Service {
+func NewService(r domain.WarehouseRepository) domain.WarehouseService {
 	return &service{
 		repository: r,
 	}

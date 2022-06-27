@@ -1,9 +1,9 @@
-package test
+package repository
 
 import (
 	"encoding/json"
 	"errors"
-	"github.com/douglmendes/mercado-fresco-round-go/internal/warehouses"
+	"github.com/douglmendes/mercado-fresco-round-go/internal/warehouses/domain"
 	"github.com/douglmendes/mercado-fresco-round-go/pkg/store"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -13,7 +13,7 @@ func TestRepository_GetAll(t *testing.T) {
 	t.Run("should return a warehouse list", func(t *testing.T) {
 		fileStore := store.New(store.FileType, "")
 
-		input := []warehouses.Warehouse{
+		input := []domain.Warehouse{
 			{
 				1,
 				"Monroe 860",
@@ -39,7 +39,7 @@ func TestRepository_GetAll(t *testing.T) {
 		}
 
 		fileStore.AddMock(fileStoreMock)
-		result, _ := warehouses.NewRepository(fileStore).GetAll()
+		result, _ := NewRepository(fileStore).GetAll()
 
 		assert.Equal(t, result, input, "should be equal")
 	})
@@ -56,7 +56,7 @@ func TestRepository_GetAll(t *testing.T) {
 
 		fileStore.AddMock(fileStoreMock)
 
-		repository := warehouses.NewRepository(fileStore)
+		repository := NewRepository(fileStore)
 
 		_, err := repository.GetAll()
 
@@ -67,7 +67,7 @@ func TestRepository_GetAll(t *testing.T) {
 func TestRepository_GetById(t *testing.T) {
 	fileStore := store.New(store.FileType, "")
 
-	wh := []warehouses.Warehouse{
+	wh := []domain.Warehouse{
 		{
 			1,
 			"Monroe 860",
@@ -86,7 +86,7 @@ func TestRepository_GetById(t *testing.T) {
 
 	fileStore.AddMock(fileStoreMock)
 
-	result, err := warehouses.NewRepository(fileStore).GetById(1)
+	result, err := NewRepository(fileStore).GetById(1)
 
 	assert.Equal(t, result, wh[0])
 	assert.Nil(t, err)
@@ -96,7 +96,7 @@ func TestRepository_GetById(t *testing.T) {
 func TestRepository_GetById_NOK(t *testing.T) {
 	fileStore := store.New(store.FileType, "")
 
-	wh := []warehouses.Warehouse{
+	wh := []domain.Warehouse{
 		{
 			1,
 			"Monroe 860",
@@ -114,9 +114,9 @@ func TestRepository_GetById_NOK(t *testing.T) {
 	}
 	fileStore.AddMock(fileStoreMock)
 
-	result, err := warehouses.NewRepository(fileStore).GetById(55)
+	result, err := NewRepository(fileStore).GetById(55)
 
-	assert.Equal(t, result, warehouses.Warehouse{})
+	assert.Equal(t, result, domain.Warehouse{})
 	assert.Error(t, err, "warehouse not found")
 }
 
@@ -130,7 +130,7 @@ func TestRepository_GetById_ReadNotOK(t *testing.T) {
 	}
 	fileStore.AddMock(fileStoreMock)
 
-	repository := warehouses.NewRepository(fileStore)
+	repository := NewRepository(fileStore)
 	_, err := repository.GetById(1)
 	assert.Equal(t, err, expectedErr)
 }

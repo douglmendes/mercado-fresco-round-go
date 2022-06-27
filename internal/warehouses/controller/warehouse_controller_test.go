@@ -6,7 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/douglmendes/mercado-fresco-round-go/internal/warehouses/domain"
-	mock_warehouses "github.com/douglmendes/mercado-fresco-round-go/internal/warehouses/mock"
+	mock_warehouses "github.com/douglmendes/mercado-fresco-round-go/internal/warehouses/domain/mock"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"

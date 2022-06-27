@@ -1,29 +1,20 @@
-package warehouses
+package repository
 
 import (
 	"fmt"
+	"github.com/douglmendes/mercado-fresco-round-go/internal/warehouses/domain"
 	"github.com/douglmendes/mercado-fresco-round-go/pkg/store"
 )
-
-//go:generate mockgen -source=./repository.go -destination=./mock/repository_mock.go
-type Repository interface {
-	Create(id int, address, telephone, warehouseCode string, minimunCapacity, minimunTemperature int) (Warehouse, error)
-	LastID() (int, error)
-	GetAll() ([]Warehouse, error)
-	GetById(id int) (Warehouse, error)
-	Update(id int, address, telephone, warehouseCode string, minimunCapacity, minimunTemperature int) (Warehouse, error)
-	Delete(id int) error
-}
 
 type repository struct {
 	db store.Store
 }
 
-func (r *repository) GetById(id int) (Warehouse, error) {
-	var warehouses []Warehouse
+func (r *repository) GetById(id int) (domain.Warehouse, error) {
+	var warehouses []domain.Warehouse
 
 	if err := r.db.Read(&warehouses); err != nil {
-		return Warehouse{}, err
+		return domain.Warehouse{}, err
 	}
 
 	for _, warehouse := range warehouses {
@@ -31,14 +22,14 @@ func (r *repository) GetById(id int) (Warehouse, error) {
 			return warehouse, nil
 		}
 	}
-	return Warehouse{}, fmt.Errorf("warehouse not found")
+	return domain.Warehouse{}, fmt.Errorf("warehouse not found")
 }
 
-func (r *repository) GetAll() ([]Warehouse, error) {
-	var warehouses []Warehouse
+func (r *repository) GetAll() ([]domain.Warehouse, error) {
+	var warehouses []domain.Warehouse
 
 	if err := r.db.Read(&warehouses); err != nil {
-		return []Warehouse{}, err
+		return []domain.Warehouse{}, err
 	}
 
 	return warehouses, nil
@@ -51,14 +42,14 @@ func (r *repository) Create(
 	warehouseCode string,
 	minimunCapacity,
 	minimunTemperature int,
-) (Warehouse, error) {
+) (domain.Warehouse, error) {
 
-	var warehouses []Warehouse
+	var warehouses []domain.Warehouse
 	if err := r.db.Read(&warehouses); err != nil {
-		return Warehouse{}, err
+		return domain.Warehouse{}, err
 	}
 
-	warehouse := Warehouse{
+	warehouse := domain.Warehouse{
 		id,
 		address,
 		telephone,
@@ -70,7 +61,7 @@ func (r *repository) Create(
 	warehouses = append(warehouses, warehouse)
 
 	if err := r.db.Write(warehouses); err != nil {
-		return Warehouse{}, err
+		return domain.Warehouse{}, err
 	}
 
 	return warehouse, nil
@@ -78,7 +69,7 @@ func (r *repository) Create(
 
 func (r *repository) LastID() (int, error) {
 
-	var warehouses []Warehouse
+	var warehouses []domain.Warehouse
 
 	if err := r.db.Read(&warehouses); err != nil {
 		return 0, err
@@ -90,13 +81,13 @@ func (r *repository) LastID() (int, error) {
 	return warehouses[len(warehouses)-1].Id, nil
 }
 
-func (r *repository) Update(id int, address, telephone, warehouseCode string, minimunCapacity, minimunTemperature int) (Warehouse, error) {
-	var warehouses []Warehouse
+func (r *repository) Update(id int, address, telephone, warehouseCode string, minimunCapacity, minimunTemperature int) (domain.Warehouse, error) {
+	var warehouses []domain.Warehouse
 	if err := r.db.Read(&warehouses); err != nil {
-		return Warehouse{}, err
+		return domain.Warehouse{}, err
 	}
 
-	wh := Warehouse{
+	wh := domain.Warehouse{
 		Address:            address,
 		Telephone:          telephone,
 		WarehouseCode:      warehouseCode,
@@ -132,19 +123,19 @@ func (r *repository) Update(id int, address, telephone, warehouseCode string, mi
 			warehouses[i] = wh
 			updated = true
 			if err := r.db.Write(warehouses); err != nil {
-				return Warehouse{}, err
+				return domain.Warehouse{}, err
 			}
 		}
 	}
 	if !updated {
-		return Warehouse{}, fmt.Errorf("warehouse with id %d not found", id)
+		return domain.Warehouse{}, fmt.Errorf("warehouse with id %d not found", id)
 	}
 	return wh, nil
 }
 
 func (r *repository) Delete(id int) error {
 
-	var warehouses []Warehouse
+	var warehouses []domain.Warehouse
 	if err := r.db.Read(&warehouses); err != nil {
 		return err
 	}
@@ -170,7 +161,7 @@ func (r *repository) Delete(id int) error {
 	return nil
 }
 
-func NewRepository(db store.Store) Repository {
+func NewRepository(db store.Store) domain.WarehouseRepository {
 	return &repository{
 		db: db,
 	}

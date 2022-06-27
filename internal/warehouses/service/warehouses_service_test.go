@@ -1,9 +1,9 @@
-package test
+package service
 
 import (
 	"errors"
-	"github.com/douglmendes/mercado-fresco-round-go/internal/warehouses"
-	mock_warehouses "github.com/douglmendes/mercado-fresco-round-go/internal/warehouses/mock"
+	"github.com/douglmendes/mercado-fresco-round-go/internal/warehouses/domain"
+	mockWarehouses "github.com/douglmendes/mercado-fresco-round-go/internal/warehouses/domain/mock"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -11,16 +11,16 @@ import (
 
 const id = 1
 
-func callMock(t *testing.T) (*mock_warehouses.MockRepository, warehouses.Service) {
+func callMock(t *testing.T) (*mockWarehouses.MockRepository, domain.WarehouseService) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	apiMock := mock_warehouses.NewMockRepository(ctrl)
-	service := warehouses.NewService(apiMock)
+	apiMock := mockWarehouses.NewMockRepository(ctrl)
+	service := NewService(apiMock)
 	return apiMock, service
 }
 
 func TestService_GetAll(t *testing.T) {
-	wh := []warehouses.Warehouse{
+	wh := []domain.Warehouse{
 		{
 			Id:                 1,
 			Address:            "Rua 25 de Março",
@@ -49,7 +49,7 @@ func TestService_GetAll(t *testing.T) {
 }
 
 func TestService_GetAll_NOK(t *testing.T) {
-	wList := make([]warehouses.Warehouse, 0)
+	wList := make([]domain.Warehouse, 0)
 
 	apiMock, service := callMock(t)
 
@@ -62,7 +62,7 @@ func TestService_GetAll_NOK(t *testing.T) {
 }
 
 func TestService_GetById(t *testing.T) {
-	wh := warehouses.Warehouse{
+	wh := domain.Warehouse{
 		Id:                 1,
 		Address:            "Rua 25 de Março",
 		Telephone:          "9911100011",
@@ -84,7 +84,7 @@ func TestService_GetById(t *testing.T) {
 func TestService_GetById_NOK(t *testing.T) {
 	apiMock, service := callMock(t)
 
-	apiMock.EXPECT().GetById(gomock.Eq(id)).Return(warehouses.Warehouse{}, errors.New("warehouse not found"))
+	apiMock.EXPECT().GetById(gomock.Eq(id)).Return(domain.Warehouse{}, errors.New("warehouse not found"))
 
 	_, err := service.GetById(id)
 	assert.NotNil(t, err)
@@ -111,7 +111,7 @@ func TestService_Delete_NOK(t *testing.T) {
 func TestServiceCreate_OK(t *testing.T) {
 	apiMock, service := callMock(t)
 
-	wh := []warehouses.Warehouse{
+	wh := []domain.Warehouse{
 		{
 			1,
 			"Rua Café Torrado",
@@ -130,7 +130,7 @@ func TestServiceCreate_OK(t *testing.T) {
 		},
 	}
 
-	whExpec := warehouses.Warehouse{
+	whExpec := domain.Warehouse{
 		Id:                 3,
 		Address:            "Rua Nova",
 		Telephone:          "12121212",
@@ -165,7 +165,7 @@ func TestServiceCreate_OK(t *testing.T) {
 func TestServiceCreate_Conflict(t *testing.T) {
 	apiMock, service := callMock(t)
 
-	wh := []warehouses.Warehouse{
+	wh := []domain.Warehouse{
 		{
 			Id:                 1,
 			Address:            "Rua Café Torrado",
@@ -193,7 +193,7 @@ func TestServiceCreate_Conflict(t *testing.T) {
 		"ABC",
 		2,
 		2,
-	).Return(warehouses.Warehouse{}, errors.New("this warehouse already exists"))
+	).Return(domain.Warehouse{}, errors.New("this warehouse already exists"))
 
 	_, err := service.Create(
 		"Rua Nova",
@@ -225,7 +225,7 @@ func TestService_Create_LastId_NOK(t *testing.T) {
 func TestService_Create_GetAll_Fail(t *testing.T) {
 	apiMock, service := callMock(t)
 	apiMock.EXPECT().LastID().Return(1, nil)
-	apiMock.EXPECT().GetAll().Return([]warehouses.Warehouse{}, errors.New("error"))
+	apiMock.EXPECT().GetAll().Return([]domain.Warehouse{}, errors.New("error"))
 
 	_, err := service.Create(
 		"Rua Nova",
@@ -239,7 +239,7 @@ func TestService_Create_GetAll_Fail(t *testing.T) {
 
 func TestService_Create_NOK(t *testing.T) {
 	apiMock, service := callMock(t)
-	wh := []warehouses.Warehouse{
+	wh := []domain.Warehouse{
 		{
 			1,
 			"Rua Café Torrado",
@@ -259,7 +259,7 @@ func TestService_Create_NOK(t *testing.T) {
 		"GHI",
 		2,
 		2,
-	).Return(warehouses.Warehouse{}, errors.New("error"))
+	).Return(domain.Warehouse{}, errors.New("error"))
 
 	result, err := service.Create(
 		"Rua Nova",
@@ -276,7 +276,7 @@ func TestService_Create_NOK(t *testing.T) {
 func TestService_Update_WithTheSameWarehouseCode(t *testing.T) {
 	apiMock, service := callMock(t)
 
-	oldWh := warehouses.Warehouse{
+	oldWh := domain.Warehouse{
 		Id:                 1,
 		Address:            "Rua 25 de Março",
 		Telephone:          "9911100011",
@@ -285,7 +285,7 @@ func TestService_Update_WithTheSameWarehouseCode(t *testing.T) {
 		MinimunTemperature: 1,
 	}
 
-	newWh := warehouses.Warehouse{
+	newWh := domain.Warehouse{
 		Id:                 1,
 		Address:            "Rua 23 de Março",
 		Telephone:          "8899900099",
@@ -320,7 +320,7 @@ func TestService_Update_WithTheSameWarehouseCode(t *testing.T) {
 func TestService_Update_WithOtherWarehouseCode(t *testing.T) {
 	apiMock, service := callMock(t)
 
-	oldWh := warehouses.Warehouse{
+	oldWh := domain.Warehouse{
 		Id:                 1,
 		Address:            "Rua 25 de Março",
 		Telephone:          "9911100011",
@@ -329,7 +329,7 @@ func TestService_Update_WithOtherWarehouseCode(t *testing.T) {
 		MinimunTemperature: 1,
 	}
 
-	newWh := warehouses.Warehouse{
+	newWh := domain.Warehouse{
 		Id:                 1,
 		Address:            "Av. Paulista",
 		Telephone:          "000000000",
@@ -338,7 +338,7 @@ func TestService_Update_WithOtherWarehouseCode(t *testing.T) {
 		MinimunTemperature: 2,
 	}
 
-	whList := []warehouses.Warehouse{
+	whList := []domain.Warehouse{
 		{
 			Id:                 1,
 			Address:            "Rua 25 de Março",
@@ -384,7 +384,7 @@ func TestService_Update_WithOtherWarehouseCode(t *testing.T) {
 func TestService_Update_WithOtherWarehouseCode_NOK(t *testing.T) {
 	apiMock, service := callMock(t)
 
-	oldWh := warehouses.Warehouse{
+	oldWh := domain.Warehouse{
 		Id:                 1,
 		Address:            "Rua 25 de Março",
 		Telephone:          "9911100011",
@@ -393,7 +393,7 @@ func TestService_Update_WithOtherWarehouseCode_NOK(t *testing.T) {
 		MinimunTemperature: 1,
 	}
 
-	whList := []warehouses.Warehouse{
+	whList := []domain.Warehouse{
 		{
 			Id:                 1,
 			Address:            "Rua 25 de Março",
@@ -424,7 +424,7 @@ func TestService_Update_WithOtherWarehouseCode_NOK(t *testing.T) {
 		2,
 	)
 
-	assert.Equal(t, result, warehouses.Warehouse{})
+	assert.Equal(t, result, domain.Warehouse{})
 	assert.NotNil(t, err)
 	assert.EqualError(t, err, "this warehouse already exists")
 }
