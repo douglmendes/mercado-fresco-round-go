@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/douglmendes/mercado-fresco-round-go/cmd/server/controllers"
 	"github.com/douglmendes/mercado-fresco-round-go/cmd/server/docs"
+	"github.com/douglmendes/mercado-fresco-round-go/connections"
 	"github.com/douglmendes/mercado-fresco-round-go/internal/buyers"
 	employeesController "github.com/douglmendes/mercado-fresco-round-go/internal/employees/controller"
 	employeesRepository "github.com/douglmendes/mercado-fresco-round-go/internal/employees/repository"
@@ -82,8 +83,7 @@ func Start() {
 		productsRoutes.DELETE("/:id", productsController.Delete())
 	}
 
-	employeesDb := store.New(store.FileType, store.PathBuilder("/employees.json"))
-	employeesRepo := employeesRepository.NewRepository(employeesDb)
+	employeesRepo := employeesRepository.NewRepository(connections.NewConnection())
 	employeesService := employeesService.NewService(employeesRepo)
 
 	e := employeesController.NewEmployees(employeesService)
@@ -91,10 +91,10 @@ func Start() {
 	emp := router.Group("/api/v1/employees")
 	{
 		emp.GET("/", e.GetAll())
-		emp.GET("/:id", e.GetById())
+		/*emp.GET("/:id", e.GetById())
 		emp.POST("/", e.Create())
 		emp.PATCH("/:id", e.Update())
-		emp.DELETE("/:id", e.Delete())
+		emp.DELETE("/:id", e.Delete())*/
 	}
 
 	buyersDb := store.New(store.FileType, store.PathBuilder("/buyers.json"))
