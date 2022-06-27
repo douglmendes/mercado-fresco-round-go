@@ -13,7 +13,9 @@ import (
 	sellersController "github.com/douglmendes/mercado-fresco-round-go/internal/sellers/controller"
 	sellersRepository "github.com/douglmendes/mercado-fresco-round-go/internal/sellers/repository"
 	sellersService "github.com/douglmendes/mercado-fresco-round-go/internal/sellers/service"
-	"github.com/douglmendes/mercado-fresco-round-go/internal/warehouses"
+	warehouseController "github.com/douglmendes/mercado-fresco-round-go/internal/warehouses/controller"
+	warehouseRepository "github.com/douglmendes/mercado-fresco-round-go/internal/warehouses/repository"
+	warehouseService "github.com/douglmendes/mercado-fresco-round-go/internal/warehouses/service"
 	"github.com/douglmendes/mercado-fresco-round-go/pkg/store"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
@@ -56,9 +58,9 @@ func Start() {
 	}
 
 	warehousesDB := store.New(store.FileType, store.PathBuilder("/warehouses.json"))
-	warehousesRepo := warehouses.NewRepository(warehousesDB)
-	warehousesService := warehouses.NewService(warehousesRepo)
-	whController := controllers.NewWarehouse(warehousesService)
+	warehousesRepo := warehouseRepository.NewRepository(warehousesDB)
+	warehousesService := warehouseService.NewService(warehousesRepo)
+	whController := warehouseController.NewWarehouse(warehousesService)
 
 	wh := router.Group("/api/v1/warehouses")
 	{
