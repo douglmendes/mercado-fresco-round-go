@@ -1,12 +1,11 @@
-package test
+package controller
 
 import (
 	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/douglmendes/mercado-fresco-round-go/cmd/server/controllers"
-	"github.com/douglmendes/mercado-fresco-round-go/internal/warehouses"
+	"github.com/douglmendes/mercado-fresco-round-go/internal/warehouses/domain"
 	mock_warehouses "github.com/douglmendes/mercado-fresco-round-go/internal/warehouses/mock"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
@@ -22,17 +21,17 @@ const (
 	id                 = "1"
 )
 
-func callWarehousesMock(t *testing.T) (*mock_warehouses.MockService, *controllers.WarehousesController, *gin.Engine) {
+func callWarehousesMock(t *testing.T) (*mock_warehouses.MockService, *WarehousesController, *gin.Engine) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	service := mock_warehouses.NewMockService(ctrl)
-	handler := controllers.NewWarehouse(service)
+	handler := NewWarehouse(service)
 	api := gin.New()
 	return service, handler, api
 }
 
 func TestWarehousesController_GetAll(t *testing.T) {
-	whList := []warehouses.Warehouse{
+	whList := []domain.Warehouse{
 		{
 			Id:                 1,
 			Address:            "Monroe 860",
@@ -63,7 +62,7 @@ func TestWarehousesController_GetAll(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, resp.Code)
 
-	respExpect := struct{ Data []warehouses.Warehouse }{}
+	respExpect := struct{ Data []domain.Warehouse }{}
 	_ = json.Unmarshal(resp.Body.Bytes(), &respExpect)
 
 	assert.Equal(t, whList[0].WarehouseCode, respExpect.Data[0].WarehouseCode)
@@ -74,7 +73,7 @@ func TestWarehousesController_GetAll_NOK(t *testing.T) {
 
 	api.GET(relativePath, handler.GetAll())
 
-	service.EXPECT().GetAll().Return([]warehouses.Warehouse{}, errors.New("error 404"))
+	service.EXPECT().GetAll().Return([]domain.Warehouse{}, errors.New("error 404"))
 
 	req := httptest.NewRequest(http.MethodGet, relativePath, nil)
 	resp := httptest.NewRecorder()
@@ -86,7 +85,7 @@ func TestWarehousesController_GetAll_NOK(t *testing.T) {
 
 func TestWarehousesController_GetById(t *testing.T) {
 
-	wh := warehouses.Warehouse{
+	wh := domain.Warehouse{
 		Id:                 1,
 		Address:            "Rua Nova",
 		Telephone:          "12121212",
@@ -105,7 +104,7 @@ func TestWarehousesController_GetById(t *testing.T) {
 	resp := httptest.NewRecorder()
 	api.ServeHTTP(resp, req)
 
-	respExpect := struct{ Data warehouses.Warehouse }{}
+	respExpect := struct{ Data domain.Warehouse }{}
 	_ = json.Unmarshal(resp.Body.Bytes(), &respExpect)
 
 	assert.Equal(t, http.StatusOK, resp.Code)
@@ -115,7 +114,7 @@ func TestWarehousesController_GetById(t *testing.T) {
 func TestWarehousesController_GetById_NOK(t *testing.T) {
 	service, handler, api := callWarehousesMock(t)
 	api.GET(relativePathWithId, handler.GetById())
-	service.EXPECT().GetById(gomock.Eq(1)).Return(warehouses.Warehouse{}, errors.New("warehouse not found"))
+	service.EXPECT().GetById(gomock.Eq(1)).Return(domain.Warehouse{}, errors.New("warehouse not found"))
 
 	req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/warehouses/%s", id), nil)
 	resp := httptest.NewRecorder()
@@ -136,7 +135,7 @@ func TestWarehousesController_GetById_BadRequest(t *testing.T) {
 }
 
 func TestWarehousesController_Create(t *testing.T) {
-	wh := warehouses.Warehouse{
+	wh := domain.Warehouse{
 		Id:                 1,
 		Address:            "Rua 1",
 		Telephone:          "555555555",
@@ -234,7 +233,7 @@ func TestWarehousesController_Delete_BadRequest(t *testing.T) {
 }
 
 func TestWarehousesController_Update(t *testing.T) {
-	wh := warehouses.Warehouse{
+	wh := domain.Warehouse{
 		Id:                 1,
 		Address:            "Av. Estrela da Morte",
 		Telephone:          "987654321",
@@ -280,7 +279,7 @@ func TestWarehousesController_Update_NOK(t *testing.T) {
 		"LSW",
 		8,
 		9,
-	).Return(warehouses.Warehouse{}, errors.New("warehouse not found"))
+	).Return(domain.Warehouse{}, errors.New("warehouse not found"))
 
 	payload := `{"address": "Rua Sem Saida","telephone": "888888888","warehouse_code": "LSW","minimun_capacity": 8, "minimun_temperature": 9}`
 

@@ -1,17 +1,17 @@
-package controllers
+package controller
 
 import (
 	"fmt"
+	"github.com/douglmendes/mercado-fresco-round-go/internal/warehouses/domain"
 	"net/http"
 	"strconv"
 
-	"github.com/douglmendes/mercado-fresco-round-go/internal/warehouses"
 	"github.com/douglmendes/mercado-fresco-round-go/pkg/response"
 	"github.com/gin-gonic/gin"
 )
 
 type WarehousesController struct {
-	service warehouses.Service
+	service domain.WarehouseService
 }
 
 // Create godoc
@@ -168,7 +168,7 @@ func (w *WarehousesController) Delete() gin.HandlerFunc {
 	}
 }
 
-func NewWarehouse(w warehouses.Service) *WarehousesController {
+func NewWarehouse(w domain.WarehouseService) *WarehousesController {
 	return &WarehousesController{
 		service: w,
 	}
