@@ -3,35 +3,26 @@ package sellers
 import (
 	"fmt"
 
+	"github.com/douglmendes/mercado-fresco-round-go/internal/sellers/domain"
 	"github.com/douglmendes/mercado-fresco-round-go/pkg/store"
 )
-
-//go:generate mockgen -source=./repository.go -destination=./mock/repository_mock.go
-type Repository interface {
-	GetAll() ([]Seller, error)
-	GetById(id int) (Seller, error)
-	Create(id, cid int, commpanyName, address, telephone string) (Seller, error)
-	LastID() (int, error)
-	Update(id, cid int, commpanyName, address, telephone string) (Seller, error)
-	Delete(id int) error
-}
 
 type repository struct {
 	db store.Store
 }
 
-func (r *repository) GetAll() ([]Seller, error) {
-	var sl []Seller
+func (r *repository) GetAll() ([]domain.Seller, error) {
+	var sl []domain.Seller
 	if err := r.db.Read(&sl); err != nil {
-		return []Seller{}, nil
+		return []domain.Seller{}, nil
 	}
 	return sl, nil
 }
 
-func (r *repository) GetById(id int) (Seller, error) {
-	var sl []Seller
+func (r *repository) GetById(id int) (domain.Seller, error) {
+	var sl []domain.Seller
 	if err := r.db.Read(&sl); err != nil {
-		return Seller{}, nil
+		return domain.Seller{}, nil
 	}
 
 	for i := range sl {
@@ -40,11 +31,11 @@ func (r *repository) GetById(id int) (Seller, error) {
 		}
 	}
 
-	return Seller{}, fmt.Errorf("seller %d not found", id)
+	return domain.Seller{}, fmt.Errorf("seller %d not found", id)
 }
 
 func (r *repository) LastID() (int, error) {
-	var sl []Seller
+	var sl []domain.Seller
 	if err := r.db.Read(&sl); err != nil {
 		return 0, err
 	}
@@ -56,26 +47,26 @@ func (r *repository) LastID() (int, error) {
 	return sl[len(sl)-1].ID, nil
 }
 
-func (r *repository) Create(id, cid int, commpanyName, address, telephone string) (Seller, error) {
-	var sl []Seller
+func (r *repository) Create(id, cid int, commpanyName, address, telephone string) (domain.Seller, error) {
+	var sl []domain.Seller
 	if err := r.db.Read(&sl); err != nil {
-		return Seller{}, err
+		return domain.Seller{}, err
 	}
-	s := Seller{id, cid, commpanyName, address, telephone}
+	s := domain.Seller{id, cid, commpanyName, address, telephone}
 	sl = append(sl, s)
 	if err := r.db.Write(sl); err != nil {
-		return Seller{}, err
+		return domain.Seller{}, err
 	}
 	return s, nil
 }
 
-func (r *repository) Update(id, cid int, commpanyName, address, telephone string) (Seller, error) {
-	var sl []Seller
+func (r *repository) Update(id, cid int, commpanyName, address, telephone string) (domain.Seller, error) {
+	var sl []domain.Seller
 	if err := r.db.Read(&sl); err != nil {
-		return Seller{}, err
+		return domain.Seller{}, err
 	}
 
-	s := Seller{}
+	s := domain.Seller{}
 
 	updated := false
 	for i := range sl {
@@ -97,20 +88,20 @@ func (r *repository) Update(id, cid int, commpanyName, address, telephone string
 			sl[i] = s
 			updated = true
 			if err := r.db.Write(sl); err != nil {
-				return Seller{}, err
+				return domain.Seller{}, err
 			}
 		}
 	}
 
 	if !updated {
-		return Seller{}, fmt.Errorf("seller %d not found", id)
+		return domain.Seller{}, fmt.Errorf("seller %d not found", id)
 	}
 	return s, nil
 
 }
 
 func (r *repository) Delete(id int) error {
-	var sl []Seller
+	var sl []domain.Seller
 	if err := r.db.Read(&sl); err != nil {
 		return err
 	}
@@ -136,7 +127,7 @@ func (r *repository) Delete(id int) error {
 	return nil
 }
 
-func NewRepository(db store.Store) Repository {
+func NewRepository(db store.Store) domain.Repository {
 	return &repository{
 		db: db,
 	}

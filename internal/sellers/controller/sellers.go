@@ -1,17 +1,17 @@
-package controllers
+package controller
 
 import (
 	"fmt"
 	"net/http"
 	"strconv"
 
-	"github.com/douglmendes/mercado-fresco-round-go/internal/sellers"
+	"github.com/douglmendes/mercado-fresco-round-go/internal/sellers/domain"
 	"github.com/douglmendes/mercado-fresco-round-go/pkg/response"
 	"github.com/gin-gonic/gin"
 )
 
 type SellerController struct {
-	service sellers.Service
+	service domain.Service
 }
 
 type request struct {
@@ -21,7 +21,7 @@ type request struct {
 	Telephone   string `json:"telephone"`
 }
 
-func NewSeller(s sellers.Service) *SellerController {
+func NewSeller(s domain.Service) *SellerController {
 	return &SellerController{
 		service: s,
 	}

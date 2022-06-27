@@ -1,27 +1,27 @@
-package test
+package service
 
 import (
 	"errors"
 	"testing"
 
-	"github.com/douglmendes/mercado-fresco-round-go/internal/sellers"
-	mock_sellers "github.com/douglmendes/mercado-fresco-round-go/internal/sellers/mock"
+	"github.com/douglmendes/mercado-fresco-round-go/internal/sellers/domain"
+	"github.com/douglmendes/mercado-fresco-round-go/internal/sellers/domain/mock"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 )
 
 const id = 1
 
-func callMock(t *testing.T) (*mock_sellers.MockRepository, sellers.Service) {
+func callMock(t *testing.T) (*mock_domain.MockRepository, domain.Service) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	apiMock := mock_sellers.NewMockRepository(ctrl)
-	service := sellers.NewService(apiMock)
+	apiMock := mock_domain.NewMockRepository(ctrl)
+	service := NewService(apiMock)
 	return apiMock, service
 }
 
 func TestService_GetAll_Ok(t *testing.T) {
-	sl := []sellers.Seller{
+	sl := []domain.Seller{
 		{
 			ID:          1,
 			Cid:         9,
@@ -49,7 +49,7 @@ func TestService_GetAll_Ok(t *testing.T) {
 }
 
 func TestService_GetAll_NOk(t *testing.T) {
-	sList := make([]sellers.Seller, 0)
+	sList := make([]domain.Seller, 0)
 
 	apiMock, service := callMock(t)
 
@@ -61,7 +61,7 @@ func TestService_GetAll_NOk(t *testing.T) {
 }
 
 func TestService_GetById_Ok(t *testing.T) {
-	sl := sellers.Seller{
+	sl := domain.Seller{
 		ID:          1,
 		Cid:         23,
 		CompanyName: "Mercado Livre",
@@ -82,7 +82,7 @@ func TestService_GetById_Ok(t *testing.T) {
 func TestService_GetById_NOk(t *testing.T) {
 	apiMock, service := callMock(t)
 
-	apiMock.EXPECT().GetById(gomock.Eq(id)).Return(sellers.Seller{}, errors.New("seller not found"))
+	apiMock.EXPECT().GetById(gomock.Eq(id)).Return(domain.Seller{}, errors.New("seller not found"))
 
 	_, err := service.GetById(id)
 	assert.NotNil(t, err)
@@ -91,7 +91,7 @@ func TestService_GetById_NOk(t *testing.T) {
 
 func TestCreate_Ok(t *testing.T) {
 
-	slList := []sellers.Seller{
+	slList := []domain.Seller{
 		{
 			ID:          1,
 			Cid:         22,
@@ -108,7 +108,7 @@ func TestCreate_Ok(t *testing.T) {
 		},
 	}
 
-	sl := sellers.Seller{
+	sl := domain.Seller{
 		ID:          3,
 		Cid:         20,
 		CompanyName: "Mercado Livre",
@@ -129,7 +129,7 @@ func TestCreate_Ok(t *testing.T) {
 
 func TestCreate_NOk(t *testing.T) {
 
-	slList := []sellers.Seller{
+	slList := []domain.Seller{
 		{
 			ID:          1,
 			Cid:         22,
@@ -157,7 +157,7 @@ func TestCreate_NOk(t *testing.T) {
 }
 
 func TestService_Update_Ok(t *testing.T) {
-	sl := sellers.Seller{
+	sl := domain.Seller{
 		ID:          1,
 		Cid:         20,
 		CompanyName: "Mercado Livre",
@@ -165,7 +165,7 @@ func TestService_Update_Ok(t *testing.T) {
 		Telephone:   "98787687",
 	}
 
-	slList := []sellers.Seller{
+	slList := []domain.Seller{
 		{
 			ID:          1,
 			Cid:         22,
@@ -194,9 +194,9 @@ func TestService_Update_Ok(t *testing.T) {
 
 func TestService_Update_NOk(t *testing.T) {
 
-	sl := sellers.Seller{}
+	sl := domain.Seller{}
 
-	slList := []sellers.Seller{
+	slList := []domain.Seller{
 		{
 			ID:          1,
 			Cid:         22,
@@ -225,9 +225,9 @@ func TestService_Update_NOk(t *testing.T) {
 
 func TestService_Update_ExistentCid_NOk(t *testing.T) {
 
-	sl := sellers.Seller{}
+	sl := domain.Seller{}
 
-	slList := []sellers.Seller{
+	slList := []domain.Seller{
 		{
 			ID:          1,
 			Cid:         22,
