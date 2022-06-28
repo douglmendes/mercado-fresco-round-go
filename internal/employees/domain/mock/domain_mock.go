@@ -35,22 +35,22 @@ func (m *MockRepository) EXPECT() *MockRepositoryMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockRepository) Create(id int, cardNumberId, firstName, lastName string, warehouseId int) (domain.Employee, error) {
+func (m *MockRepository) Create(cardNumberId, firstName, lastName string, warehouseId int) (*domain.Employee, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Create", id, cardNumberId, firstName, lastName, warehouseId)
-	ret0, _ := ret[0].(domain.Employee)
+	ret := m.ctrl.Call(m, "Create", cardNumberId, firstName, lastName, warehouseId)
+	ret0, _ := ret[0].(*domain.Employee)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Create indicates an expected call of Create.
-func (mr *MockRepositoryMockRecorder) Create(id, cardNumberId, firstName, lastName, warehouseId interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) Create(cardNumberId, firstName, lastName, warehouseId interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockRepository)(nil).Create), id, cardNumberId, firstName, lastName, warehouseId)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockRepository)(nil).Create), cardNumberId, firstName, lastName, warehouseId)
 }
 
 // Delete mocks base method.
-func (m *MockRepository) Delete(id int) error {
+func (m *MockRepository) Delete(id int64) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Delete", id)
 	ret0, _ := ret[0].(error)
@@ -79,10 +79,10 @@ func (mr *MockRepositoryMockRecorder) GetAll() *gomock.Call {
 }
 
 // GetById mocks base method.
-func (m *MockRepository) GetById(id int) (domain.Employee, error) {
+func (m *MockRepository) GetById(id int64) (*domain.Employee, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetById", id)
-	ret0, _ := ret[0].(domain.Employee)
+	ret0, _ := ret[0].(*domain.Employee)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -93,26 +93,11 @@ func (mr *MockRepositoryMockRecorder) GetById(id interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetById", reflect.TypeOf((*MockRepository)(nil).GetById), id)
 }
 
-// LastID mocks base method.
-func (m *MockRepository) LastID() (int, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "LastID")
-	ret0, _ := ret[0].(int)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// LastID indicates an expected call of LastID.
-func (mr *MockRepositoryMockRecorder) LastID() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LastID", reflect.TypeOf((*MockRepository)(nil).LastID))
-}
-
 // Update mocks base method.
-func (m *MockRepository) Update(id int, cardNumberId, firstName, lastName string, warehouseId int) (domain.Employee, error) {
+func (m *MockRepository) Update(id int64, cardNumberId, firstName, lastName string, warehouseId int) (*domain.Employee, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Update", id, cardNumberId, firstName, lastName, warehouseId)
-	ret0, _ := ret[0].(domain.Employee)
+	ret0, _ := ret[0].(*domain.Employee)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -147,10 +132,10 @@ func (m *MockService) EXPECT() *MockServiceMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockService) Create(cardNumberId, firstName, lastName string, warehouseId int) (domain.Employee, error) {
+func (m *MockService) Create(cardNumberId, firstName, lastName string, warehouseId int) (*domain.Employee, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Create", cardNumberId, firstName, lastName, warehouseId)
-	ret0, _ := ret[0].(domain.Employee)
+	ret0, _ := ret[0].(*domain.Employee)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -162,7 +147,7 @@ func (mr *MockServiceMockRecorder) Create(cardNumberId, firstName, lastName, war
 }
 
 // Delete mocks base method.
-func (m *MockService) Delete(id int) error {
+func (m *MockService) Delete(id int64) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Delete", id)
 	ret0, _ := ret[0].(error)
@@ -191,10 +176,10 @@ func (mr *MockServiceMockRecorder) GetAll() *gomock.Call {
 }
 
 // GetById mocks base method.
-func (m *MockService) GetById(id int) (domain.Employee, error) {
+func (m *MockService) GetById(id int64) (*domain.Employee, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetById", id)
-	ret0, _ := ret[0].(domain.Employee)
+	ret0, _ := ret[0].(*domain.Employee)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -206,10 +191,10 @@ func (mr *MockServiceMockRecorder) GetById(id interface{}) *gomock.Call {
 }
 
 // Update mocks base method.
-func (m *MockService) Update(id int, cardNumberId, firstName, lastName string, warehouseId int) (domain.Employee, error) {
+func (m *MockService) Update(id int64, cardNumberId, firstName, lastName string, warehouseId int) (*domain.Employee, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Update", id, cardNumberId, firstName, lastName, warehouseId)
-	ret0, _ := ret[0].(domain.Employee)
+	ret0, _ := ret[0].(*domain.Employee)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

@@ -77,7 +77,6 @@ func (r *repository) Create(cardNumberId string, firstName string, lastName stri
 
 func (r *repository) Update(id int64, cardNumberId string, firstName string, lastName string, warehouseId int) (*domain.Employee, error) {
 	updateSql := "UPDATE employees  SET id_card_number  =  ? , first_name= ? , last_name = ? , warehouse_id  = ? WHERE id=?"
-	//_, err := r.db.Exec(updateSql, cardNumberId, firstName, lastName, warehouseId, id)
 
 	emp, err := r.GetById(id)
 	if err != nil {
@@ -103,33 +102,16 @@ func (r *repository) Update(id int64, cardNumberId string, firstName string, las
 
 }
 
-/*
-func (r *repository) Delete(id int) error {
-	var emp []domain.Employee
-	if err := r.db.Read(&emp); err != nil {
-		return err
-	}
+func (r *repository) Delete(id int64) error {
 
-	deleted := false
-	var index int
-	for i := range emp {
-		if emp[i].Id == id {
-			index = i
-			deleted = true
-		}
-	}
-
-	if !deleted {
-		return fmt.Errorf("employee %d not found", id)
-	}
-
-	emp = append(emp[:index], emp[index+1:]...)
-	if err := r.db.Write(emp); err != nil {
-		return err
+	deleteSql := "DELETE FROM employees  WHERE id =?"
+	_, err := r.db.Exec(deleteSql, id)
+	if err != nil {
+		return fmt.Errorf("error when deleting employee %d", id)
 	}
 
 	return nil
-}*/
+}
 
 func NewRepository(db *sql.DB) domain.Repository {
 	return &repository{

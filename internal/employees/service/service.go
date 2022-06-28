@@ -81,12 +81,10 @@ func (s service) Update(id int64, cardNumberId string, firstName string, lastNam
 	return employee, err
 }
 
-/*
-func (s service) Delete(id int) error {
+func (s service) Delete(id int64) error {
 	err := s.repository.Delete(id)
 	if err != nil {
 		return err
 	}
 	return err
 }
-*/

@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"github.com/douglmendes/mercado-fresco-round-go/internal/employees/domain"
 	"github.com/douglmendes/mercado-fresco-round-go/pkg/response"
 	"github.com/gin-gonic/gin"
@@ -142,7 +143,6 @@ func (c *EmployeesController) Update() gin.HandlerFunc {
 
 }
 
-/*
 // DeleteEmployee godoc
 // @Summary      Delete a employee
 // @Description  Delete a employee from the system, selecting by id
@@ -161,7 +161,7 @@ func (c *EmployeesController) Delete() gin.HandlerFunc {
 			ctx.JSON(400, gin.H{"error": "invalid ID"})
 			return
 		}
-		err = c.service.Delete(int(id))
+		err = c.service.Delete(int64(id))
 		if err != nil {
 			ctx.JSON(404, gin.H{"error": err.Error()})
 			return
@@ -169,4 +169,3 @@ func (c *EmployeesController) Delete() gin.HandlerFunc {
 		ctx.JSON(200, gin.H{"data": fmt.Sprintf("employee %d was removed", id)})
 	}
 }
-*/

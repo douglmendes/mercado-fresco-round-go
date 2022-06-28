@@ -14,7 +14,7 @@ type Repository interface {
 	GetById(id int64) (*Employee, error)
 	Create(cardNumberId string, firstName string, lastName string, warehouseId int) (*Employee, error)
 	Update(id int64, cardNumberId string, firstName string, lastName string, warehouseId int) (*Employee, error)
-	//Delete(id int) error
+	Delete(id int64) error
 }
 
 type Service interface {
@@ -22,5 +22,5 @@ type Service interface {
 	GetById(id int64) (*Employee, error)
 	Create(cardNumberId string, firstName string, lastName string, warehouseId int) (*Employee, error)
 	Update(id int64, cardNumberId string, firstName string, lastName string, warehouseId int) (*Employee, error)
-	//Delete(id int) error
+	Delete(id int64) error
 }
