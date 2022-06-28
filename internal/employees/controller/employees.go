@@ -5,6 +5,7 @@ import (
 	"github.com/douglmendes/mercado-fresco-round-go/pkg/response"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
 )
 
 type EmployeesController struct {
@@ -46,7 +47,6 @@ func (c *EmployeesController) GetAll() gin.HandlerFunc {
 	}
 }
 
-/*
 // GetEmployee godoc
 // @Summary      Get a employee by id
 // @Description  Get a employee from the system searching by id
@@ -64,7 +64,7 @@ func (c *EmployeesController) GetById() gin.HandlerFunc {
 			ctx.JSON(400, gin.H{"error": "Invalid ID"})
 			return
 		}
-		e, err := c.service.GetById(int(id))
+		e, err := c.service.GetById(int64(id))
 		if err != nil {
 			ctx.JSON(404, gin.H{"error": err.Error()})
 			return
@@ -131,7 +131,7 @@ func (c *EmployeesController) Update() gin.HandlerFunc {
 			ctx.JSON(400, gin.H{"error": err.Error})
 			return
 		}
-		e, err := c.service.Update(int(id), req.CardNumberId, req.FirstName, req.LastName, req.WarehouseId)
+		e, err := c.service.Update(int64(id), req.CardNumberId, req.FirstName, req.LastName, req.WarehouseId)
 		if err != nil {
 			ctx.JSON(404, gin.H{"error": err.Error()})
 			return
@@ -142,6 +142,7 @@ func (c *EmployeesController) Update() gin.HandlerFunc {
 
 }
 
+/*
 // DeleteEmployee godoc
 // @Summary      Delete a employee
 // @Description  Delete a employee from the system, selecting by id

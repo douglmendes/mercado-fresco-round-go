@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"fmt"
 	"github.com/douglmendes/mercado-fresco-round-go/internal/employees/domain"
 	"log"
 )
@@ -31,21 +32,23 @@ func (r *repository) GetAll() ([]domain.Employee, error) {
 
 }
 
-/*
-func (r *repository) GetById(id int) (domain.Employee, error) {
-	var emp []domain.Employee
-	if err := r.db.Read(&emp); err != nil {
-		return domain.Employee{}, nil
-	}
-
-	for i := range emp {
-		if emp[i].Id == id {
-			return emp[i], nil
+func (r *repository) GetById(id int64) (*domain.Employee, error) {
+	getByIdSql := "SELECT id, id_card_number, first_name, last_name, warehouse_id FROM employees where id = ?"
+	row := r.db.QueryRow(getByIdSql, id)
+	var e domain.Employee
+	err := row.Scan(&e.Id, &e.CardNumberId, &e.FirstName, &e.LastName, &e.WarehouseId)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, fmt.Errorf("Employee %d not found", id)
+		} else {
+			log.Println("Error while scanning customer " + err.Error())
+			return nil, fmt.Errorf("unexpected database error")
 		}
 	}
-	return domain.Employee{}, fmt.Errorf("Employee %d not found", id)
+	return &e, nil
 }
 
+/*
 func (r *repository) LastID() (int, error) {
 	var emp []domain.Employee
 	if err := r.db.Read(&emp); err != nil {
@@ -56,65 +59,51 @@ func (r *repository) LastID() (int, error) {
 	}
 	return emp[len(emp)-1].Id, nil
 }
-
-func (r *repository) Create(id int, cardNumberId string, firstName string, lastName string, warehouseId int) (domain.Employee, error) {
-	var emp []domain.Employee
-	if err := r.db.Read(&emp); err != nil {
-		return domain.Employee{}, err
+*/
+func (r *repository) Create(cardNumberId string, firstName string, lastName string, warehouseId int) (*domain.Employee, error) {
+	createSql := "insert into employees (id_card_number , first_name, last_name, warehouse_id) values (?,?,?,?)"
+	result, err := r.db.Exec(createSql, cardNumberId, firstName, lastName, warehouseId)
+	if err != nil {
+		return nil, err
 	}
-	s := domain.Employee{id, cardNumberId, firstName, lastName, warehouseId}
-	emp = append(emp, s)
-	if err := r.db.Write(emp); err != nil {
-		return domain.Employee{}, err
+	id, err := result.LastInsertId()
+	if err != nil {
+		return nil, fmt.Errorf("error retrieving id %d ", id)
 	}
-	return s, nil
-}
-
-func (r *repository) Update(id int, cardNumberId string, firstName string, lastName string, warehouseId int) (domain.Employee, error) {
-	var emp []domain.Employee
-	if err := r.db.Read(&emp); err != nil {
-		return domain.Employee{}, nil
-	}
-
-	e := domain.Employee{}
-
-	updated := false
-	for i := range emp {
-		if emp[i].Id == id {
-
-			e = emp[i]
-			if id != 0 {
-				e.Id = id
-			}
-			if cardNumberId != "" {
-				e.CardNumberId = cardNumberId
-			}
-			if firstName != "" {
-				e.FirstName = firstName
-			}
-			if lastName != "" {
-				e.LastName = lastName
-			}
-			if warehouseId != 0 {
-				e.WarehouseId = warehouseId
-			}
-
-			fmt.Printf("employee is %v", e)
-			emp[i] = e
-			updated = true
-			if err := r.db.Write(emp); err != nil {
-				return domain.Employee{}, err
-			}
-		}
-	}
-
-	if !updated {
-		return domain.Employee{}, fmt.Errorf("employee %d not found", id)
-	}
-	return e, nil
+	e := domain.Employee{id, cardNumberId, firstName, lastName, warehouseId}
+	return &e, nil
 
 }
 
+func (r *repository) Update(id int64, cardNumberId string, firstName string, lastName string, warehouseId int) (*domain.Employee, error) {
+	updateSql := "UPDATE employees  SET id_card_number  =  ? , first_name= ? , last_name = ? , warehouse_id  = ? WHERE id=?"
+	//_, err := r.db.Exec(updateSql, cardNumberId, firstName, lastName, warehouseId, id)
+
+	emp, err := r.GetById(id)
+	if err != nil {
+		return nil, fmt.Errorf("employee %d not found", id)
+	}
+	if cardNumberId != "" {
+		emp.CardNumberId = cardNumberId
+	}
+	if firstName == " " {
+		emp.FirstName = firstName
+	}
+	if lastName != "" {
+		emp.LastName = lastName
+	}
+	if warehouseId != 0 {
+		emp.WarehouseId = warehouseId
+	}
+
+	result, err := r.db.Exec(updateSql, emp.CardNumberId, emp.FirstName, emp.LastName, emp.WarehouseId, id)
+	log.Println(result.RowsAffected())
+
+	return emp, nil
+
+}
+
+/*
 func (r *repository) Delete(id int) error {
 	var emp []domain.Employee
 	if err := r.db.Read(&emp); err != nil {
