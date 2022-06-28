@@ -91,10 +91,10 @@ func Start() {
 	emp := router.Group("/api/v1/employees")
 	{
 		emp.GET("/", e.GetAll())
-		/*emp.GET("/:id", e.GetById())
+		emp.GET("/:id", e.GetById())
 		emp.POST("/", e.Create())
 		emp.PATCH("/:id", e.Update())
-		emp.DELETE("/:id", e.Delete())*/
+		emp.DELETE("/:id", e.Delete())
 	}
 
 	buyersDb := store.New(store.FileType, store.PathBuilder("/buyers.json"))

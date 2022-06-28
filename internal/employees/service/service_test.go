@@ -36,7 +36,7 @@ func TestService_Create_Ok(t *testing.T) {
 		},
 	}
 
-	emp := domain.Employee{
+	emp := &domain.Employee{
 		Id:           3,
 		CardNumberId: "5050",
 		FirstName:    "Renata",
@@ -45,9 +45,8 @@ func TestService_Create_Ok(t *testing.T) {
 	}
 	apiMock, service := callMock(t)
 	//repository
-	apiMock.EXPECT().LastID().Return(2, nil)
 	apiMock.EXPECT().GetAll().Return(empList, nil)
-	apiMock.EXPECT().Create(3, "5050", "Renata", "Leal", 3).Return(emp, nil)
+	apiMock.EXPECT().Create("5050", "Renata", "Leal", 3).Return(emp, nil)
 	//service
 	result, err := service.Create("5050", "Renata", "Leal", 3)
 	assert.Equal(t, result, emp)
@@ -57,7 +56,6 @@ func TestService_Create_Ok(t *testing.T) {
 
 //CREATE create_conflict Se o card_number_id já existir, ele não pode ser criado
 func TestService_Create_Nok(t *testing.T) {
-	emp := domain.Employee{}
 	empList := []domain.Employee{
 		{
 			1,
@@ -77,13 +75,12 @@ func TestService_Create_Nok(t *testing.T) {
 
 	apiMock, service := callMock(t)
 	//repository
-	apiMock.EXPECT().LastID().Return(2, nil)
+	//apiMock.EXPECT().LastID().Return(2, nil)
 	apiMock.EXPECT().GetAll().Return(empList, nil)
-	apiMock.EXPECT().Create(3, "3030", "Renata", "Leal", 3).Return(domain.Employee{}, errors.New("this card number id already exists"))
+	apiMock.EXPECT().Create("3030", "Renata", "Leal", 3).Return(nil, errors.New("this card number id already exists"))
 	//service
-	result, err := service.Create("3030", "Renata", "Leal", 3)
+	_, err := service.Create("3030", "Renata", "Leal", 3)
 	assert.NotNil(t, err)
-	assert.Equal(t, result, emp)
 
 }
 
@@ -118,7 +115,7 @@ func TestService_GetAll(t *testing.T) {
 func TestService_GetById_Nok(t *testing.T) {
 
 	apiMock, service := callMock(t)
-	apiMock.EXPECT().GetById(gomock.Eq(1)).Return(domain.Employee{}, errors.New("Employee 1 not found id"))
+	apiMock.EXPECT().GetById(int64(1)).Return(nil, errors.New("Employee 1 not found id"))
 
 	_, err := service.GetById(1)
 	assert.NotNil(t, err)
@@ -126,7 +123,7 @@ func TestService_GetById_Nok(t *testing.T) {
 
 //READ find_by_id_existent Se o elemento procurado por id existir, ele
 func TestService_GetById_Ok(t *testing.T) {
-	emp := domain.Employee{
+	emp := &domain.Employee{
 		Id:           1,
 		CardNumberId: "3030",
 		FirstName:    "Douglas",
@@ -135,26 +132,26 @@ func TestService_GetById_Ok(t *testing.T) {
 	}
 
 	apiMock, service := callMock(t)
-	apiMock.EXPECT().GetById(gomock.Eq(1)).Return(emp, nil)
+	apiMock.EXPECT().GetById(int64(1)).Return(emp, nil)
 
-	result, err := service.GetById(1)
-	assert.Equal(t, result.Id, 1)
+	result, err := service.GetById(int64(1))
+	assert.Equal(t, result.Id, int64(1))
 	assert.Nil(t, err)
 }
 
 //DELETE - delete_non_existent - Quando o funcionário não existir, será retornado null.
 func TestService_Delete_Ok(t *testing.T) {
 	apiMock, service := callMock(t)
-	apiMock.EXPECT().Delete(1).Return(nil)
-	err := service.Delete(1)
+	apiMock.EXPECT().Delete(int64(1)).Return(nil)
+	err := service.Delete(int64(1))
 	assert.Nil(t, err)
 }
 
 //DELETE delete_ok Se a exclusão for bem-sucedida, o item não aparecerá na lista.
 func TestService_Delete_Nok(t *testing.T) {
 	apiMock, service := callMock(t)
-	apiMock.EXPECT().Delete(1).Return(errors.New("employee 1 not found"))
-	err := service.Delete(1)
+	apiMock.EXPECT().Delete(int64(1)).Return(errors.New("employee 1 not found"))
+	err := service.Delete(int64(1))
 	assert.NotNil(t, err)
 }
 
@@ -162,7 +159,7 @@ func TestService_Delete_Nok(t *testing.T) {
 //funcionário será devolvido com as informações atualizadas
 func TestService_Update_Ok(t *testing.T) {
 
-	emp := domain.Employee{
+	emp := &domain.Employee{
 		Id:           1,
 		CardNumberId: "5050",
 		FirstName:    "Douglas",
@@ -188,7 +185,7 @@ func TestService_Update_Ok(t *testing.T) {
 	apiMock, service := callMock(t)
 	//repository
 	apiMock.EXPECT().GetAll().Return(empList, nil)
-	apiMock.EXPECT().Update(1, "5050", "Douglas", "Mendes", 3).Return(emp, nil)
+	apiMock.EXPECT().Update(int64(1), "5050", "Douglas", "Mendes", 3).Return(emp, nil)
 	//service
 	result, err := service.Update(1, "5050", "Douglas", "Mendes", 3)
 	assert.Nil(t, err)
@@ -199,7 +196,7 @@ func TestService_Update_Ok(t *testing.T) {
 //UPDATE update_non_existent Se o funcionário a ser atualizado não existir, será retornado null.
 func TestService_Update_Nok(t *testing.T) {
 
-	emp := domain.Employee{}
+	//emp := domain.Employee{}
 	empList := []domain.Employee{
 		{
 			1,
@@ -219,10 +216,10 @@ func TestService_Update_Nok(t *testing.T) {
 	apiMock, service := callMock(t)
 	//repository
 	apiMock.EXPECT().GetAll().Return(empList, nil)
-	apiMock.EXPECT().Update(50, "5050", "Douglas", "Mendes", 3).Return(emp, errors.New("employee 60 not found"))
+	apiMock.EXPECT().Update(int64(50), "5050", "Douglas", "Mendes", 3).Return(nil, errors.New("employee 60 not found"))
 	//service
-	result, err := service.Update(50, "5050", "Douglas", "Mendes", 3)
+	_, err := service.Update(int64(50), "5050", "Douglas", "Mendes", 3)
 	assert.NotNil(t, err)
-	assert.Equal(t, result, emp)
+	//assert.Equal(t, result, emp)
 
 }
