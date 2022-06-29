@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"fmt"
 	"github.com/douglmendes/mercado-fresco-round-go/internal/warehouses/domain"
 )
@@ -9,8 +10,14 @@ type service struct {
 	repository domain.WarehouseRepository
 }
 
-func (s *service) GetById(id int) (domain.Warehouse, error) {
-	warehouse, err := s.repository.GetById(id)
+func NewService(r domain.WarehouseRepository) domain.WarehouseService {
+	return &service{
+		repository: r,
+	}
+}
+
+func (s *service) GetById(ctx context.Context, id int64) (domain.Warehouse, error) {
+	warehouse, err := s.repository.GetById(ctx, id)
 	if err != nil {
 		return domain.Warehouse{}, err
 	}
@@ -18,8 +25,8 @@ func (s *service) GetById(id int) (domain.Warehouse, error) {
 	return warehouse, nil
 }
 
-func (s *service) GetAll() ([]domain.Warehouse, error) {
-	warehouses, err := s.repository.GetAll()
+func (s *service) GetAll(ctx context.Context) ([]domain.Warehouse, error) {
+	warehouses, err := s.repository.GetAll(ctx)
 	if err != nil {
 		return []domain.Warehouse{}, err
 	}
@@ -27,19 +34,19 @@ func (s *service) GetAll() ([]domain.Warehouse, error) {
 }
 
 func (s *service) Create(
+	ctx context.Context,
 	address,
 	telephone,
 	warehouseCode string,
-	minimunCapacity,
-	minimunTemperature int,
+	localityId int64,
 ) (*domain.Warehouse, error) {
 
-	lastID, err := s.repository.LastID()
-	if err != nil {
-		return nil, err
-	}
+	//lastID, err := s.repository.LastID()
+	//if err != nil {
+	//	return nil, err
+	//}
 
-	whList, err := s.repository.GetAll()
+	whList, err := s.repository.GetAll(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -50,9 +57,9 @@ func (s *service) Create(
 		}
 	}
 
-	lastID++
+	//lastID++
 
-	warehouse, err := s.repository.Create(lastID, address, telephone, warehouseCode, minimunCapacity, minimunTemperature)
+	warehouse, err := s.repository.Create(ctx, address, telephone, warehouseCode, localityId)
 	if err != nil {
 		return nil, err
 	}
@@ -61,18 +68,25 @@ func (s *service) Create(
 
 }
 
-func (s *service) Update(id int, address, telephone, warehouseCode string, minimunCapacity, minimunTemperature int) (domain.Warehouse, error) {
+func (s *service) Update(
+	ctx context.Context,
+	id int64,
+	address,
+	telephone,
+	warehouseCode string,
+	localityId int64,
+) (domain.Warehouse, error) {
 
-	warehouse, err := s.repository.GetById(id)
+	warehouse, err := s.repository.GetById(ctx, id)
 	if err != nil {
 		return domain.Warehouse{}, err
 	}
 
 	if warehouse.WarehouseCode == warehouseCode {
-		return s.repository.Update(id, address, telephone, warehouseCode, minimunCapacity, minimunTemperature)
+		return s.repository.Update(ctx, id, address, telephone, warehouseCode, localityId)
 	}
 
-	whList, err := s.repository.GetAll()
+	whList, err := s.repository.GetAll(ctx)
 	if err != nil {
 		return domain.Warehouse{}, err
 	}
@@ -83,19 +97,13 @@ func (s *service) Update(id int, address, telephone, warehouseCode string, minim
 		}
 	}
 
-	return s.repository.Update(id, address, telephone, warehouseCode, minimunCapacity, minimunTemperature)
+	return s.repository.Update(ctx, id, address, telephone, warehouseCode, localityId)
 }
 
-func (s *service) Delete(id int) error {
-	err := s.repository.Delete(id)
+func (s *service) Delete(ctx context.Context, id int64) error {
+	err := s.repository.Delete(ctx, id)
 	if err != nil {
 		return err
 	}
 	return err
-}
-
-func NewService(r domain.WarehouseRepository) domain.WarehouseService {
-	return &service{
-		repository: r,
-	}
 }
