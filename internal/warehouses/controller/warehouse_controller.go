@@ -34,11 +34,11 @@ func (w *WarehousesController) Create() gin.HandlerFunc {
 		}
 
 		warehouse, err := w.service.Create(
+			ctx,
 			whRequest.Address,
 			whRequest.Telephone,
 			whRequest.WarehouseCode,
-			whRequest.MinimunCapacity,
-			whRequest.MinimunTemperature,
+			whRequest.LocalityId,
 		)
 		if err != nil {
 			ctx.JSON(http.StatusConflict, gin.H{"error": err.Error()})
@@ -60,7 +60,7 @@ func (w *WarehousesController) Create() gin.HandlerFunc {
 func (w *WarehousesController) GetAll() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 
-		warehousesList, err := w.service.GetAll()
+		warehousesList, err := w.service.GetAll(ctx)
 		if err != nil {
 			ctx.JSON(http.StatusNotFound, response.DecodeError(err.Error()))
 			return
@@ -83,13 +83,13 @@ func (w *WarehousesController) GetAll() gin.HandlerFunc {
 func (w *WarehousesController) GetById() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 
-		id, err := strconv.Atoi(ctx.Param("id"))
+		id, err := strconv.ParseInt("id", 10, 64)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, response.DecodeError("id is not valid"))
 			return
 		}
 
-		warehouse, err := w.service.GetById(id)
+		warehouse, err := w.service.GetById(ctx, id)
 		if err != nil {
 			ctx.JSON(http.StatusNotFound, response.DecodeError(err.Error()))
 			return
@@ -113,7 +113,7 @@ func (w *WarehousesController) GetById() gin.HandlerFunc {
 func (w *WarehousesController) Update() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 
-		id, err := strconv.Atoi(ctx.Param("id"))
+		id, err := strconv.ParseInt("id", 10, 64)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": "id is not valid"})
 			return
@@ -126,12 +126,12 @@ func (w *WarehousesController) Update() gin.HandlerFunc {
 		}
 
 		warehouse, err := w.service.Update(
+			ctx,
 			id,
 			whRequest.Address,
 			whRequest.Telephone,
 			whRequest.WarehouseCode,
-			whRequest.MinimunCapacity,
-			whRequest.MinimunTemperature,
+			whRequest.LocalityId,
 		)
 		if err != nil {
 			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
@@ -153,13 +153,13 @@ func (w *WarehousesController) Update() gin.HandlerFunc {
 func (w *WarehousesController) Delete() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 
-		id, err := strconv.Atoi(ctx.Param("id"))
+		id, err := strconv.ParseInt("id", 10, 64)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": "id is not valid"})
 			return
 		}
 
-		err = w.service.Delete(id)
+		err = w.service.Delete(ctx, id)
 		if err != nil {
 			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 			return
@@ -175,17 +175,15 @@ func NewWarehouse(w domain.WarehouseService) *WarehousesController {
 }
 
 type whCreateRequest struct {
-	Address            string `json:"address" binding:"required"`
-	Telephone          string `json:"telephone" binding:"required"`
-	WarehouseCode      string `json:"warehouse_code" binding:"required"`
-	MinimunCapacity    int    `json:"minimun_capacity" binding:"required"`
-	MinimunTemperature int    `json:"minimun_temperature" binding:"required"`
+	Address       string `json:"address" binding:"required"`
+	Telephone     string `json:"telephone" binding:"required"`
+	WarehouseCode string `json:"warehouse_code" binding:"required"`
+	LocalityId    int64  `json:"locality_id" binding:"required"`
 }
 
 type whUpdateRequest struct {
-	Address            string `json:"address"`
-	Telephone          string `json:"telephone"`
-	WarehouseCode      string `json:"warehouse_code"`
-	MinimunCapacity    int    `json:"minimun_capacity"`
-	MinimunTemperature int    `json:"minimun_temperature"`
+	Address       string `json:"address"`
+	Telephone     string `json:"telephone"`
+	WarehouseCode string `json:"warehouse_code"`
+	LocalityId    int64  `json:"locality_id"`
 }
