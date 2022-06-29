@@ -1,21 +1,33 @@
 package repository
 
 import (
+	"context"
+	"database/sql"
 	"fmt"
 	"github.com/douglmendes/mercado-fresco-round-go/internal/warehouses/domain"
-	"github.com/douglmendes/mercado-fresco-round-go/pkg/store"
+)
+
+const (
+	sqlCreate = "INSERT INTO warehouse (address, telephone, warehouse_code, locality_id) VALUES (?, ?, ?, ?)"
+	sqlGetAll = "SELECT id, address, telephone, warehouse_code, locality_id FROM warehouse"
 )
 
 type repository struct {
-	db store.Store
+	db *sql.DB
 }
 
-func (r *repository) GetById(id int) (domain.Warehouse, error) {
+func NewRepository(db *sql.DB) domain.WarehouseRepository {
+	return &repository{
+		db: db,
+	}
+}
+
+func (r *repository) GetById(ctx context.Context, id int64) (domain.Warehouse, error) {
 	var warehouses []domain.Warehouse
 
-	if err := r.db.Read(&warehouses); err != nil {
-		return domain.Warehouse{}, err
-	}
+	//if err := r.db.Read(&warehouses); err != nil {
+	//	return domain.Warehouse{}, err
+	//}
 
 	for _, warehouse := range warehouses {
 		if warehouse.Id == id {
@@ -25,55 +37,62 @@ func (r *repository) GetById(id int) (domain.Warehouse, error) {
 	return domain.Warehouse{}, fmt.Errorf("warehouse not found")
 }
 
-func (r *repository) GetAll() ([]domain.Warehouse, error) {
+func (r *repository) GetAll(ctx context.Context) ([]domain.Warehouse, error) {
 	var warehouses []domain.Warehouse
 
-	if err := r.db.Read(&warehouses); err != nil {
+	rows, err := r.db.QueryContext(ctx, sqlGetAll)
+	if err != nil {
 		return []domain.Warehouse{}, err
 	}
 
+	defer rows.Close()
+
+	for rows.Next() {
+		var warehouse domain.Warehouse
+		if err := rows.Scan(
+			&warehouse.Id,
+			&warehouse.Address,
+			&warehouse.Telephone,
+			&warehouse.WarehouseCode,
+			&warehouse.LocalityId,
+		); err != nil {
+			return warehouses, err
+		}
+		warehouses = append(warehouses, warehouse)
+	}
 	return warehouses, nil
 }
 
-func (r *repository) Create(
-	id int,
-	address,
-	telephone,
-	warehouseCode string,
-	minimunCapacity,
-	minimunTemperature int,
-) (domain.Warehouse, error) {
-
-	var warehouses []domain.Warehouse
-	if err := r.db.Read(&warehouses); err != nil {
-		return domain.Warehouse{}, err
-	}
-
+func (r *repository) Create(ctx context.Context, address, telephone, warehouseCode string, localityId int64) (domain.Warehouse, error) {
 	warehouse := domain.Warehouse{
-		id,
-		address,
-		telephone,
-		warehouseCode,
-		minimunCapacity,
-		minimunTemperature,
+		Address:       address,
+		Telephone:     telephone,
+		WarehouseCode: warehouseCode,
+		LocalityId:    localityId,
 	}
 
-	warehouses = append(warehouses, warehouse)
+	result, err := r.db.ExecContext(ctx, sqlCreate, &address, &telephone, &warehouseCode, &localityId)
+	if err != nil {
+		return domain.Warehouse{}, nil
+	}
 
-	if err := r.db.Write(warehouses); err != nil {
+	incrementId, err := result.LastInsertId()
+	if err != nil {
 		return domain.Warehouse{}, err
 	}
+
+	warehouse.Id = incrementId
 
 	return warehouse, nil
 }
 
-func (r *repository) LastID() (int, error) {
+func (r *repository) LastID() (int64, error) {
 
 	var warehouses []domain.Warehouse
 
-	if err := r.db.Read(&warehouses); err != nil {
-		return 0, err
-	}
+	//if err := r.db.Read(&warehouses); err != nil {
+	//	return 0, err
+	//}
 
 	if len(warehouses) == 0 {
 		return 0, nil
@@ -81,18 +100,17 @@ func (r *repository) LastID() (int, error) {
 	return warehouses[len(warehouses)-1].Id, nil
 }
 
-func (r *repository) Update(id int, address, telephone, warehouseCode string, minimunCapacity, minimunTemperature int) (domain.Warehouse, error) {
+func (r *repository) Update(ctx context.Context, id int64, address, telephone, warehouseCode string, localityId int64) (domain.Warehouse, error) {
 	var warehouses []domain.Warehouse
-	if err := r.db.Read(&warehouses); err != nil {
-		return domain.Warehouse{}, err
-	}
+	//if err := r.db.Read(&warehouses); err != nil {
+	//	return domain.Warehouse{}, err
+	//}
 
 	wh := domain.Warehouse{
-		Address:            address,
-		Telephone:          telephone,
-		WarehouseCode:      warehouseCode,
-		MinimunCapacity:    minimunCapacity,
-		MinimunTemperature: minimunTemperature,
+		Address:       address,
+		Telephone:     telephone,
+		WarehouseCode: warehouseCode,
+		LocalityId:    localityId,
 	}
 
 	updated := false
@@ -112,19 +130,23 @@ func (r *repository) Update(id int, address, telephone, warehouseCode string, mi
 				wh.WarehouseCode = warehouseCode
 			}
 
-			if minimunTemperature != 0 {
-				wh.MinimunTemperature = minimunTemperature
+			if localityId != 0 {
+				wh.LocalityId = localityId
 			}
 
-			if minimunCapacity != 0 {
-				wh.MinimunCapacity = minimunCapacity
-			}
+			//if minimunTemperature != 0 {
+			//	wh.MinimunTemperature = minimunTemperature
+			//}
+			//
+			//if minimunCapacity != 0 {
+			//	wh.MinimunCapacity = minimunCapacity
+			//}
 
 			warehouses[i] = wh
 			updated = true
-			if err := r.db.Write(warehouses); err != nil {
-				return domain.Warehouse{}, err
-			}
+			//if err := r.db.Write(warehouses); err != nil {
+			//	return domain.Warehouse{}, err
+			//}
 		}
 	}
 	if !updated {
@@ -133,12 +155,12 @@ func (r *repository) Update(id int, address, telephone, warehouseCode string, mi
 	return wh, nil
 }
 
-func (r *repository) Delete(id int) error {
+func (r *repository) Delete(ctx context.Context, id int64) error {
 
 	var warehouses []domain.Warehouse
-	if err := r.db.Read(&warehouses); err != nil {
-		return err
-	}
+	//if err := r.db.Read(&warehouses); err != nil {
+	//	return err
+	//}
 
 	deleted := false
 	var index int
@@ -154,15 +176,9 @@ func (r *repository) Delete(id int) error {
 
 	warehouses = append(warehouses[:index], warehouses[index+1:]...)
 
-	if err := r.db.Write(warehouses); err != nil {
-		return err
-	}
+	//if err := r.db.Write(warehouses); err != nil {
+	//	return err
+	//}
 
 	return nil
-}
-
-func NewRepository(db store.Store) domain.WarehouseRepository {
-	return &repository{
-		db: db,
-	}
 }
