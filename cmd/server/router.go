@@ -57,8 +57,8 @@ func Start() {
 		sectionsRoutes.DELETE("/:id", sectionsController.Delete)
 	}
 
-	warehousesDB := store.New(store.FileType, store.PathBuilder("/warehouses.json"))
-	warehousesRepo := warehouseRepository.NewRepository(warehousesDB)
+	//warehousesDB := store.New(store.FileType, store.PathBuilder("/warehouses.json"))
+	warehousesRepo := warehouseRepository.NewRepository(connections.NewConnection())
 	warehousesService := warehouseService.NewService(warehousesRepo)
 	whController := warehouseController.NewWarehouse(warehousesService)
 
