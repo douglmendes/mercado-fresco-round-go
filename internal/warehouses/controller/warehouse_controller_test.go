@@ -6,7 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/douglmendes/mercado-fresco-round-go/internal/warehouses/domain"
-	mock_warehouses "github.com/douglmendes/mercado-fresco-round-go/internal/warehouses/domain/mock"
+	mockwarehouses "github.com/douglmendes/mercado-fresco-round-go/internal/warehouses/domain/mock"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
@@ -18,13 +18,15 @@ import (
 const (
 	relativePath       = "/api/v1/warehouses/"
 	relativePathWithId = "/api/v1/warehouses/:id"
-	id                 = "1"
+	idString           = "1"
+	idNumber           = int64(1)
+	locality           = int64(101)
 )
 
-func callWarehousesMock(t *testing.T) (*mock_warehouses.MockService, *WarehousesController, *gin.Engine) {
+func callWarehousesMock(t *testing.T) (*mockwarehouses.MockWarehouseService, *WarehousesController, *gin.Engine) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	service := mock_warehouses.NewMockService(ctrl)
+	service := mockwarehouses.NewMockWarehouseService(ctrl)
 	handler := NewWarehouse(service)
 	api := gin.New()
 	return service, handler, api
@@ -33,20 +35,16 @@ func callWarehousesMock(t *testing.T) (*mock_warehouses.MockService, *Warehouses
 func TestWarehousesController_GetAll(t *testing.T) {
 	whList := []domain.Warehouse{
 		{
-			Id:                 1,
-			Address:            "Monroe 860",
-			Telephone:          "47470000",
-			WarehouseCode:      "TSFK",
-			MinimunCapacity:    10,
-			MinimunTemperature: 10,
+			Id:            1,
+			Address:       "Monroe 860",
+			Telephone:     "47470000",
+			WarehouseCode: "TSFK",
 		},
 		{
-			Id:                 2,
-			Address:            "Rua do Teste 2",
-			Telephone:          "555555555",
-			WarehouseCode:      "JJJ",
-			MinimunCapacity:    10,
-			MinimunTemperature: 2,
+			Id:            2,
+			Address:       "Rua do Teste 2",
+			Telephone:     "555555555",
+			WarehouseCode: "JJJ",
 		},
 	}
 
@@ -86,21 +84,20 @@ func TestWarehousesController_GetAll_NOK(t *testing.T) {
 func TestWarehousesController_GetById(t *testing.T) {
 
 	wh := domain.Warehouse{
-		Id:                 1,
-		Address:            "Rua Nova",
-		Telephone:          "12121212",
-		WarehouseCode:      "GHI",
-		MinimunCapacity:    2,
-		MinimunTemperature: 2,
+		Id:            int64(1),
+		Address:       "Rua Nova",
+		Telephone:     "12121212",
+		WarehouseCode: "GHI",
+		LocalityId:    int64(100),
 	}
 
 	service, handler, api := callWarehousesMock(t)
 
 	api.GET(relativePathWithId, handler.GetById())
 
-	service.EXPECT().GetById(gomock.Eq(1)).Return(wh, nil)
+	service.EXPECT().GetById(gomock.Eq(idNumber)).Return(wh, nil)
 
-	req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/warehouses/%s", id), nil)
+	req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/warehouses/%s", idString), nil)
 	resp := httptest.NewRecorder()
 	api.ServeHTTP(resp, req)
 
@@ -114,9 +111,9 @@ func TestWarehousesController_GetById(t *testing.T) {
 func TestWarehousesController_GetById_NOK(t *testing.T) {
 	service, handler, api := callWarehousesMock(t)
 	api.GET(relativePathWithId, handler.GetById())
-	service.EXPECT().GetById(gomock.Eq(1)).Return(domain.Warehouse{}, errors.New("warehouse not found"))
+	service.EXPECT().GetById(gomock.Eq(idNumber)).Return(domain.Warehouse{}, errors.New("warehouse not found"))
 
-	req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/warehouses/%s", id), nil)
+	req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/warehouses/%s", idString), nil)
 	resp := httptest.NewRecorder()
 	api.ServeHTTP(resp, req)
 
@@ -136,12 +133,11 @@ func TestWarehousesController_GetById_BadRequest(t *testing.T) {
 
 func TestWarehousesController_Create(t *testing.T) {
 	wh := domain.Warehouse{
-		Id:                 1,
-		Address:            "Rua 1",
-		Telephone:          "555555555",
-		WarehouseCode:      "ZAQ",
-		MinimunCapacity:    8,
-		MinimunTemperature: 9,
+		Id:            idNumber,
+		Address:       "Rua 1",
+		Telephone:     "555555555",
+		WarehouseCode: "ZAQ",
+		LocalityId:    locality,
 	}
 
 	service, handler, api := callWarehousesMock(t)
@@ -151,11 +147,10 @@ func TestWarehousesController_Create(t *testing.T) {
 		"Rua 1",
 		"555555555",
 		"ZAQ",
-		8,
-		9,
+		locality,
 	).Return(&wh, nil)
 
-	payload := `{"address": "Rua 1","telephone": "555555555","warehouse_code": "ZAQ","minimun_capacity": 8, "minimun_temperature": 9}`
+	payload := `{"address": "Rua 1","telephone": "555555555","warehouse_code": "ZAQ","locality_id": 101}`
 	req := httptest.NewRequest(http.MethodPost, relativePath, bytes.NewBuffer([]byte(payload)))
 	resp := httptest.NewRecorder()
 	api.ServeHTTP(resp, req)
@@ -171,11 +166,10 @@ func TestWarehousesController_Create_Conflict(t *testing.T) {
 		"Rua 1",
 		"555555555",
 		"ZAQ",
-		8,
-		9,
+		locality,
 	).Return(nil, errors.New("this warehouse already exists"))
 
-	payload := `{"address": "Rua 1","telephone": "555555555","warehouse_code": "ZAQ","minimun_capacity": 8, "minimun_temperature": 9}`
+	payload := `{"address": "Rua 1","telephone": "555555555","warehouse_code": "ZAQ", "locality_id": 101}`
 	req := httptest.NewRequest(http.MethodPost, relativePath, bytes.NewBuffer([]byte(payload)))
 	resp := httptest.NewRecorder()
 	api.ServeHTTP(resp, req)
@@ -187,7 +181,7 @@ func TestWarehousesController_Create_Fail(t *testing.T) {
 	_, handler, api := callWarehousesMock(t)
 	api.POST(relativePath, handler.Create())
 
-	payload := `{"address": "Rua 1","minimun_capacity": 8, "minimun_temperature": 9}`
+	payload := `{"address": "Rua 1","locality_id": 101}`
 	req := httptest.NewRequest(http.MethodPost, relativePath, bytes.NewBuffer([]byte(payload)))
 	resp := httptest.NewRecorder()
 	api.ServeHTTP(resp, req)
@@ -199,9 +193,9 @@ func TestWarehousesController_Delete_OK(t *testing.T) {
 	service, handler, api := callWarehousesMock(t)
 	api.DELETE(relativePathWithId, handler.Delete())
 
-	service.EXPECT().Delete(gomock.Eq(1)).Return(nil)
+	service.EXPECT().Delete(gomock.Eq(idNumber)).Return(nil)
 
-	req := httptest.NewRequest(http.MethodDelete, fmt.Sprintf("/api/v1/warehouses/%s", id), nil)
+	req := httptest.NewRequest(http.MethodDelete, fmt.Sprintf("/api/v1/warehouses/%s", idString), nil)
 	resp := httptest.NewRecorder()
 	api.ServeHTTP(resp, req)
 
@@ -212,9 +206,9 @@ func TestWarehousesController_Delete_NOK(t *testing.T) {
 	service, handler, api := callWarehousesMock(t)
 	api.DELETE(relativePathWithId, handler.Delete())
 
-	service.EXPECT().Delete(gomock.Eq(1)).Return(errors.New("erro 404"))
+	service.EXPECT().Delete(gomock.Eq(idNumber)).Return(errors.New("erro 404"))
 
-	req := httptest.NewRequest(http.MethodDelete, fmt.Sprintf("/api/v1/warehouses/%s", id), nil)
+	req := httptest.NewRequest(http.MethodDelete, fmt.Sprintf("/api/v1/warehouses/%s", idString), nil)
 	resp := httptest.NewRecorder()
 	api.ServeHTTP(resp, req)
 
@@ -234,31 +228,29 @@ func TestWarehousesController_Delete_BadRequest(t *testing.T) {
 
 func TestWarehousesController_Update(t *testing.T) {
 	wh := domain.Warehouse{
-		Id:                 1,
-		Address:            "Av. Estrela da Morte",
-		Telephone:          "987654321",
-		WarehouseCode:      "LSW",
-		MinimunCapacity:    10,
-		MinimunTemperature: 10,
+		Id:            1,
+		Address:       "Av. Estrela da Morte",
+		Telephone:     "987654321",
+		WarehouseCode: "LSW",
+		LocalityId:    locality,
 	}
 
 	service, handler, api := callWarehousesMock(t)
 	api.PATCH(relativePathWithId, handler.Update())
 
 	service.EXPECT().Update(
-		gomock.Eq(1),
+		gomock.Eq(idNumber),
 		"Rua Sem Saida",
 		"888888888",
 		"LSW",
-		8,
-		9,
+		locality,
 	).Return(wh, nil)
 
-	payload := `{"address": "Rua Sem Saida","telephone": "888888888","warehouse_code": "LSW","minimun_capacity": 8, "minimun_temperature": 9}`
+	payload := `{"address": "Rua Sem Saida","telephone": "888888888","warehouse_code": "LSW", "locality_id": 101}`
 
 	req := httptest.NewRequest(
 		http.MethodPatch,
-		fmt.Sprintf("/api/v1/warehouses/%s", id),
+		fmt.Sprintf("/api/v1/warehouses/%s", idString),
 		bytes.NewBuffer([]byte(payload)),
 	)
 
@@ -273,19 +265,18 @@ func TestWarehousesController_Update_NOK(t *testing.T) {
 	api.PATCH(relativePathWithId, handler.Update())
 
 	service.EXPECT().Update(
-		gomock.Eq(1),
+		gomock.Eq(idNumber),
 		"Rua Sem Saida",
 		"888888888",
 		"LSW",
-		8,
-		9,
+		locality,
 	).Return(domain.Warehouse{}, errors.New("warehouse not found"))
 
-	payload := `{"address": "Rua Sem Saida","telephone": "888888888","warehouse_code": "LSW","minimun_capacity": 8, "minimun_temperature": 9}`
+	payload := `{"address": "Rua Sem Saida","telephone": "888888888","warehouse_code": "LSW", "locality_id": 101}`
 
 	req := httptest.NewRequest(
 		http.MethodPatch,
-		fmt.Sprintf("/api/v1/warehouses/%s", id),
+		fmt.Sprintf("/api/v1/warehouses/%s", idString),
 		bytes.NewBuffer([]byte(payload)),
 	)
 
@@ -299,11 +290,11 @@ func TestWarehousesController_Update_Fail(t *testing.T) {
 	_, handler, api := callWarehousesMock(t)
 	api.PATCH(relativePathWithId, handler.Update())
 
-	payload := `{"address": "Rua Sem Saida","telephone": 888888888,"warehouse_code": 25,"minimun_capacity": "Nice!!", "minimun_temperature": 9}`
+	payload := `{"address": "Rua Sem Saida","telephone": 888888888,"warehouse_code": 25,"locality_id": "101"}`
 
 	req := httptest.NewRequest(
 		http.MethodPatch,
-		fmt.Sprintf("/api/v1/warehouses/%s", id),
+		fmt.Sprintf("/api/v1/warehouses/%s", idString),
 		bytes.NewBuffer([]byte(payload)),
 	)
 
@@ -317,7 +308,7 @@ func TestWarehousesController_Update_BadRequest(t *testing.T) {
 	_, handler, api := callWarehousesMock(t)
 	api.PATCH(relativePathWithId, handler.Update())
 
-	payload := `{"address": "Rua Sem Saida","telephone": "888888888","warehouse_code": "LSW","minimun_capacity": 8, "minimun_temperature": 9}`
+	payload := `{"address": "Rua Sem Saida","telephone": "888888888","warehouse_code": "LSW","locality_id": 101}`
 
 	req := httptest.NewRequest(
 		http.MethodPatch,

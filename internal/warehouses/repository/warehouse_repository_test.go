@@ -1,136 +1,61 @@
 package repository
 
 import (
-	"encoding/json"
-	"errors"
+	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/douglmendes/mercado-fresco-round-go/internal/warehouses/domain"
-	"github.com/douglmendes/mercado-fresco-round-go/pkg/store"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
+const (
+	queryGetAll = "SELECT id, address, telephone, warehouse_code, locality_id FROM warehouse"
+)
+
 func TestRepository_GetAll(t *testing.T) {
-	t.Run("should return a warehouse list", func(t *testing.T) {
-		fileStore := store.New(store.FileType, "")
+	db, mock, err := sqlmock.New()
+	assert.NoError(t, err)
+	defer db.Close()
 
-		input := []domain.Warehouse{
-			{
-				1,
-				"Monroe 860",
-				"47470000",
-				"TSFK",
-				10,
-				10,
-			},
-			{
-				2,
-				"Rua do Teste 2",
-				"555555555",
-				"JJJ",
-				10,
-				2,
-			},
-		}
-
-		dataJson, _ := json.Marshal(input)
-		fileStoreMock := &store.Mock{
-			Data: dataJson,
-			Err:  nil,
-		}
-
-		fileStore.AddMock(fileStoreMock)
-		result, _ := NewRepository(fileStore).GetAll()
-
-		assert.Equal(t, result, input, "should be equal")
-	})
-
-	t.Run("should return err when Store returns an error", func(t *testing.T) {
-		fileStore := store.New(store.FileType, "")
-
-		expectedErr := errors.New("error on connect store / database")
-
-		fileStoreMock := &store.Mock{
-			Data: []byte{},
-			Err:  expectedErr,
-		}
-
-		fileStore.AddMock(fileStoreMock)
-
-		repository := NewRepository(fileStore)
-
-		_, err := repository.GetAll()
-
-		assert.Equal(t, err, expectedErr, "should be equal")
-	})
-}
-
-func TestRepository_GetById(t *testing.T) {
-	fileStore := store.New(store.FileType, "")
-
-	wh := []domain.Warehouse{
+	warehosesMock := []domain.Warehouse{
 		{
-			1,
-			"Monroe 860",
-			"47470000",
-			"TSFK",
-			10,
-			10,
+			Id:            int64(1),
+			Address:       "Rua teste 1",
+			Telephone:     "0000000001",
+			WarehouseCode: "AAA",
+			LocalityId:    int64(10),
+		},
+		{
+			Id:            int64(2),
+			Address:       "Rua Teste 2",
+			Telephone:     "0000000002",
+			WarehouseCode: "BBB",
+			LocalityId:    int64(20),
 		},
 	}
 
-	dataJson, _ := json.Marshal(wh)
-	fileStoreMock := &store.Mock{
-		Data: dataJson,
-		Err:  nil,
-	}
+	rows := sqlmock.NewRows([]string{
+		"id", "address", "telephone", "warehouse_code", "locality_id",
+	}).AddRow(
+		warehosesMock[0].Id,
+		warehosesMock[0].Address,
+		warehosesMock[0].Telephone,
+		warehosesMock[0].WarehouseCode,
+		warehosesMock[0].LocalityId,
+	).AddRow(
+		warehosesMock[1].Id,
+		warehosesMock[1].Address,
+		warehosesMock[1].Telephone,
+		warehosesMock[1].WarehouseCode,
+		warehosesMock[1].LocalityId,
+	)
 
-	fileStore.AddMock(fileStoreMock)
+	mock.ExpectQuery(queryGetAll).WillReturnRows(rows)
 
-	result, err := NewRepository(fileStore).GetById(1)
+	whRepo := NewRepository(db)
 
-	assert.Equal(t, result, wh[0])
-	assert.Nil(t, err)
+	result, err := whRepo.GetAll()
+	assert.NoError(t, err)
+	assert.Equal(t, result[0].WarehouseCode, "AAA")
+	assert.Equal(t, len(result), 2)
 
-}
-
-func TestRepository_GetById_NOK(t *testing.T) {
-	fileStore := store.New(store.FileType, "")
-
-	wh := []domain.Warehouse{
-		{
-			1,
-			"Monroe 860",
-			"47470000",
-			"TSFK",
-			10,
-			10,
-		},
-	}
-
-	dataJson, _ := json.Marshal(wh)
-	fileStoreMock := &store.Mock{
-		Data: dataJson,
-		Err:  nil,
-	}
-	fileStore.AddMock(fileStoreMock)
-
-	result, err := NewRepository(fileStore).GetById(55)
-
-	assert.Equal(t, result, domain.Warehouse{})
-	assert.Error(t, err, "warehouse not found")
-}
-
-func TestRepository_GetById_ReadNotOK(t *testing.T) {
-	fileStore := store.New(store.FileType, "")
-
-	expectedErr := errors.New("error on connect store / database")
-	fileStoreMock := &store.Mock{
-		Data: []byte{},
-		Err:  expectedErr,
-	}
-	fileStore.AddMock(fileStoreMock)
-
-	repository := NewRepository(fileStore)
-	_, err := repository.GetById(1)
-	assert.Equal(t, err, expectedErr)
 }
