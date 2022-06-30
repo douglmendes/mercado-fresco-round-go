@@ -34,7 +34,6 @@ func (w *WarehousesController) Create() gin.HandlerFunc {
 		}
 
 		warehouse, err := w.service.Create(
-			ctx,
 			whRequest.Address,
 			whRequest.Telephone,
 			whRequest.WarehouseCode,
@@ -60,7 +59,7 @@ func (w *WarehousesController) Create() gin.HandlerFunc {
 func (w *WarehousesController) GetAll() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 
-		warehousesList, err := w.service.GetAll(ctx)
+		warehousesList, err := w.service.GetAll()
 		if err != nil {
 			ctx.JSON(http.StatusNotFound, response.DecodeError(err.Error()))
 			return
@@ -83,13 +82,14 @@ func (w *WarehousesController) GetAll() gin.HandlerFunc {
 func (w *WarehousesController) GetById() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 
-		id, err := strconv.ParseInt("id", 10, 64)
+		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+		//id, err := strconv.Atoi(ctx.Param("id"))
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, response.DecodeError("id is not valid"))
 			return
 		}
 
-		warehouse, err := w.service.GetById(ctx, id)
+		warehouse, err := w.service.GetById(id)
 		if err != nil {
 			ctx.JSON(http.StatusNotFound, response.DecodeError(err.Error()))
 			return
@@ -113,7 +113,7 @@ func (w *WarehousesController) GetById() gin.HandlerFunc {
 func (w *WarehousesController) Update() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 
-		id, err := strconv.ParseInt("id", 10, 64)
+		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": "id is not valid"})
 			return
@@ -126,7 +126,6 @@ func (w *WarehousesController) Update() gin.HandlerFunc {
 		}
 
 		warehouse, err := w.service.Update(
-			ctx,
 			id,
 			whRequest.Address,
 			whRequest.Telephone,
@@ -153,13 +152,13 @@ func (w *WarehousesController) Update() gin.HandlerFunc {
 func (w *WarehousesController) Delete() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 
-		id, err := strconv.ParseInt("id", 10, 64)
+		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": "id is not valid"})
 			return
 		}
 
-		err = w.service.Delete(ctx, id)
+		err = w.service.Delete(id)
 		if err != nil {
 			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 			return
