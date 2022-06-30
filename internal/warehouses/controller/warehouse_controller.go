@@ -1,17 +1,17 @@
-package controllers
+package controller
 
 import (
 	"fmt"
+	"github.com/douglmendes/mercado-fresco-round-go/internal/warehouses/domain"
 	"net/http"
 	"strconv"
 
-	"github.com/douglmendes/mercado-fresco-round-go/internal/warehouses"
 	"github.com/douglmendes/mercado-fresco-round-go/pkg/response"
 	"github.com/gin-gonic/gin"
 )
 
 type WarehousesController struct {
-	service warehouses.Service
+	service domain.WarehouseService
 }
 
 // Create godoc
@@ -37,8 +37,7 @@ func (w *WarehousesController) Create() gin.HandlerFunc {
 			whRequest.Address,
 			whRequest.Telephone,
 			whRequest.WarehouseCode,
-			whRequest.MinimunCapacity,
-			whRequest.MinimunTemperature,
+			whRequest.LocalityId,
 		)
 		if err != nil {
 			ctx.JSON(http.StatusConflict, gin.H{"error": err.Error()})
@@ -83,7 +82,8 @@ func (w *WarehousesController) GetAll() gin.HandlerFunc {
 func (w *WarehousesController) GetById() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 
-		id, err := strconv.Atoi(ctx.Param("id"))
+		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+		//id, err := strconv.Atoi(ctx.Param("id"))
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, response.DecodeError("id is not valid"))
 			return
@@ -113,7 +113,7 @@ func (w *WarehousesController) GetById() gin.HandlerFunc {
 func (w *WarehousesController) Update() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 
-		id, err := strconv.Atoi(ctx.Param("id"))
+		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": "id is not valid"})
 			return
@@ -130,8 +130,7 @@ func (w *WarehousesController) Update() gin.HandlerFunc {
 			whRequest.Address,
 			whRequest.Telephone,
 			whRequest.WarehouseCode,
-			whRequest.MinimunCapacity,
-			whRequest.MinimunTemperature,
+			whRequest.LocalityId,
 		)
 		if err != nil {
 			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
@@ -153,7 +152,7 @@ func (w *WarehousesController) Update() gin.HandlerFunc {
 func (w *WarehousesController) Delete() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 
-		id, err := strconv.Atoi(ctx.Param("id"))
+		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": "id is not valid"})
 			return
@@ -168,24 +167,22 @@ func (w *WarehousesController) Delete() gin.HandlerFunc {
 	}
 }
 
-func NewWarehouse(w warehouses.Service) *WarehousesController {
+func NewWarehouse(w domain.WarehouseService) *WarehousesController {
 	return &WarehousesController{
 		service: w,
 	}
 }
 
 type whCreateRequest struct {
-	Address            string `json:"address" binding:"required"`
-	Telephone          string `json:"telephone" binding:"required"`
-	WarehouseCode      string `json:"warehouse_code" binding:"required"`
-	MinimunCapacity    int    `json:"minimun_capacity" binding:"required"`
-	MinimunTemperature int    `json:"minimun_temperature" binding:"required"`
+	Address       string `json:"address" binding:"required"`
+	Telephone     string `json:"telephone" binding:"required"`
+	WarehouseCode string `json:"warehouse_code" binding:"required"`
+	LocalityId    int64  `json:"locality_id" binding:"required"`
 }
 
 type whUpdateRequest struct {
-	Address            string `json:"address"`
-	Telephone          string `json:"telephone"`
-	WarehouseCode      string `json:"warehouse_code"`
-	MinimunCapacity    int    `json:"minimun_capacity"`
-	MinimunTemperature int    `json:"minimun_temperature"`
+	Address       string `json:"address"`
+	Telephone     string `json:"telephone"`
+	WarehouseCode string `json:"warehouse_code"`
+	LocalityId    int64  `json:"locality_id"`
 }
