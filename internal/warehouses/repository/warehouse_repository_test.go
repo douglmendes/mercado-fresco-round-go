@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/douglmendes/mercado-fresco-round-go/internal/warehouses/domain"
 	"github.com/stretchr/testify/assert"
@@ -18,18 +19,18 @@ func TestRepository_GetAll(t *testing.T) {
 
 	warehosesMock := []domain.Warehouse{
 		{
-			Id:            int64(1),
+			Id:            1,
 			Address:       "Rua teste 1",
 			Telephone:     "0000000001",
 			WarehouseCode: "AAA",
-			LocalityId:    int64(10),
+			LocalityId:    10,
 		},
 		{
-			Id:            int64(2),
+			Id:            2,
 			Address:       "Rua Teste 2",
 			Telephone:     "0000000002",
 			WarehouseCode: "BBB",
-			LocalityId:    int64(20),
+			LocalityId:    20,
 		},
 	}
 
@@ -53,7 +54,7 @@ func TestRepository_GetAll(t *testing.T) {
 
 	whRepo := NewRepository(db)
 
-	result, err := whRepo.GetAll()
+	result, err := whRepo.GetAll(context.Background())
 	assert.NoError(t, err)
 	assert.Equal(t, result[0].WarehouseCode, "AAA")
 	assert.Equal(t, len(result), 2)

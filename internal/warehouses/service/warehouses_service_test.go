@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"errors"
 	"github.com/douglmendes/mercado-fresco-round-go/internal/warehouses/domain"
 	mockWarehouses "github.com/douglmendes/mercado-fresco-round-go/internal/warehouses/domain/mock"
@@ -9,14 +10,15 @@ import (
 	"testing"
 )
 
-const id = int64(1)
+const id = 1
 
-func callMock(t *testing.T) (*mockWarehouses.MockWarehouseRepository, domain.WarehouseService) {
+func callMock(t *testing.T) (*mockWarehouses.MockWarehouseRepository, domain.WarehouseService, context.Context) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	apiMock := mockWarehouses.NewMockWarehouseRepository(ctrl)
 	service := NewService(apiMock)
-	return apiMock, service
+	ctxTest := context.Background()
+	return apiMock, service, ctxTest
 }
 
 func TestService_GetAll(t *testing.T) {
@@ -37,11 +39,11 @@ func TestService_GetAll(t *testing.T) {
 		},
 	}
 
-	apiMock, service := callMock(t)
+	apiMock, service, ctxTest := callMock(t)
 
-	apiMock.EXPECT().GetAll().Return(wh, nil)
+	apiMock.EXPECT().GetAll(ctxTest).Return(wh, nil)
 
-	result, err := service.GetAll()
+	result, err := service.GetAll(context.Background())
 	assert.Equal(t, len(result), len(wh))
 	assert.Nil(t, err)
 }
@@ -49,11 +51,11 @@ func TestService_GetAll(t *testing.T) {
 func TestService_GetAll_NOK(t *testing.T) {
 	wList := make([]domain.Warehouse, 0)
 
-	apiMock, service := callMock(t)
+	apiMock, service, ctxTest := callMock(t)
 
-	apiMock.EXPECT().GetAll().Return(wList, errors.New("erro"))
+	apiMock.EXPECT().GetAll(ctxTest).Return(wList, errors.New("erro"))
 
-	w, err := service.GetAll()
+	w, err := service.GetAll(ctxTest)
 	assert.Equal(t, wList, w, "empty list")
 	assert.NotNil(t, err)
 
@@ -68,45 +70,45 @@ func TestService_GetById(t *testing.T) {
 		LocalityId:    101,
 	}
 
-	apiMock, service := callMock(t)
+	apiMock, service, ctxTest := callMock(t)
 
-	apiMock.EXPECT().GetById(gomock.Eq(id)).Return(wh, nil)
+	apiMock.EXPECT().GetById(context.Background(), gomock.Eq(id)).Return(wh, nil)
 
-	result, err := service.GetById(id)
+	result, err := service.GetById(ctxTest, id)
 	assert.Equal(t, result.Id, id)
 	assert.Nil(t, err)
 
 }
 
 func TestService_GetById_NOK(t *testing.T) {
-	apiMock, service := callMock(t)
+	apiMock, service, ctxTest := callMock(t)
 
-	apiMock.EXPECT().GetById(gomock.Eq(id)).Return(domain.Warehouse{}, errors.New("warehouse not found"))
+	apiMock.EXPECT().GetById(ctxTest, gomock.Eq(id)).Return(domain.Warehouse{}, errors.New("warehouse not found"))
 
-	_, err := service.GetById(id)
+	_, err := service.GetById(ctxTest, id)
 	assert.NotNil(t, err)
 }
 
 func TestService_Delete_OK(t *testing.T) {
-	apiMock, service := callMock(t)
+	apiMock, service, ctxTest := callMock(t)
 
-	apiMock.EXPECT().Delete(gomock.Eq(id)).Return(nil)
+	apiMock.EXPECT().Delete(ctxTest, gomock.Eq(id)).Return(nil)
 
-	err := service.Delete(id)
+	err := service.Delete(ctxTest, id)
 	assert.Nil(t, err)
 }
 
 func TestService_Delete_NOK(t *testing.T) {
-	apiMock, service := callMock(t)
+	apiMock, service, ctxTest := callMock(t)
 
-	apiMock.EXPECT().Delete(gomock.Eq(id)).Return(errors.New("error id is not valid"))
+	apiMock.EXPECT().Delete(ctxTest, gomock.Eq(id)).Return(errors.New("error id is not valid"))
 
-	err := service.Delete(id)
+	err := service.Delete(ctxTest, id)
 	assert.NotNil(t, err)
 }
 
 func TestServiceCreate_OK(t *testing.T) {
-	apiMock, service := callMock(t)
+	apiMock, service, ctxTest := callMock(t)
 
 	wh := []domain.Warehouse{
 		{
@@ -133,15 +135,17 @@ func TestServiceCreate_OK(t *testing.T) {
 		LocalityId:    101,
 	}
 
-	apiMock.EXPECT().GetAll().Return(wh, nil)
+	apiMock.EXPECT().GetAll(ctxTest).Return(wh, nil)
 	apiMock.EXPECT().Create(
+		ctxTest,
 		"Rua Nova",
 		"12121212",
 		"GHI",
-		int64(1),
+		1,
 	).Return(whExpec, nil)
 
 	result, err := service.Create(
+		ctxTest,
 		"Rua Nova",
 		"12121212",
 		"GHI",
@@ -153,7 +157,7 @@ func TestServiceCreate_OK(t *testing.T) {
 }
 
 func TestServiceCreate_Conflict(t *testing.T) {
-	apiMock, service := callMock(t)
+	apiMock, service, ctxTest := callMock(t)
 
 	wh := []domain.Warehouse{
 		{
@@ -172,8 +176,9 @@ func TestServiceCreate_Conflict(t *testing.T) {
 		},
 	}
 
-	apiMock.EXPECT().GetAll().Return(wh, nil)
+	apiMock.EXPECT().GetAll(ctxTest).Return(wh, nil)
 	apiMock.EXPECT().Create(
+		ctxTest,
 		"Rua Nova",
 		"12121212",
 		"ABC",
@@ -181,6 +186,7 @@ func TestServiceCreate_Conflict(t *testing.T) {
 	).Return(domain.Warehouse{}, errors.New("this warehouse already exists"))
 
 	_, err := service.Create(
+		ctxTest,
 		"Rua Nova",
 		"12121212",
 		"ABC",
@@ -192,10 +198,11 @@ func TestServiceCreate_Conflict(t *testing.T) {
 }
 
 func TestService_Create_GetAll_Fail(t *testing.T) {
-	apiMock, service := callMock(t)
-	apiMock.EXPECT().GetAll().Return([]domain.Warehouse{}, errors.New("error"))
+	apiMock, service, ctxTest := callMock(t)
+	apiMock.EXPECT().GetAll(ctxTest).Return([]domain.Warehouse{}, errors.New("error"))
 
 	_, err := service.Create(
+		ctxTest,
 		"Rua Nova",
 		"12121212",
 		"ABC",
@@ -205,7 +212,7 @@ func TestService_Create_GetAll_Fail(t *testing.T) {
 }
 
 func TestService_Create_NOK(t *testing.T) {
-	apiMock, service := callMock(t)
+	apiMock, service, ctxTest := callMock(t)
 	wh := []domain.Warehouse{
 		{
 			1,
@@ -216,19 +223,21 @@ func TestService_Create_NOK(t *testing.T) {
 		},
 	}
 
-	apiMock.EXPECT().GetAll().Return(wh, nil)
+	apiMock.EXPECT().GetAll(ctxTest).Return(wh, nil)
 	apiMock.EXPECT().Create(
+		ctxTest,
 		"Rua Nova",
 		"12121212",
 		"GHI",
-		int64(1),
+		1,
 	).Return(domain.Warehouse{}, errors.New("error"))
 
 	result, err := service.Create(
+		ctxTest,
 		"Rua Nova",
 		"12121212",
 		"GHI",
-		int64(1),
+		1,
 	)
 
 	assert.Nil(t, result)
@@ -236,14 +245,14 @@ func TestService_Create_NOK(t *testing.T) {
 }
 
 func TestService_Update_WithTheSameWarehouseCode(t *testing.T) {
-	apiMock, service := callMock(t)
+	apiMock, service, ctxTest := callMock(t)
 
 	oldWh := domain.Warehouse{
 		Id:            id,
 		Address:       "Rua 25 de Março",
 		Telephone:     "9911100011",
 		WarehouseCode: "XYZ",
-		LocalityId:    int64(1),
+		LocalityId:    1,
 	}
 
 	newWh := domain.Warehouse{
@@ -251,24 +260,26 @@ func TestService_Update_WithTheSameWarehouseCode(t *testing.T) {
 		Address:       "Rua 23 de Março",
 		Telephone:     "8899900099",
 		WarehouseCode: "XYZ",
-		LocalityId:    int64(1),
+		LocalityId:    1,
 	}
 
-	apiMock.EXPECT().GetById(gomock.Eq(id)).Return(oldWh, nil)
+	apiMock.EXPECT().GetById(ctxTest, gomock.Eq(id)).Return(oldWh, nil)
 	apiMock.EXPECT().Update(
+		ctxTest,
 		id,
 		"Rua 23 de Março",
 		"8899900099",
 		"XYZ",
-		int64(2),
+		2,
 	).Return(newWh, nil)
 
 	result, err := service.Update(
+		ctxTest,
 		id,
 		"Rua 23 de Março",
 		"8899900099",
 		"XYZ",
-		int64(2),
+		2,
 	)
 
 	assert.Equal(t, result, newWh)
@@ -276,14 +287,14 @@ func TestService_Update_WithTheSameWarehouseCode(t *testing.T) {
 }
 
 func TestService_Update_WithOtherWarehouseCode(t *testing.T) {
-	apiMock, service := callMock(t)
+	apiMock, service, ctxTest := callMock(t)
 
 	oldWh := domain.Warehouse{
 		Id:            id,
 		Address:       "Rua 25 de Março",
 		Telephone:     "9911100011",
 		WarehouseCode: "XYZ",
-		LocalityId:    int64(10),
+		LocalityId:    10,
 	}
 
 	newWh := domain.Warehouse{
@@ -291,42 +302,44 @@ func TestService_Update_WithOtherWarehouseCode(t *testing.T) {
 		Address:       "Av. Paulista",
 		Telephone:     "000000000",
 		WarehouseCode: "LLL",
-		LocalityId:    int64(10),
+		LocalityId:    10,
 	}
 
 	whList := []domain.Warehouse{
 		{
-			Id:            int64(1),
+			Id:            1,
 			Address:       "Rua 25 de Março",
 			Telephone:     "9911100011",
 			WarehouseCode: "XYZ",
-			LocalityId:    int64(11),
+			LocalityId:    11,
 		},
 		{
-			Id:            int64(2),
+			Id:            2,
 			Address:       "Av. Santo Agostinho",
 			Telephone:     "7777777777",
 			WarehouseCode: "GNK",
-			LocalityId:    int64(12),
+			LocalityId:    12,
 		},
 	}
 
-	apiMock.EXPECT().GetById(gomock.Eq(id)).Return(oldWh, nil)
-	apiMock.EXPECT().GetAll().Return(whList, nil)
+	apiMock.EXPECT().GetById(ctxTest, gomock.Eq(id)).Return(oldWh, nil)
+	apiMock.EXPECT().GetAll(ctxTest).Return(whList, nil)
 	apiMock.EXPECT().Update(
-		int64(1),
+		ctxTest,
+		1,
 		"Av. Paulista",
 		"000000000",
 		"LLL",
-		int64(10),
+		10,
 	).Return(newWh, nil)
 
 	result, err := service.Update(
-		int64(1),
+		ctxTest,
+		1,
 		"Av. Paulista",
 		"000000000",
 		"LLL",
-		int64(10),
+		10,
 	)
 
 	assert.Equal(t, result, newWh)
@@ -334,42 +347,43 @@ func TestService_Update_WithOtherWarehouseCode(t *testing.T) {
 }
 
 func TestService_Update_WithOtherWarehouseCode_NOK(t *testing.T) {
-	apiMock, service := callMock(t)
+	apiMock, service, ctxTest := callMock(t)
 
 	oldWh := domain.Warehouse{
-		Id:            int64(1),
+		Id:            1,
 		Address:       "Rua 25 de Março",
 		Telephone:     "9911100011",
 		WarehouseCode: "XYZ",
-		LocalityId:    int64(10),
+		LocalityId:    10,
 	}
 
 	whList := []domain.Warehouse{
 		{
-			Id:            int64(1),
+			Id:            1,
 			Address:       "Rua 25 de Março",
 			Telephone:     "9911100011",
 			WarehouseCode: "XYZ",
-			LocalityId:    int64(10),
+			LocalityId:    10,
 		},
 		{
-			Id:            int64(2),
+			Id:            2,
 			Address:       "Av. Santo Agostinho",
 			Telephone:     "7777777777",
 			WarehouseCode: "GNK",
-			LocalityId:    int64(15),
+			LocalityId:    15,
 		},
 	}
 
-	apiMock.EXPECT().GetById(gomock.Eq(id)).Return(oldWh, nil)
-	apiMock.EXPECT().GetAll().Return(whList, nil)
+	apiMock.EXPECT().GetById(ctxTest, gomock.Eq(id)).Return(oldWh, nil)
+	apiMock.EXPECT().GetAll(ctxTest).Return(whList, nil)
 
 	result, err := service.Update(
-		int64(1),
+		ctxTest,
+		1,
 		"Av. Paulista",
 		"000000000",
 		"GNK",
-		int64(10),
+		10,
 	)
 
 	assert.Equal(t, result, domain.Warehouse{})
