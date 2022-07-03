@@ -129,6 +129,7 @@ func (r *repository) Update(arg domain.Product) (domain.Product, error) {
 }
 
 func (r *repository) Delete(id int) error {
-	// TODO: implementation
-	return nil
+	_, err := r.db.Exec(DeleteQuery, id)
+
+	return err
 }

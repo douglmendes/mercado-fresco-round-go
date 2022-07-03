@@ -64,4 +64,5 @@ const (
 			product_type_id = ?,
 			seller_id = ?
 		WHERE id = ?`
+	DeleteQuery = `DELETE FROM products WHERE id = ?`
 )
