@@ -4,35 +4,49 @@ const (
 	GetAllQuery = `
 		SELECT
 			id,
+			product_code,
 			description,
-			expiration_rate,
-			freezing_rate,
+			width,
 			height,
 			length,
 			net_weight,
-			product_code,
+			expiration_rate,
 			recommended_freezing_temperature,
-			width,
+			freezing_rate,
 			product_type_id,
 			seller_id
 		FROM
 			products`
 	GetByIdQuery = `
-			SELECT
-				id,
-				description,
-				expiration_rate,
-				freezing_rate,
-				height,
-				length,
-				net_weight,
-				product_code,
-				recommended_freezing_temperature,
-				width,
-				product_type_id,
-				seller_id
-			FROM
-				products
-			WHERE
-				id = ?`
+		SELECT
+			id,
+			product_code,
+			description,
+			width,
+			height,
+			length,
+			net_weight,
+			expiration_rate,
+			recommended_freezing_temperature,
+			freezing_rate,
+			product_type_id,
+			seller_id
+		FROM
+			products
+		WHERE
+			id = ?`
+	CreateQuery = `
+		INSERT INTO products (
+			product_code,
+			description,
+			width,
+			height,
+			length,
+			net_weight,
+			expiration_rate,
+			recommended_freezing_temperature,
+			freezing_rate,
+			product_type_id,
+			seller_id
+		) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
 )

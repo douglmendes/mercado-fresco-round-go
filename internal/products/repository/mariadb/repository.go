@@ -76,13 +76,33 @@ func (r *repository) GetById(id int) (domain.Product, error) {
 }
 
 func (r *repository) Create(arg domain.Product) (domain.Product, error) {
-	// TODO: implementation
-	return domain.Product{}, nil
-}
+	result, err := r.db.Exec(
+		CreateQuery,
+		arg.ProductCode,
+		arg.Description,
+		arg.Width,
+		arg.Height,
+		arg.Length,
+		arg.NetWeight,
+		arg.ExpirationRate,
+		arg.RecommendedFreezingTemperature,
+		arg.FreezingRate,
+		arg.ProductTypeId,
+		arg.SellerId,
+	)
+	if err != nil {
+		return domain.Product{}, err
+	}
 
-func (r *repository) LastID() (int, error) {
-	// TODO: implementation
-	return 0, nil
+	id, err := result.LastInsertId()
+	if err != nil {
+		return domain.Product{}, err
+	}
+
+	product := arg
+	product.Id = int(id)
+
+	return product, nil
 }
 
 func (r *repository) Update(arg domain.Product) (domain.Product, error) {
