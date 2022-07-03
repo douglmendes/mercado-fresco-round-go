@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"database/sql"
+	"errors"
 	"net/http"
 	"strconv"
 	"strings"
@@ -192,7 +194,7 @@ func (c *ProductController) Update() gin.HandlerFunc {
 
 		product, err := c.service.Update(arg)
 		if err != nil {
-			if strings.Contains(err.Error(), "not found") {
+			if strings.Contains(err.Error(), "not found") || errors.Is(err, sql.ErrNoRows) {
 				ctx.JSON(http.StatusNotFound, response.DecodeError(err.Error()))
 				return
 			}

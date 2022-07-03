@@ -106,8 +106,26 @@ func (r *repository) Create(arg domain.Product) (domain.Product, error) {
 }
 
 func (r *repository) Update(arg domain.Product) (domain.Product, error) {
-	// TODO: implementation
-	return domain.Product{}, nil
+	_, err := r.db.Exec(
+		UpdateQuery,
+		arg.ProductCode,
+		arg.Description,
+		arg.Width,
+		arg.Height,
+		arg.Length,
+		arg.NetWeight,
+		arg.ExpirationRate,
+		arg.RecommendedFreezingTemperature,
+		arg.FreezingRate,
+		arg.ProductTypeId,
+		arg.SellerId,
+		arg.Id,
+	)
+	if err != nil {
+		return domain.Product{}, err
+	}
+
+	return arg, nil
 }
 
 func (r *repository) Delete(id int) error {
