@@ -50,8 +50,29 @@ func (r *repository) GetAll() ([]domain.Product, error) {
 }
 
 func (r *repository) GetById(id int) (domain.Product, error) {
-	// TODO: implementation
-	return domain.Product{}, nil
+	row := r.db.QueryRow(GetByIdQuery, id)
+
+	product := domain.Product{}
+
+	err := row.Scan(
+		&product.Id,
+		&product.ProductCode,
+		&product.Description,
+		&product.Width,
+		&product.Height,
+		&product.Length,
+		&product.NetWeight,
+		&product.ExpirationRate,
+		&product.RecommendedFreezingTemperature,
+		&product.FreezingRate,
+		&product.ProductTypeId,
+		&product.SellerId,
+	)
+	if err != nil {
+		return domain.Product{}, err
+	}
+
+	return product, nil
 }
 
 func (r *repository) Create(arg domain.Product) (domain.Product, error) {
