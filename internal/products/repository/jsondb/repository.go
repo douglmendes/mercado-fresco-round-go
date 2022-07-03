@@ -1,45 +1,37 @@
-package products
+package jsondb
 
 import (
 	"fmt"
 
+	"github.com/douglmendes/mercado-fresco-round-go/internal/products/domain"
 	"github.com/douglmendes/mercado-fresco-round-go/pkg/store"
 )
-
-type Repository interface {
-	GetAll() ([]Product, error)
-	GetById(id int) (Product, error)
-	Create(arg Product) (Product, error)
-	LastID() (int, error)
-	Update(arg Product) (Product, error)
-	Delete(id int) error
-}
 
 type repository struct {
 	db store.Store
 }
 
-func NewRepository(db store.Store) Repository {
+func NewRepository(db store.Store) domain.ProductRepository {
 	return &repository{db}
 }
 
-func (r *repository) GetAll() ([]Product, error) {
-	var products []Product
+func (r *repository) GetAll() ([]domain.Product, error) {
+	var products []domain.Product
 
 	err := r.db.Read(&products)
 	if err != nil {
-		return []Product{}, err
+		return []domain.Product{}, err
 	}
 
 	return products, nil
 }
 
-func (r *repository) GetById(id int) (Product, error) {
-	var products []Product
+func (r *repository) GetById(id int) (domain.Product, error) {
+	var products []domain.Product
 
 	err := r.db.Read(&products)
 	if err != nil {
-		return Product{}, err
+		return domain.Product{}, err
 	}
 
 	for _, product := range products {
@@ -48,27 +40,34 @@ func (r *repository) GetById(id int) (Product, error) {
 		}
 	}
 
-	return Product{}, fmt.Errorf("product (%d) not found", id)
+	return domain.Product{}, fmt.Errorf("product (%d) not found", id)
 }
 
-func (r *repository) Create(arg Product) (Product, error) {
-	var products []Product
+func (r *repository) Create(arg domain.Product) (domain.Product, error) {
+	var products []domain.Product
 
 	if err := r.db.Read(&products); err != nil {
-		return Product{}, err
+		return domain.Product{}, err
 	}
+
+	lastId, err := r.lastID()
+	if err != nil {
+		return domain.Product{}, err
+	}
+
+	arg.Id = lastId + 1
 
 	products = append(products, arg)
 
 	if err := r.db.Write(products); err != nil {
-		return Product{}, err
+		return domain.Product{}, err
 	}
 
 	return arg, nil
 }
 
-func (r *repository) LastID() (int, error) {
-	var products []Product
+func (r *repository) lastID() (int, error) {
+	var products []domain.Product
 
 	if err := r.db.Read(&products); err != nil {
 		return 0, err
@@ -81,12 +80,12 @@ func (r *repository) LastID() (int, error) {
 	return products[len(products)-1].Id, nil
 }
 
-func (r *repository) Update(arg Product) (Product, error) {
-	var products []Product
+func (r *repository) Update(arg domain.Product) (domain.Product, error) {
+	var products []domain.Product
 	updated := false
 
 	if err := r.db.Read(&products); err != nil {
-		return Product{}, err
+		return domain.Product{}, err
 	}
 
 	for index, product := range products {
@@ -97,7 +96,7 @@ func (r *repository) Update(arg Product) (Product, error) {
 	}
 
 	if !updated {
-		return Product{}, fmt.Errorf("product (%d) not found", arg.Id)
+		return domain.Product{}, fmt.Errorf("product (%d) not found", arg.Id)
 	}
 
 	r.db.Write(products)
@@ -108,7 +107,7 @@ func (r *repository) Update(arg Product) (Product, error) {
 func (r *repository) Delete(id int) error {
 	deleted := false
 	foundIndex := 0
-	var products []Product
+	var products []domain.Product
 
 	if err := r.db.Read(&products); err != nil {
 		return err
