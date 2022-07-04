@@ -1,37 +1,25 @@
-package sections
+package repository
 
-import "github.com/douglmendes/mercado-fresco-round-go/pkg/store"
-
-//go:generate mockgen -source=./repository.go -destination=./mock/repository_mock.go
-type Repository interface {
-	GetAll() ([]Section, error)
-	GetById(id int) (*Section, error)
-	LastID() (int, error)
-	Create(
-		sectionNumber, currentCapacity, minimumCapacity,
-		maximumCapacity, warehouseId, productTypeId,
-		currentTemperature, minimumTemperature int,
-	) (*Section, error)
-	Exists(id int) error
-	Update(id int, args map[string]int) (*Section, error)
-	Delete(id int) (*Section, error)
-}
+import (
+	"github.com/douglmendes/mercado-fresco-round-go/internal/sections/domain"
+	"github.com/douglmendes/mercado-fresco-round-go/pkg/store"
+)
 
 type repository struct {
 	database store.Store
 }
 
-func (r *repository) GetAll() ([]Section, error) {
-	var data []Section
+func (r *repository) GetAll() ([]domain.Section, error) {
+	var data []domain.Section
 
 	if err := r.database.Read(&data); err != nil {
-		return []Section{}, err
+		return []domain.Section{}, err
 	}
 
 	return data, nil
 }
 
-func (r *repository) GetById(id int) (*Section, error) {
+func (r *repository) GetById(id int) (*domain.Section, error) {
 	data, err := r.GetAll()
 	if err != nil {
 		return nil, err
@@ -43,7 +31,7 @@ func (r *repository) GetById(id int) (*Section, error) {
 		}
 	}
 
-	return nil, &ErrorNotFound{id}
+	return nil, &domain.ErrorNotFound{Id: id}
 }
 
 func (r *repository) LastID() (int, error) {
@@ -60,11 +48,7 @@ func (r *repository) LastID() (int, error) {
 	return data[count-1].Id, nil
 }
 
-func (r *repository) Create(
-	sectionNumber, currentCapacity, minimumCapacity,
-	maximumCapacity, warehouseId, productTypeId,
-	currentTemperature, minimumTemperature int,
-) (*Section, error) {
+func (r *repository) Create(sectionNumber, currentTemperature, minimumTemperature, currentCapacity, minimumCapacity, maximumCapacity, warehouseId, productTypeId int) (*domain.Section, error) {
 	lastID, err := r.LastID()
 	if err != nil {
 		return nil, err
@@ -75,7 +59,7 @@ func (r *repository) Create(
 		return nil, err
 	}
 
-	section := Section{
+	section := domain.Section{
 		Id:                 lastID + 1,
 		SectionNumber:      sectionNumber,
 		CurrentTemperature: currentTemperature,
@@ -96,7 +80,7 @@ func (r *repository) Create(
 	return &section, nil
 }
 
-func (r *repository) Delete(id int) (*Section, error) {
+func (r *repository) Delete(id int) (*domain.Section, error) {
 	data, err := r.GetAll()
 	if err != nil {
 		return nil, err
@@ -113,7 +97,7 @@ func (r *repository) Delete(id int) (*Section, error) {
 		}
 	}
 
-	return nil, &ErrorNotFound{id}
+	return nil, &domain.ErrorNotFound{Id: id}
 }
 
 func (r *repository) Exists(id int) error {
@@ -121,13 +105,13 @@ func (r *repository) Exists(id int) error {
 	return err
 }
 
-func (r *repository) Update(id int, args map[string]int) (*Section, error) {
+func (r *repository) Update(id int, args map[string]int) (*domain.Section, error) {
 	data, err := r.GetAll()
 	if err != nil {
 		return nil, err
 	}
 
-	var selectedSection *Section
+	var selectedSection *domain.Section
 	for i, section := range data {
 		if section.Id == id {
 			selectedSection = &data[i]
@@ -163,6 +147,6 @@ func (r *repository) Update(id int, args map[string]int) (*Section, error) {
 	return selectedSection, nil
 }
 
-func NewRepository(s store.Store) Repository {
+func NewRepository(s store.Store) domain.Repository {
 	return &repository{s}
 }

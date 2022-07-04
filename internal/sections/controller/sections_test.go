@@ -1,4 +1,4 @@
-package test
+package controller
 
 import (
 	"encoding/json"
@@ -8,9 +8,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/douglmendes/mercado-fresco-round-go/cmd/server/controllers"
-	"github.com/douglmendes/mercado-fresco-round-go/internal/sections"
-	mock_sections "github.com/douglmendes/mercado-fresco-round-go/internal/sections/mock"
+	"github.com/douglmendes/mercado-fresco-round-go/internal/sections/domain"
+	mock_sections "github.com/douglmendes/mercado-fresco-round-go/internal/sections/domain/mock"
 	"github.com/douglmendes/mercado-fresco-round-go/pkg/response"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
@@ -23,11 +22,11 @@ const (
 	idSections     = "1"
 )
 
-func mockSections(t *testing.T) (*mock_sections.MockService, *controllers.SectionsController, *gin.Engine) {
+func mockSections(t *testing.T) (*mock_sections.MockService, *SectionsController, *gin.Engine) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	service := mock_sections.NewMockService(ctrl)
-	handler := controllers.NewSectionsController(service)
+	handler := NewSectionsController(service)
 	api := gin.New()
 	return service, handler, api
 }
@@ -36,7 +35,7 @@ func TestSections_Create_OK(t *testing.T) {
 	service, handler, api := mockSections(t)
 	api.POST(pathSections, handler.Create)
 
-	newSection := sections.Section{
+	newSection := domain.Section{
 		Id:                 1,
 		SectionNumber:      3,
 		CurrentTemperature: 12,
@@ -48,7 +47,7 @@ func TestSections_Create_OK(t *testing.T) {
 		ProductTypeId:      5,
 	}
 
-	service.EXPECT().Create(3, 25, 5, 50, 3, 5, 12, 14).Return(&newSection, nil)
+	service.EXPECT().Create(3, 12, 14, 25, 5, 50, 3, 5).Return(&newSection, nil)
 
 	payload := `{
 		"section_number": 3,
@@ -94,9 +93,9 @@ func TestSections_Create_Conflict(t *testing.T) {
 	service, handler, api := mockSections(t)
 	api.POST(pathSections, handler.Create)
 
-	expectedError := sections.ErrorConflict{SectionNumber: 3}
+	expectedError := domain.ErrorConflict{SectionNumber: 3}
 
-	service.EXPECT().Create(3, 25, 5, 50, 3, 5, 12, 14).Return(nil, &expectedError)
+	service.EXPECT().Create(3, 12, 14, 25, 5, 50, 3, 5).Return(nil, &expectedError)
 
 	payload := `{
 		"section_number": 3,
@@ -119,7 +118,7 @@ func TestSections_Create_Conflict(t *testing.T) {
 func TestSections_Find_All(t *testing.T) {
 	service, handler, api := mockSections(t)
 
-	db := []sections.Section{
+	db := []domain.Section{
 		{
 			Id:                 1,
 			SectionNumber:      3,
@@ -153,7 +152,7 @@ func TestSections_Find_All(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, resp.Code)
 
-	expecBody := struct{ Data []sections.Section }{}
+	expecBody := struct{ Data []domain.Section }{}
 	err := json.Unmarshal(resp.Body.Bytes(), &expecBody)
 	assert.Nil(t, err)
 
@@ -164,7 +163,7 @@ func TestSections_Find_All_Error(t *testing.T) {
 	service, handler, api := mockSections(t)
 	api.GET(pathSections, handler.GetAll)
 
-	service.EXPECT().GetAll().Return([]sections.Section{}, errors.New("internal server error"))
+	service.EXPECT().GetAll().Return([]domain.Section{}, errors.New("internal server error"))
 
 	req := httptest.NewRequest(http.MethodGet, pathSections, nil)
 	resp := httptest.NewRecorder()
@@ -177,7 +176,7 @@ func TestSections_Find_All_Empty(t *testing.T) {
 	service, handler, api := mockSections(t)
 	api.GET(pathSections, handler.GetAll)
 
-	service.EXPECT().GetAll().Return([]sections.Section{}, nil)
+	service.EXPECT().GetAll().Return([]domain.Section{}, nil)
 
 	req := httptest.NewRequest(http.MethodGet, pathSections, nil)
 	resp := httptest.NewRecorder()
@@ -190,7 +189,7 @@ func TestSections_Find_By_Id_Non_Existent(t *testing.T) {
 	service, handler, api := mockSections(t)
 	api.GET(pathIdSections, handler.GetById)
 
-	service.EXPECT().GetById(1).Return(nil, &sections.ErrorNotFound{Id: 1})
+	service.EXPECT().GetById(1).Return(nil, &domain.ErrorNotFound{Id: 1})
 
 	req := httptest.NewRequest(http.MethodGet, pathSections+idSections, nil)
 	resp := httptest.NewRecorder()
@@ -203,7 +202,7 @@ func TestSections_Find_By_Id_Existent(t *testing.T) {
 	service, handler, api := mockSections(t)
 	api.GET(pathIdSections, handler.GetById)
 
-	db := sections.Section{
+	db := domain.Section{
 		Id:                 1,
 		SectionNumber:      3,
 		CurrentTemperature: 12,
@@ -223,7 +222,7 @@ func TestSections_Find_By_Id_Existent(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, resp.Code)
 
-	expectBody := struct{ Data sections.Section }{}
+	expectBody := struct{ Data domain.Section }{}
 	err := json.Unmarshal(resp.Body.Bytes(), &expectBody)
 	assert.Nil(t, err)
 
@@ -247,7 +246,7 @@ func TestSections_Update_OK(t *testing.T) {
 	service, handler, api := mockSections(t)
 	api.PATCH(pathIdSections, handler.Update)
 
-	db := sections.Section{
+	db := domain.Section{
 		Id:                 1,
 		SectionNumber:      3,
 		CurrentTemperature: 15,
@@ -272,7 +271,7 @@ func TestSections_Update_OK(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, resp.Code)
 
-	expecBody := struct{ Data sections.Section }{}
+	expecBody := struct{ Data domain.Section }{}
 	err := json.Unmarshal(resp.Body.Bytes(), &expecBody)
 	assert.Nil(t, err)
 
@@ -283,7 +282,7 @@ func TestSections_Update_Non_Existent(t *testing.T) {
 	service, handler, api := mockSections(t)
 	api.PATCH(pathIdSections, handler.Update)
 
-	service.EXPECT().Update(1, map[string]int{"current_temperature": 15, "minimum_capacity": 15}).Return(nil, &sections.ErrorNotFound{Id: 1})
+	service.EXPECT().Update(1, map[string]int{"current_temperature": 15, "minimum_capacity": 15}).Return(nil, &domain.ErrorNotFound{Id: 1})
 
 	payload := `{
 		"current_temperature": 15,
@@ -301,7 +300,7 @@ func TestSections_Delete_Non_Existent(t *testing.T) {
 	service, handler, api := mockSections(t)
 	api.DELETE(pathIdSections, handler.Delete)
 
-	service.EXPECT().Delete(1).Return(nil, &sections.ErrorNotFound{Id: 1})
+	service.EXPECT().Delete(1).Return(nil, &domain.ErrorNotFound{Id: 1})
 
 	req := httptest.NewRequest(http.MethodDelete, pathSections+idSections, nil)
 	resp := httptest.NewRecorder()
