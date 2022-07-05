@@ -1,17 +1,17 @@
-package controllers
+package controller
 
 import (
 	"errors"
 	"net/http"
 	"strconv"
 
-	"github.com/douglmendes/mercado-fresco-round-go/internal/sections"
+	"github.com/douglmendes/mercado-fresco-round-go/internal/sections/domain"
 	"github.com/douglmendes/mercado-fresco-round-go/pkg/response"
 	"github.com/gin-gonic/gin"
 )
 
 type SectionsController struct {
-	service sections.Service
+	service domain.Service
 }
 
 // ListSections godoc
@@ -86,9 +86,9 @@ func (s *SectionsController) Create(c *gin.Context) {
 	}
 
 	section, err := s.service.Create(
-		req.SectionNumber, req.CurrentCapacity, req.MinimumCapacity,
-		req.MaximumCapacity, req.WarehouseId, req.ProductTypeId,
-		req.CurrentTemperature, req.MinimumTemperature,
+		req.SectionNumber, req.CurrentTemperature, req.MinimumTemperature,
+		req.CurrentCapacity, req.MinimumCapacity, req.MaximumCapacity,
+		req.WarehouseId, req.ProductTypeId,
 	)
 	if err != nil {
 		c.JSON(http.StatusConflict, response.DecodeError(err.Error()))
@@ -129,12 +129,12 @@ func (s *SectionsController) Update(c *gin.Context) {
 	section, err := s.service.Update(id, args)
 	if err != nil {
 		c.JSON(func() int {
-			errNF := &sections.ErrorNotFound{}
+			errNF := &domain.ErrorNotFound{}
 			if errors.As(err, &errNF) {
 				return http.StatusNotFound
 			}
 
-			errCF := &sections.ErrorConflict{}
+			errCF := &domain.ErrorConflict{}
 			if errors.As(err, &errCF) {
 				return http.StatusConflict
 			}
@@ -174,7 +174,7 @@ func (s *SectionsController) Delete(c *gin.Context) {
 	c.JSON(http.StatusNoContent, response.NewResponse(nil))
 }
 
-func NewSectionsController(s sections.Service) *SectionsController {
+func NewSectionsController(s domain.Service) *SectionsController {
 	return &SectionsController{s}
 }
 

@@ -1,28 +1,28 @@
-package test
+package service
 
 import (
 	"errors"
 	"testing"
 
-	"github.com/douglmendes/mercado-fresco-round-go/internal/sections"
-	mock "github.com/douglmendes/mercado-fresco-round-go/internal/sections/mock"
+	"github.com/douglmendes/mercado-fresco-round-go/internal/sections/domain"
+	mock "github.com/douglmendes/mercado-fresco-round-go/internal/sections/domain/mock"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 )
 
-func callMock(t *testing.T) (*mock.MockRepository, sections.Service) {
+func callMock(t *testing.T) (*mock.MockRepository, domain.Service) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	apiMock := mock.NewMockRepository(ctrl)
-	service := sections.NewService(apiMock)
+	service := NewService(apiMock)
 	return apiMock, service
 }
 
 func TestService_Create_OK(t *testing.T) {
 	api, service := callMock(t)
-	api.EXPECT().GetAll().Return([]sections.Section{}, nil)
+	api.EXPECT().GetAll().Return([]domain.Section{}, nil)
 
-	newSection := sections.Section{
+	newSection := domain.Section{
 		Id:                 1,
 		SectionNumber:      3,
 		CurrentTemperature: 15,
@@ -43,9 +43,9 @@ func TestService_Create_OK(t *testing.T) {
 
 func TestService_Create_Conflict(t *testing.T) {
 	api, service := callMock(t)
-	api.EXPECT().GetAll().Return([]sections.Section{}, nil)
+	api.EXPECT().GetAll().Return([]domain.Section{}, nil)
 
-	expectedError := sections.ErrorConflict{SectionNumber: 1}
+	expectedError := domain.ErrorConflict{SectionNumber: 1}
 
 	api.EXPECT().Create(1, 15, 5, 150, 15, 250, 1, 1).Return(nil, &expectedError)
 
@@ -68,7 +68,7 @@ func TestService_Create_Data_Error(t *testing.T) {
 func TestService_Find_All(t *testing.T) {
 	api, service := callMock(t)
 
-	db := []sections.Section{
+	db := []domain.Section{
 		{
 			Id:                 1,
 			SectionNumber:      1,
@@ -102,7 +102,7 @@ func TestService_Find_All(t *testing.T) {
 
 func TestService_Find_By_Id_Non_Existent(t *testing.T) {
 	api, service := callMock(t)
-	expectedError := sections.ErrorNotFound{Id: 3}
+	expectedError := domain.ErrorNotFound{Id: 3}
 
 	api.EXPECT().GetById(3).Return(nil, &expectedError)
 
@@ -115,7 +115,7 @@ func TestService_Find_By_Id_Non_Existent(t *testing.T) {
 func TestService_Find_By_Id_Existent(t *testing.T) {
 	api, service := callMock(t)
 
-	foundSection := sections.Section{
+	foundSection := domain.Section{
 		Id:                 2,
 		SectionNumber:      2,
 		CurrentTemperature: 16,
@@ -138,7 +138,7 @@ func TestService_Update_Existent(t *testing.T) {
 	api, service := callMock(t)
 	api.EXPECT().Exists(1).Return(nil)
 
-	updatedSection := sections.Section{
+	updatedSection := domain.Section{
 		Id:                 1,
 		SectionNumber:      1,
 		MinimumTemperature: 10,
@@ -159,7 +159,7 @@ func TestService_Update_Existent(t *testing.T) {
 
 func TestService_Update_Non_Existent(t *testing.T) {
 	api, service := callMock(t)
-	expectedError := sections.ErrorNotFound{Id: 3}
+	expectedError := domain.ErrorNotFound{Id: 3}
 
 	api.EXPECT().Exists(3).Return(&expectedError)
 
@@ -173,7 +173,7 @@ func TestService_Update_Data_Error(t *testing.T) {
 	api, service := callMock(t)
 
 	api.EXPECT().Exists(1).Return(nil)
-	api.EXPECT().GetAll().Return([]sections.Section{}, errors.New("error"))
+	api.EXPECT().GetAll().Return([]domain.Section{}, errors.New("error"))
 	api.EXPECT().Update(1, map[string]int{"current_temperature": 8}).Return(nil, errors.New("error"))
 
 	res, err := service.Update(1, map[string]int{"current_temperature": 8})
@@ -185,20 +185,20 @@ func TestService_Update_Conflict(t *testing.T) {
 	api, service := callMock(t)
 
 	api.EXPECT().Exists(1).Return(nil)
-	api.EXPECT().GetAll().Return([]sections.Section{}, nil)
-	api.EXPECT().Update(1, map[string]int{"current_temperature": 8}).Return(nil, &sections.ErrorConflict{SectionNumber: 1})
+	api.EXPECT().GetAll().Return([]domain.Section{}, nil)
+	api.EXPECT().Update(1, map[string]int{"current_temperature": 8}).Return(nil, &domain.ErrorConflict{SectionNumber: 1})
 
 	res, err := service.Update(1, map[string]int{"current_temperature": 8})
 	assert.Nil(t, res)
 	assert.NotNil(t, err)
-	assert.EqualError(t, err, (&sections.ErrorConflict{SectionNumber: 1}).Error())
+	assert.EqualError(t, err, (&domain.ErrorConflict{SectionNumber: 1}).Error())
 }
 
 func TestService_Delete_Non_Existent(t *testing.T) {
 	api, service := callMock(t)
-	api.EXPECT().GetAll().Return([]sections.Section{}, nil)
+	api.EXPECT().GetAll().Return([]domain.Section{}, nil)
 
-	expectedError := sections.ErrorNotFound{Id: 3}
+	expectedError := domain.ErrorNotFound{Id: 3}
 
 	api.EXPECT().Delete(3).Return(nil, &expectedError)
 
@@ -211,7 +211,7 @@ func TestService_Delete_Non_Existent(t *testing.T) {
 func TestService_Delete_OK(t *testing.T) {
 	api, service := callMock(t)
 
-	db := []sections.Section{
+	db := []domain.Section{
 		{
 			Id:                 1,
 			SectionNumber:      1,
@@ -231,7 +231,7 @@ func TestService_Delete_OK(t *testing.T) {
 	assert.Equal(t, res, &db[0])
 	assert.Nil(t, err)
 
-	api.EXPECT().GetAll().Return([]sections.Section{}, nil)
+	api.EXPECT().GetAll().Return([]domain.Section{}, nil)
 
 	resDB, _ := service.GetAll()
 	assert.NotContains(t, resDB, db[0])
