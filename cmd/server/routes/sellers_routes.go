@@ -13,7 +13,6 @@ func SellersRoutes(group *gin.RouterGroup) {
 	sellerRouterGroup := group.Group("/sellers")
 	{
 		sellersDb := connections.NewConnection()
-		// warehousesRepo := warehouseRepository.NewRepository(connections.NewConnection())
 		sellersRepo := sellersRepository.NewRepository(sellersDb)
 		sellersService := sellerService.NewService(sellersRepo)
 		s := sellersController.NewSeller(sellersService)
