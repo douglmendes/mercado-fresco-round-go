@@ -14,7 +14,14 @@ type SellerController struct {
 	service domain.Service
 }
 
-type request struct {
+type sqlCreateRequest struct {
+	Cid         int    `json:"cid" bindind:"required"`
+	CompanyName string `json:"company_name" bindind:"required"`
+	Address     string `json:"address" bindind:"required"`
+	Telephone   string `json:"telephone" bindind:"required"`
+}
+
+type sqlUpdateRequest struct {
 	Cid         int    `json:"cid"`
 	CompanyName string `json:"company_name"`
 	Address     string `json:"address"`
@@ -38,7 +45,7 @@ func NewSeller(s domain.Service) *SellerController {
 // @Router /api/v1/sellers [get]
 func (c *SellerController) GetAll() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		s, err := c.service.GetAll()
+		s, err := c.service.GetAll(ctx)
 		if err != nil {
 			ctx.JSON(http.StatusNotFound, gin.H{
 				"error": err.Error(),
@@ -70,7 +77,7 @@ func (c *SellerController) GetById() gin.HandlerFunc {
 			return
 		}
 
-		s, err := c.service.GetById(int(id))
+		s, err := c.service.GetById(ctx, int(id))
 		if err != nil {
 			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 			return
@@ -93,7 +100,7 @@ func (c *SellerController) GetById() gin.HandlerFunc {
 // @Router /api/v1/sellers [post]
 func (c *SellerController) Create() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		var req request
+		var req sqlCreateRequest
 		if err := ctx.ShouldBindJSON(&req); err != nil {
 			ctx.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
 			return
@@ -120,7 +127,7 @@ func (c *SellerController) Create() gin.HandlerFunc {
 			return
 		}
 
-		s, err := c.service.Create(req.Cid, req.CompanyName, req.Address, req.Telephone)
+		s, err := c.service.Create(ctx, req.Cid, req.CompanyName, req.Address, req.Telephone)
 		if err != nil {
 			ctx.JSON(http.StatusConflict, gin.H{"error": err.Error()})
 			return
@@ -151,13 +158,13 @@ func (s *SellerController) Update() gin.HandlerFunc {
 			return
 		}
 
-		var req request
+		var req sqlUpdateRequest
 		if err := ctx.ShouldBindJSON(&req); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
 
-		s, err := s.service.Update(int(id), req.Cid, req.CompanyName, req.Address, req.Telephone)
+		s, err := s.service.Update(ctx, int(id), req.Cid, req.CompanyName, req.Address, req.Telephone)
 		if err != nil {
 			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 			return
@@ -182,7 +189,7 @@ func (c *SellerController) Delete() gin.HandlerFunc {
 			return
 		}
 
-		err = c.service.Delete(int(id))
+		err = c.service.Delete(ctx, int(id))
 		if err != nil {
 			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 			return
