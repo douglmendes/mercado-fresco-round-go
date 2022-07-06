@@ -12,14 +12,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-const (
-	queryGetAll  = "SELECT id, cid, company_name, address, telephone FROM sellers"
-	queryGetById = "SELECT id, cid, company_name, address, telephone FROM sellers where id = ?"
-	queryCreate = "INSERT INTO sellers (cid, company_name, address, telephone) VALUES (?, ?, ?, ?)"
-	queryUpdate = "UPDATE sellers SET cid = ?, company_name = ?, address = ?, telephone = ? WHERE id = ?"
-	queryDelete = "DELETE FROM sellers WHERE id = ?"
-)
-
 func TestRepository_GetAll_Ok(t *testing.T) {
 	db, mock, err := sqlmock.New()
 	assert.NoError(t, err)
@@ -62,7 +54,7 @@ func TestRepository_GetAll_Ok(t *testing.T) {
 
 	slRepo := NewRepository(db)
 
-	result, err := slRepo.GetAll(context.Background())
+	result, err := slRepo.GetAll(context.TODO())
 	assert.NoError(t, err)
 	assert.Equal(t, 44, result[0].Cid)
 	assert.Equal(t, len(result), 2)
@@ -80,7 +72,7 @@ func TestRepository_GetAll_NOk(t *testing.T) {
 
 	slRepo := NewRepository(db)
 
-	result, err := slRepo.GetAll(context.Background())
+	result, err := slRepo.GetAll(context.TODO())
 	assert.Error(t, err)
 	assert.Equal(t, sellerMock, result)
 }
@@ -113,7 +105,7 @@ func TestRepository_GetById_Ok(t *testing.T) {
 
 	slRepo := NewRepository(db)
 
-	result, err := slRepo.GetById(context.Background(), 1)
+	result, err := slRepo.GetById(context.TODO(), 1)
 	assert.NoError(t, err)
 	assert.Equal(t, 44, result.Cid)
 }
@@ -128,7 +120,7 @@ func TestRepository_GetById_NOk(t *testing.T) {
 
 	slRepo := NewRepository(db)
 
-	result, err := slRepo.GetById(context.Background(), 1)
+	result, err := slRepo.GetById(context.TODO(), 1)
 	assert.Error(t, err)
 	assert.Equal(t, domain.Seller{}, result)
 }
@@ -143,7 +135,7 @@ func TestRepository_GetById_NoId(t *testing.T) {
 
 	slRepo := NewRepository(db)
 
-	result, err := slRepo.GetById(context.Background(), 1)
+	result, err := slRepo.GetById(context.TODO(), 1)
 	assert.Error(t, err)
 	assert.Equal(t, domain.Seller{}, result)
 }

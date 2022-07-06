@@ -10,21 +10,13 @@ import (
 	"github.com/douglmendes/mercado-fresco-round-go/internal/sellers/domain"
 )
 
-const (
-	sqlGetAll = "SELECT id, cid, company_name, address, telephone FROM sellers"
-	sqlGetById = "SELECT id, cid, company_name, address, telephone FROM sellers where id = ?"
-	sqlCreate = "INSERT INTO sellers (cid, company_name, address, telephone) VALUES (?, ?, ?, ?)"
-	sqlUpdate = "UPDATE sellers SET cid = ?, company_name = ?, address = ?, telephone = ? WHERE id = ?"
-	sqlDelete = "DELETE FROM sellers WHERE id = ?"
-)
-
 type repository struct {
 	db *sql.DB
 }
 
 func (r *repository) GetAll(ctx context.Context) ([]domain.Seller, error) {
 	var sellers []domain.Seller
-	rows, err := r.db.QueryContext(ctx, sqlGetAll)
+	rows, err := r.db.QueryContext(ctx, queryGetAll)
 	if err != nil {
 		return []domain.Seller{}, err
 	}
@@ -51,7 +43,7 @@ func (r *repository) GetAll(ctx context.Context) ([]domain.Seller, error) {
 
 func (r *repository) GetById(ctx context.Context,id int) (domain.Seller, error) {
 
-	row := r.db.QueryRowContext(ctx, sqlGetById, id)
+	row := r.db.QueryRowContext(ctx, queryGetById, id)
 
 	seller := domain.Seller{}
 
@@ -85,7 +77,7 @@ func (r *repository) Create(ctx context.Context, cid int, commpanyName, address,
 
 	result, err := r.db.ExecContext(
 		ctx,
-		sqlCreate,
+		queryCreate,
 		cid,
 		commpanyName,
 		address,
@@ -128,7 +120,7 @@ func (r *repository) Update(ctx context.Context, id, cid int, commpanyName, addr
 
 	result, err := r.db.ExecContext(
 		ctx,
-		sqlUpdate,
+		queryUpdate,
 		seller.Cid,
 		seller.CompanyName,
 		seller.Address,
@@ -150,7 +142,7 @@ func (r *repository) Update(ctx context.Context, id, cid int, commpanyName, addr
 
 func (r *repository) Delete(ctx context.Context, id int) error {
 
-	result, err := r.db.ExecContext(ctx, sqlDelete, id)
+	result, err := r.db.ExecContext(ctx, queryDelete, id)
 	if err != nil {
 		return err
 	}

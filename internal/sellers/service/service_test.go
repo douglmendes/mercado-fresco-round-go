@@ -257,9 +257,9 @@ func TestService_Update_ExistentCid_NOk(t *testing.T) {
 func TestService_Delete_Ok(t *testing.T) {
 	apiMock, service := callMock(t)
 
-	apiMock.EXPECT().Delete(context.Background(), gomock.Eq(id)).Return(nil)
+	apiMock.EXPECT().Delete(context.TODO(), gomock.Eq(id)).Return(nil)
 
-	err := service.Delete(context.Background(), id)
+	err := service.Delete(context.TODO(), id)
 	assert.Nil(t, err)
 }
 
