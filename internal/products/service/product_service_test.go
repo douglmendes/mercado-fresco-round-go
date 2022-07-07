@@ -11,11 +11,11 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func callMock(t *testing.T) (*mock_domain.MockRepository, domain.ProductService) {
+func callMock(t *testing.T) (*mock_domain.MockProductRepository, domain.ProductService) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	repository := mock_domain.NewMockRepository(ctrl)
+	repository := mock_domain.NewMockProductRepository(ctrl)
 	service := NewService(repository)
 
 	return repository, service
@@ -39,18 +39,12 @@ func TestCreate(t *testing.T) {
 
 	testCases := []struct {
 		name        string
-		buildStubs  func(repository *mock_domain.MockRepository)
+		buildStubs  func(repository *mock_domain.MockProductRepository)
 		checkResult func(t *testing.T, result domain.Product, err error)
 	}{
 		{
 			name: "OK",
-			buildStubs: func(repository *mock_domain.MockRepository) {
-				repository.
-					EXPECT().
-					LastID().
-					Times(1).
-					Return(0, nil)
-
+			buildStubs: func(repository *mock_domain.MockProductRepository) {
 				repository.
 					EXPECT().
 					GetAll().
@@ -71,13 +65,7 @@ func TestCreate(t *testing.T) {
 		},
 		{
 			name: "GetAllError",
-			buildStubs: func(repository *mock_domain.MockRepository) {
-				repository.
-					EXPECT().
-					LastID().
-					Times(1).
-					Return(0, nil)
-
+			buildStubs: func(repository *mock_domain.MockProductRepository) {
 				repository.
 					EXPECT().
 					GetAll().
@@ -92,13 +80,7 @@ func TestCreate(t *testing.T) {
 		},
 		{
 			name: "ConflictError",
-			buildStubs: func(repository *mock_domain.MockRepository) {
-				repository.
-					EXPECT().
-					LastID().
-					Times(1).
-					Return(0, nil)
-
+			buildStubs: func(repository *mock_domain.MockProductRepository) {
 				repository.
 					EXPECT().
 					GetAll().
@@ -114,13 +96,7 @@ func TestCreate(t *testing.T) {
 		},
 		{
 			name: "CreateError",
-			buildStubs: func(repository *mock_domain.MockRepository) {
-				repository.
-					EXPECT().
-					LastID().
-					Times(1).
-					Return(0, nil)
-
+			buildStubs: func(repository *mock_domain.MockProductRepository) {
 				repository.
 					EXPECT().
 					GetAll().
@@ -187,12 +163,12 @@ func TestGetAll(t *testing.T) {
 
 	testCases := []struct {
 		name        string
-		buildStubs  func(repository *mock_domain.MockRepository)
+		buildStubs  func(repository *mock_domain.MockProductRepository)
 		checkResult func(t *testing.T, result []domain.Product, err error)
 	}{
 		{
 			name: "OK",
-			buildStubs: func(repository *mock_domain.MockRepository) {
+			buildStubs: func(repository *mock_domain.MockProductRepository) {
 				repository.
 					EXPECT().
 					GetAll().
@@ -207,7 +183,7 @@ func TestGetAll(t *testing.T) {
 		},
 		{
 			name: "Fail",
-			buildStubs: func(repository *mock_domain.MockRepository) {
+			buildStubs: func(repository *mock_domain.MockProductRepository) {
 				repository.
 					EXPECT().
 					GetAll().
@@ -255,13 +231,13 @@ func TestGetById(t *testing.T) {
 	testCases := []struct {
 		name        string
 		productId   int
-		buildStubs  func(repository *mock_domain.MockRepository)
+		buildStubs  func(repository *mock_domain.MockProductRepository)
 		checkResult func(t *testing.T, result domain.Product, err error)
 	}{
 		{
 			name:      "OK",
 			productId: expected.Id,
-			buildStubs: func(repository *mock_domain.MockRepository) {
+			buildStubs: func(repository *mock_domain.MockProductRepository) {
 				repository.
 					EXPECT().
 					GetById(expected.Id).
@@ -277,7 +253,7 @@ func TestGetById(t *testing.T) {
 		{
 			name:      "NotFound",
 			productId: nonExistentId,
-			buildStubs: func(repository *mock_domain.MockRepository) {
+			buildStubs: func(repository *mock_domain.MockProductRepository) {
 				repository.
 					EXPECT().
 					GetById(nonExistentId).
@@ -371,13 +347,13 @@ func TestUpdate(t *testing.T) {
 	testCases := []struct {
 		name           string
 		updatedProduct domain.Product
-		buildStubs     func(repository *mock_domain.MockRepository)
+		buildStubs     func(repository *mock_domain.MockProductRepository)
 		checkResult    func(t *testing.T, result domain.Product, err error)
 	}{
 		{
 			name:           "OK",
 			updatedProduct: updatedProduct,
-			buildStubs: func(repository *mock_domain.MockRepository) {
+			buildStubs: func(repository *mock_domain.MockProductRepository) {
 				repository.
 					EXPECT().
 					GetById(updatedProduct.Id).
@@ -405,7 +381,7 @@ func TestUpdate(t *testing.T) {
 		{
 			name:           "NotFound",
 			updatedProduct: updatedProduct,
-			buildStubs: func(repository *mock_domain.MockRepository) {
+			buildStubs: func(repository *mock_domain.MockProductRepository) {
 				repository.
 					EXPECT().
 					GetById(updatedProduct.Id).
@@ -422,7 +398,7 @@ func TestUpdate(t *testing.T) {
 		{
 			name:           "Fail",
 			updatedProduct: updatedProduct,
-			buildStubs: func(repository *mock_domain.MockRepository) {
+			buildStubs: func(repository *mock_domain.MockProductRepository) {
 				repository.
 					EXPECT().
 					GetById(updatedProduct.Id).
@@ -450,7 +426,7 @@ func TestUpdate(t *testing.T) {
 		{
 			name:           "Conflict",
 			updatedProduct: conflictingUpdatedProduct,
-			buildStubs: func(repository *mock_domain.MockRepository) {
+			buildStubs: func(repository *mock_domain.MockProductRepository) {
 				repository.
 					EXPECT().
 					GetById(conflictingUpdatedProduct.Id).
@@ -479,7 +455,7 @@ func TestUpdate(t *testing.T) {
 		{
 			name:           "Fail2",
 			updatedProduct: conflictingUpdatedProduct,
-			buildStubs: func(repository *mock_domain.MockRepository) {
+			buildStubs: func(repository *mock_domain.MockProductRepository) {
 				repository.
 					EXPECT().
 					GetById(conflictingUpdatedProduct.Id).
@@ -519,13 +495,13 @@ func TestDelete(t *testing.T) {
 	testCases := []struct {
 		name        string
 		productId   int
-		buildStubs  func(repository *mock_domain.MockRepository)
+		buildStubs  func(repository *mock_domain.MockProductRepository)
 		checkResult func(t *testing.T, err error)
 	}{
 		{
 			name:      "OK",
 			productId: existentId,
-			buildStubs: func(repository *mock_domain.MockRepository) {
+			buildStubs: func(repository *mock_domain.MockProductRepository) {
 				repository.
 					EXPECT().
 					Delete(existentId).
@@ -539,7 +515,7 @@ func TestDelete(t *testing.T) {
 		{
 			name:      "NotFound",
 			productId: nonExistentId,
-			buildStubs: func(repository *mock_domain.MockRepository) {
+			buildStubs: func(repository *mock_domain.MockProductRepository) {
 				repository.
 					EXPECT().
 					Delete(nonExistentId).
