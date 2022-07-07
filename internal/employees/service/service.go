@@ -3,6 +3,7 @@ package service
 import (
 	"fmt"
 	"github.com/douglmendes/mercado-fresco-round-go/internal/employees/domain"
+	"log"
 )
 
 type service struct {
@@ -17,7 +18,9 @@ func NewService(r domain.Repository) domain.Service {
 }
 
 func (s service) GetAll() ([]domain.Employee, error) {
+
 	emp, err := s.repository.GetAll()
+	log.Println(err)
 	if err != nil {
 		return nil, err
 	}
@@ -86,5 +89,5 @@ func (s service) Delete(id int64) error {
 	if err != nil {
 		return err
 	}
-	return err
+	return nil
 }

@@ -48,18 +48,6 @@ func (r *repository) GetById(id int64) (*domain.Employee, error) {
 	return &e, nil
 }
 
-/*
-func (r *repository) LastID() (int, error) {
-	var emp []domain.Employee
-	if err := r.db.Read(&emp); err != nil {
-		return 0, err
-	}
-	if len(emp) == 0 {
-		return 0, nil
-	}
-	return emp[len(emp)-1].Id, nil
-}
-*/
 func (r *repository) Create(cardNumberId string, firstName string, lastName string, warehouseId int) (*domain.Employee, error) {
 	createSql := "insert into employees (id_card_number , first_name, last_name, warehouse_id) values (?,?,?,?)"
 	result, err := r.db.Exec(createSql, cardNumberId, firstName, lastName, warehouseId)
@@ -85,7 +73,8 @@ func (r *repository) Update(id int64, cardNumberId string, firstName string, las
 	if cardNumberId != "" {
 		emp.CardNumberId = cardNumberId
 	}
-	if firstName == " " {
+	//TODO validar firstName
+	if firstName != "" {
 		emp.FirstName = firstName
 	}
 	if lastName != "" {
