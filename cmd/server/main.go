@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/douglmendes/mercado-fresco-round-go/cmd/server/routes/config"
 	"github.com/douglmendes/mercado-fresco-round-go/pkg/store"
 	"github.com/joho/godotenv"
 	"log"
@@ -23,6 +24,6 @@ func main() {
 		log.Fatal("failed to load .env")
 	}
 
-	Start()
-
+	server := config.NewServer()
+	server.Run()
 }
