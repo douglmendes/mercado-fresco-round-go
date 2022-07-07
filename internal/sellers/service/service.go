@@ -12,10 +12,10 @@ type service struct {
 }
 
 func NewService(r domain.Repository) domain.Service {
-	return &service {
+	return &service{
 		repository: r,
 	}
-	
+
 }
 
 func (s service) GetAll(ctx context.Context) ([]domain.Seller, error) {
@@ -24,7 +24,7 @@ func (s service) GetAll(ctx context.Context) ([]domain.Seller, error) {
 		return []domain.Seller{}, err
 	}
 	return sl, nil
-	
+
 }
 
 func (s service) GetById(ctx context.Context, id int) (domain.Seller, error) {
@@ -33,10 +33,10 @@ func (s service) GetById(ctx context.Context, id int) (domain.Seller, error) {
 		return domain.Seller{}, err
 	}
 	return sl, nil
-	
+
 }
 
-func (s service) Create(ctx context.Context, cid int, companyName, address, telephone string) (domain.Seller, error) {
+func (s service) Create(ctx context.Context, cid int, companyName, address, telephone, localityId string) (domain.Seller, error) {
 
 	sl, err := s.repository.GetAll(ctx)
 	if err != nil {
@@ -45,11 +45,11 @@ func (s service) Create(ctx context.Context, cid int, companyName, address, tele
 
 	for i := range sl {
 		if sl[i].Cid == cid {
-				return domain.Seller{}, fmt.Errorf("this seller already exists")
+			return domain.Seller{}, fmt.Errorf("this seller already exists")
 		}
 	}
 
-	seller, err := s.repository.Create(ctx, cid, companyName, address, telephone)
+	seller, err := s.repository.Create(ctx, cid, companyName, address, telephone, localityId)
 
 	if err != nil {
 		return domain.Seller{}, err
@@ -58,7 +58,7 @@ func (s service) Create(ctx context.Context, cid int, companyName, address, tele
 	return seller, nil
 }
 
-func (s service) Update(ctx context.Context, id, cid int, companyName, address, telephone string) (domain.Seller, error) {
+func (s service) Update(ctx context.Context, id, cid int, companyName, address, telephone, localityId string) (domain.Seller, error) {
 	sl, err := s.repository.GetAll(ctx)
 	if err != nil {
 		return domain.Seller{}, err
@@ -66,11 +66,11 @@ func (s service) Update(ctx context.Context, id, cid int, companyName, address, 
 
 	for i := range sl {
 		if sl[i].Cid == cid {
-				return domain.Seller{}, fmt.Errorf("this seller already exists")
+			return domain.Seller{}, fmt.Errorf("this seller already exists")
 		}
 	}
 
-	seller, err := s.repository.Update(ctx, id, cid, companyName, address, telephone)
+	seller, err := s.repository.Update(ctx, id, cid, companyName, address, telephone, localityId)
 	if err != nil {
 		return domain.Seller{}, err
 	}
