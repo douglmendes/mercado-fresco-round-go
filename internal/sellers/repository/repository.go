@@ -32,6 +32,7 @@ func (r *repository) GetAll(ctx context.Context) ([]domain.Seller, error) {
 			&seller.CompanyName,
 			&seller.Address,
 			&seller.Telephone,
+			&seller.LocalityId,
 		); err != nil {
 			return sellers, err
 		}
@@ -41,7 +42,7 @@ func (r *repository) GetAll(ctx context.Context) ([]domain.Seller, error) {
 	return sellers, nil
 }
 
-func (r *repository) GetById(ctx context.Context,id int) (domain.Seller, error) {
+func (r *repository) GetById(ctx context.Context, id int) (domain.Seller, error) {
 
 	row := r.db.QueryRowContext(ctx, queryGetById, id)
 
@@ -53,6 +54,7 @@ func (r *repository) GetById(ctx context.Context,id int) (domain.Seller, error) 
 		&seller.CompanyName,
 		&seller.Address,
 		&seller.Telephone,
+		&seller.LocalityId,
 	)
 
 	if errors.Is(err, sql.ErrNoRows) {
@@ -66,13 +68,14 @@ func (r *repository) GetById(ctx context.Context,id int) (domain.Seller, error) 
 	return seller, nil
 }
 
-func (r *repository) Create(ctx context.Context, cid int, commpanyName, address, telephone string) (domain.Seller, error) {
+func (r *repository) Create(ctx context.Context, cid int, commpanyName, address, telephone, localityId string) (domain.Seller, error) {
 
 	seller := domain.Seller{
-		Cid: cid,
+		Cid:         cid,
 		CompanyName: commpanyName,
-		Address: address,
-		Telephone: telephone,
+		Address:     address,
+		Telephone:   telephone,
+		LocalityId:  localityId,
 	}
 
 	result, err := r.db.ExecContext(
@@ -82,6 +85,7 @@ func (r *repository) Create(ctx context.Context, cid int, commpanyName, address,
 		commpanyName,
 		address,
 		telephone,
+		localityId,
 	)
 
 	if err != nil {
@@ -98,7 +102,7 @@ func (r *repository) Create(ctx context.Context, cid int, commpanyName, address,
 	return seller, nil
 }
 
-func (r *repository) Update(ctx context.Context, id, cid int, commpanyName, address, telephone string) (domain.Seller, error) {
+func (r *repository) Update(ctx context.Context, id, cid int, commpanyName, address, telephone, localityId string) (domain.Seller, error) {
 
 	seller, err := r.GetById(ctx, id)
 	if err != nil {
@@ -117,6 +121,9 @@ func (r *repository) Update(ctx context.Context, id, cid int, commpanyName, addr
 	if telephone != "" {
 		seller.Telephone = telephone
 	}
+	if localityId != "" {
+		seller.LocalityId = localityId
+	}
 
 	result, err := r.db.ExecContext(
 		ctx,
@@ -125,6 +132,7 @@ func (r *repository) Update(ctx context.Context, id, cid int, commpanyName, addr
 		seller.CompanyName,
 		seller.Address,
 		seller.Telephone,
+		seller.LocalityId,
 		id,
 	)
 	if err != nil {

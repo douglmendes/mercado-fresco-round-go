@@ -67,7 +67,7 @@ func (r *repository) Create(ctx context.Context, localityName, provinceName, cou
 	locality := domain.Locality{
 		LocalityName: localityName,
 		ProvinceName: provinceName,
-		CountryName: countryName,
+		CountryName:  countryName,
 	}
 
 	result, err := r.db.ExecContext(
@@ -125,7 +125,7 @@ func (r *repository) Update(ctx context.Context, id int, localityName, provinceN
 	if err != nil {
 		return domain.Locality{}, err
 	}
-	
+
 	return locality, nil
 }
 

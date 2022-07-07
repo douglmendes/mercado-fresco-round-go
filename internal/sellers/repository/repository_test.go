@@ -24,6 +24,7 @@ func TestRepository_GetAll_Ok(t *testing.T) {
 			CompanyName: "Gasp",
 			Address:     "Rua Gaspar, 101",
 			Telephone:   "23225422",
+			LocalityId:  "1",
 		},
 		{
 			ID:          2,
@@ -31,23 +32,26 @@ func TestRepository_GetAll_Ok(t *testing.T) {
 			CompanyName: "Leaf",
 			Address:     "Rua Arvoredo, 32",
 			Telephone:   "98923425",
+			LocalityId:  "1",
 		},
 	}
 
 	rows := sqlmock.NewRows([]string{
-		"id", "cid", "company_name", "address", "telephone",
+		"id", "cid", "company_name", "address", "telephone", "locality_id",
 	}).AddRow(
 		sellerMock[0].ID,
 		sellerMock[0].Cid,
 		sellerMock[0].CompanyName,
 		sellerMock[0].Address,
 		sellerMock[0].Telephone,
+		sellerMock[0].LocalityId,
 	).AddRow(
 		sellerMock[1].ID,
 		sellerMock[1].Cid,
 		sellerMock[1].CompanyName,
 		sellerMock[1].Address,
 		sellerMock[1].Telephone,
+		sellerMock[0].LocalityId,
 	)
 
 	mock.ExpectQuery(queryGetAll).WillReturnRows(rows)
@@ -92,13 +96,14 @@ func TestRepository_GetById_Ok(t *testing.T) {
 	}
 
 	row := sqlmock.NewRows([]string{
-		"id", "cid", "company_name", "address", "telephone",
+		"id", "cid", "company_name", "address", "telephone", "locality_id",
 	}).AddRow(
 		sellerMock.ID,
 		sellerMock.Cid,
 		sellerMock.CompanyName,
 		sellerMock.Address,
 		sellerMock.Telephone,
+		sellerMock.LocalityId,
 	)
 
 	mock.ExpectQuery(queryGetById).WillReturnRows(row)
@@ -151,6 +156,7 @@ func TestRepository_Create_Ok(t *testing.T) {
 		CompanyName: "Gasp",
 		Address:     "Rua Gaspar, 101",
 		Telephone:   "23225422",
+		LocalityId:  "1",
 	}
 
 	mock.ExpectExec(regexp.QuoteMeta(queryCreate)).WithArgs(
@@ -158,11 +164,12 @@ func TestRepository_Create_Ok(t *testing.T) {
 		sellerMock.CompanyName,
 		sellerMock.Address,
 		sellerMock.Telephone,
+		sellerMock.LocalityId,
 	).WillReturnResult(sqlmock.NewResult(1, 1))
 
 	slRepo := NewRepository(db)
 
-	result, err := slRepo.Create(context.TODO(), 44, "Gasp", "Rua Gaspar, 101", "23225422")
+	result, err := slRepo.Create(context.TODO(), 44, "Gasp", "Rua Gaspar, 101", "23225422", "1")
 	assert.NoError(t, err)
 
 	assert.Equal(t, result.Cid, 44)
@@ -175,46 +182,49 @@ func TestRepository_Create_NOk(t *testing.T) {
 	defer db.Close()
 
 	mock.ExpectExec(regexp.QuoteMeta(queryCreate)).
-	WithArgs(0, 0, 0, 0).
-	WillReturnResult(sqlmock.NewResult(1, 1))
+		WithArgs(0, 0, 0, 0).
+		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	slRepo := NewRepository(db)
 
-	_, err = slRepo.Create(context.TODO(), 44, "Gasp", "Rua Gaspar, 101", "23225422")
+	_, err = slRepo.Create(context.TODO(), 44, "Gasp", "Rua Gaspar, 101", "23225422", "1")
 
 	assert.Error(t, err)
 }
 
-func TestRepository_Update_Ok(t *testing.T)  {
+func TestRepository_Update_Ok(t *testing.T) {
 
 	db, mock, err := sqlmock.New()
 	assert.NoError(t, err)
 	defer db.Close()
 
 	sellerMock := domain.Seller{
-			ID:          1,
-			Cid:         44,
-			CompanyName: "Gasp",
-			Address:     "Rua Gaspar, 101",
-			Telephone:   "23225422",
+		ID:          1,
+		Cid:         44,
+		CompanyName: "Gasp",
+		Address:     "Rua Gaspar, 101",
+		Telephone:   "23225422",
+		LocalityId:  "1",
 	}
-	
+
 	sellerMockUpdated := domain.Seller{
-			ID:          1,
-			Cid:         44,
-			CompanyName: "Gasp",
-			Address:     "Rua Gaspar, 111",
-			Telephone:   "23222222",
+		ID:          1,
+		Cid:         44,
+		CompanyName: "Gasp",
+		Address:     "Rua Gaspar, 111",
+		Telephone:   "23222222",
+		LocalityId:  "1",
 	}
 
 	rows := sqlmock.NewRows([]string{
-		"id", "cid", "company_name", "address", "telephone",
+		"id", "cid", "company_name", "address", "telephone", "locality_id",
 	}).AddRow(
 		sellerMock.ID,
 		sellerMock.Cid,
 		sellerMock.CompanyName,
 		sellerMock.Address,
 		sellerMock.Telephone,
+		sellerMock.LocalityId,
 	)
 
 	mock.ExpectQuery(queryGetById).WillReturnRows(rows)
@@ -224,17 +234,18 @@ func TestRepository_Update_Ok(t *testing.T)  {
 		sellerMockUpdated.CompanyName,
 		sellerMockUpdated.Address,
 		sellerMockUpdated.Telephone,
+		sellerMockUpdated.LocalityId,
 		1,
 	).WillReturnResult(sqlmock.NewResult(0, 1))
 
 	slRepo := NewRepository(db)
 
-	result, err := slRepo.Update(context.TODO(), 1, 44, "Gasp", "Rua Gaspar, 111", "23222222")
+	result, err := slRepo.Update(context.TODO(), 1, 44, "Gasp", "Rua Gaspar, 111", "23222222", "1")
 	assert.NoError(t, err)
 	assert.Equal(t, sellerMockUpdated, result)
 }
 
-func TestRepository_Update_NOk(t *testing.T)  {
+func TestRepository_Update_NOk(t *testing.T) {
 
 	db, mock, err := sqlmock.New()
 	assert.NoError(t, err)
@@ -244,22 +255,23 @@ func TestRepository_Update_NOk(t *testing.T)  {
 
 	slRepo := NewRepository(db)
 
-	_, err = slRepo.Update(context.TODO(), 1, 44, "Gasp", "Rua Gaspar, 111", "23222222")
+	_, err = slRepo.Update(context.TODO(), 1, 44, "Gasp", "Rua Gaspar, 111", "23222222", "1")
 	assert.Error(t, err)
 }
 
-func TestRepository_Update_ExecContextError(t *testing.T)  {
+func TestRepository_Update_ExecContextError(t *testing.T) {
 
 	db, mock, err := sqlmock.New()
 	assert.NoError(t, err)
 	defer db.Close()
-	
+
 	sellerMockUpdated := domain.Seller{
-			ID:          1,
-			Cid:         44,
-			CompanyName: "Gasp",
-			Address:     "Rua Gaspar, 111",
-			Telephone:   "23222222",
+		ID:          1,
+		Cid:         44,
+		CompanyName: "Gasp",
+		Address:     "Rua Gaspar, 111",
+		Telephone:   "23222222",
+		LocalityId:  "1",
 	}
 
 	sellerMock := domain.Seller{
@@ -268,16 +280,18 @@ func TestRepository_Update_ExecContextError(t *testing.T)  {
 		CompanyName: "Gasp",
 		Address:     "Rua Gaspar, 101",
 		Telephone:   "23225422",
-}
+		LocalityId:  "1",
+	}
 
 	rows := sqlmock.NewRows([]string{
-		"id", "cid", "company_name", "address", "telephone",
+		"id", "cid", "company_name", "address", "telephone", "locality_id",
 	}).AddRow(
 		sellerMock.ID,
 		sellerMock.Cid,
 		sellerMock.CompanyName,
 		sellerMock.Address,
 		sellerMock.Telephone,
+		sellerMock.LocalityId,
 	)
 
 	mock.ExpectQuery(queryGetById).WillReturnRows(rows)
@@ -286,16 +300,17 @@ func TestRepository_Update_ExecContextError(t *testing.T)  {
 		sellerMockUpdated.CompanyName,
 		sellerMockUpdated.Address,
 		sellerMockUpdated.Telephone,
+		sellerMockUpdated.LocalityId,
 		1,
 	).WillReturnResult(sqlmock.NewResult(0, 1))
 
 	slRepo := NewRepository(db)
 
-	_, err = slRepo.Update(context.TODO(), 1, 44, "Gasp", "Rua Gaspar, 111", "23222222")
+	_, err = slRepo.Update(context.TODO(), 1, 44, "Gasp", "Rua Gaspar, 111", "23222222", "1")
 	assert.Error(t, err)
 }
 
-func TestRepository_Delete_Ok(t *testing.T)  {
+func TestRepository_Delete_Ok(t *testing.T) {
 	db, mock, err := sqlmock.New()
 	assert.NoError(t, err)
 	defer db.Close()
@@ -310,7 +325,7 @@ func TestRepository_Delete_Ok(t *testing.T)  {
 	assert.NoError(t, err)
 }
 
-func TestRepository_Delete_NOk(t *testing.T)  {
+func TestRepository_Delete_NOk(t *testing.T) {
 	db, mock, err := sqlmock.New()
 	assert.NoError(t, err)
 	defer db.Close()
@@ -323,7 +338,7 @@ func TestRepository_Delete_NOk(t *testing.T)  {
 	assert.Error(t, err)
 }
 
-func TestRepository_Delete_NoId(t *testing.T)  {
+func TestRepository_Delete_NoId(t *testing.T) {
 	db, mock, err := sqlmock.New()
 	assert.NoError(t, err)
 	defer db.Close()

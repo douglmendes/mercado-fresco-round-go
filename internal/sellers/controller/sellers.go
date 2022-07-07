@@ -19,6 +19,7 @@ type sqlCreateRequest struct {
 	CompanyName string `json:"company_name" bindind:"required"`
 	Address     string `json:"address" bindind:"required"`
 	Telephone   string `json:"telephone" bindind:"required"`
+	LocalityId  string `json:"locality_id" bindind:"required"`
 }
 
 type sqlUpdateRequest struct {
@@ -26,6 +27,7 @@ type sqlUpdateRequest struct {
 	CompanyName string `json:"company_name"`
 	Address     string `json:"address"`
 	Telephone   string `json:"telephone"`
+	LocalityId  string `json:"locality_id"`
 }
 
 func NewSeller(s domain.Service) *SellerController {
@@ -70,14 +72,14 @@ func (c *SellerController) GetAll() gin.HandlerFunc {
 // @Router /api/v1/sellers/{id} [get]
 func (c *SellerController) GetById() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
-		// id, err := strconv.Atoi(ctx.Param("id"))
+		// id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+		id, err := strconv.Atoi(ctx.Param("id"))
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid ID"})
 			return
 		}
 
-		s, err := c.service.GetById(ctx, int(id))
+		s, err := c.service.GetById(ctx, id)
 		if err != nil {
 			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 			return
@@ -126,8 +128,13 @@ func (c *SellerController) Create() gin.HandlerFunc {
 				response.DecodeError("telephone is required"))
 			return
 		}
+		if req.LocalityId == "" {
+			ctx.JSON(http.StatusUnprocessableEntity,
+				response.DecodeError("locality id is required"))
+			return
+		}
 
-		s, err := c.service.Create(ctx, req.Cid, req.CompanyName, req.Address, req.Telephone)
+		s, err := c.service.Create(ctx, req.Cid, req.CompanyName, req.Address, req.Telephone, req.LocalityId)
 		if err != nil {
 			ctx.JSON(http.StatusConflict, gin.H{"error": err.Error()})
 			return
@@ -152,7 +159,7 @@ func (c *SellerController) Create() gin.HandlerFunc {
 // @Router /api/v1/sellers/{id} [patch]
 func (s *SellerController) Update() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+		id, err := strconv.Atoi(ctx.Param("id"))
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid ID"})
 			return
@@ -164,7 +171,7 @@ func (s *SellerController) Update() gin.HandlerFunc {
 			return
 		}
 
-		s, err := s.service.Update(ctx, int(id), req.Cid, req.CompanyName, req.Address, req.Telephone)
+		s, err := s.service.Update(ctx, id, req.Cid, req.CompanyName, req.Address, req.Telephone, req.LocalityId)
 		if err != nil {
 			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 			return
@@ -183,13 +190,14 @@ func (s *SellerController) Update() gin.HandlerFunc {
 // @Router       /api/v1/sellers/{id} [delete]
 func (c *SellerController) Delete() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+		// id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+		id, err := strconv.Atoi(ctx.Param("id"))
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid ID"})
 			return
 		}
 
-		err = c.service.Delete(ctx, int(id))
+		err = c.service.Delete(ctx, id)
 		if err != nil {
 			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 			return
