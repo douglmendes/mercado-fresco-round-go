@@ -62,23 +62,23 @@ var (
 
 type sliceResponseBody struct {
 	Data  []domain.Product `json:"data"`
-	Error string             `json:"error"`
+	Error string           `json:"error"`
 }
 
 type productResponseBody struct {
 	Data  domain.Product `json:"data"`
-	Error string           `json:"error"`
+	Error string         `json:"error"`
 }
 
 func callProductsMock(t *testing.T) (
-	*mock_domain.MockService,
+	*mock_domain.MockProductService,
 	*ProductController,
 	*gin.Engine,
 ) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	service := mock_domain.NewMockService(ctrl)
+	service := mock_domain.NewMockProductService(ctrl)
 	handler := NewProductController(service)
 	api := gin.New()
 
@@ -88,12 +88,12 @@ func callProductsMock(t *testing.T) (
 func TestProductController_GetAll(t *testing.T) {
 	testCases := []struct {
 		name        string
-		buildStubs  func(service *mock_domain.MockService)
+		buildStubs  func(service *mock_domain.MockProductService)
 		checkResult func(t *testing.T, res *httptest.ResponseRecorder)
 	}{
 		{
 			name: "OK",
-			buildStubs: func(service *mock_domain.MockService) {
+			buildStubs: func(service *mock_domain.MockProductService) {
 				service.
 					EXPECT().
 					GetAll().
@@ -106,7 +106,7 @@ func TestProductController_GetAll(t *testing.T) {
 		},
 		{
 			name: "Fail",
-			buildStubs: func(service *mock_domain.MockService) {
+			buildStubs: func(service *mock_domain.MockProductService) {
 				service.
 					EXPECT().
 					GetAll().
@@ -125,7 +125,7 @@ func TestProductController_GetAll(t *testing.T) {
 		},
 		{
 			name: "Empty",
-			buildStubs: func(service *mock_domain.MockService) {
+			buildStubs: func(service *mock_domain.MockProductService) {
 				service.
 					EXPECT().
 					GetAll().
@@ -166,13 +166,13 @@ func TestProductController_GetById(t *testing.T) {
 		name               string
 		productId          int
 		wrongTypeProductId string
-		buildStubs         func(service *mock_domain.MockService)
+		buildStubs         func(service *mock_domain.MockProductService)
 		checkResult        func(t *testing.T, res *httptest.ResponseRecorder)
 	}{
 		{
 			name:      "OK",
 			productId: firstProduct.Id,
-			buildStubs: func(service *mock_domain.MockService) {
+			buildStubs: func(service *mock_domain.MockProductService) {
 				service.
 					EXPECT().
 					GetById(firstProduct.Id).
@@ -192,7 +192,7 @@ func TestProductController_GetById(t *testing.T) {
 		{
 			name:      "NotFound",
 			productId: INVALID_ID,
-			buildStubs: func(service *mock_domain.MockService) {
+			buildStubs: func(service *mock_domain.MockProductService) {
 				service.
 					EXPECT().
 					GetById(INVALID_ID).
@@ -212,7 +212,7 @@ func TestProductController_GetById(t *testing.T) {
 		{
 			name:               "InvalidId",
 			wrongTypeProductId: WRONG_TYPE_ID,
-			buildStubs:         func(service *mock_domain.MockService) {},
+			buildStubs:         func(service *mock_domain.MockProductService) {},
 			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
 				assert.Equal(t, http.StatusBadRequest, res.Code)
 
@@ -273,13 +273,13 @@ func TestProductController_Create(t *testing.T) {
 	testCases := []struct {
 		name        string
 		payload     interface{}
-		buildStubs  func(service *mock_domain.MockService)
+		buildStubs  func(service *mock_domain.MockProductService)
 		checkResult func(t *testing.T, res *httptest.ResponseRecorder)
 	}{
 		{
 			name:    "OK",
 			payload: newProduct,
-			buildStubs: func(service *mock_domain.MockService) {
+			buildStubs: func(service *mock_domain.MockProductService) {
 				service.
 					EXPECT().
 					Create(newProduct).
@@ -299,7 +299,7 @@ func TestProductController_Create(t *testing.T) {
 		{
 			name:       "Fail",
 			payload:    productWithMissingFields,
-			buildStubs: func(service *mock_domain.MockService) {},
+			buildStubs: func(service *mock_domain.MockProductService) {},
 			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
 				assert.Equal(t, http.StatusUnprocessableEntity, res.Code)
 
@@ -313,7 +313,7 @@ func TestProductController_Create(t *testing.T) {
 		{
 			name:    "Conflict",
 			payload: newProduct,
-			buildStubs: func(service *mock_domain.MockService) {
+			buildStubs: func(service *mock_domain.MockProductService) {
 				service.
 					EXPECT().
 					Create(newProduct).
@@ -379,14 +379,14 @@ func TestProductController_Update(t *testing.T) {
 		payload            interface{}
 		wrongTypeProductId string
 		productId          int
-		buildStubs         func(service *mock_domain.MockService)
+		buildStubs         func(service *mock_domain.MockProductService)
 		checkResult        func(t *testing.T, res *httptest.ResponseRecorder)
 	}{
 		{
 			name:      "OK",
 			payload:   updatedProduct,
 			productId: updatedProduct.Id,
-			buildStubs: func(service *mock_domain.MockService) {
+			buildStubs: func(service *mock_domain.MockProductService) {
 				service.
 					EXPECT().
 					Update(updatedProduct).
@@ -407,7 +407,7 @@ func TestProductController_Update(t *testing.T) {
 			name:       "Fail",
 			payload:    invalidProduct,
 			productId:  firstProduct.Id,
-			buildStubs: func(service *mock_domain.MockService) {},
+			buildStubs: func(service *mock_domain.MockProductService) {},
 			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
 				assert.Equal(t, http.StatusUnprocessableEntity, res.Code)
 
@@ -422,7 +422,7 @@ func TestProductController_Update(t *testing.T) {
 			name:               "BadRequest",
 			payload:            updatedProduct,
 			wrongTypeProductId: WRONG_TYPE_ID,
-			buildStubs:         func(service *mock_domain.MockService) {},
+			buildStubs:         func(service *mock_domain.MockProductService) {},
 			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
 				assert.Equal(t, http.StatusBadRequest, res.Code)
 
@@ -437,7 +437,7 @@ func TestProductController_Update(t *testing.T) {
 			name:      "NotFound",
 			payload:   updatedProduct,
 			productId: INVALID_ID,
-			buildStubs: func(service *mock_domain.MockService) {
+			buildStubs: func(service *mock_domain.MockProductService) {
 				service.
 					EXPECT().
 					Update(updatedProductWithInvalidId).
@@ -458,7 +458,7 @@ func TestProductController_Update(t *testing.T) {
 			name:      "InternalServerError",
 			payload:   updatedProduct,
 			productId: updatedProduct.Id,
-			buildStubs: func(service *mock_domain.MockService) {
+			buildStubs: func(service *mock_domain.MockProductService) {
 				service.
 					EXPECT().
 					Update(updatedProduct).
@@ -513,13 +513,13 @@ func TestProductController_Delete(t *testing.T) {
 		name               string
 		wrongTypeProductId string
 		productId          int
-		buildStubs         func(service *mock_domain.MockService)
+		buildStubs         func(service *mock_domain.MockProductService)
 		checkResult        func(t *testing.T, res *httptest.ResponseRecorder)
 	}{
 		{
 			name:      "OK",
 			productId: firstProduct.Id,
-			buildStubs: func(service *mock_domain.MockService) {
+			buildStubs: func(service *mock_domain.MockProductService) {
 				service.
 					EXPECT().
 					Delete(firstProduct.Id).
@@ -539,7 +539,7 @@ func TestProductController_Delete(t *testing.T) {
 		{
 			name:               "Fail",
 			wrongTypeProductId: WRONG_TYPE_ID,
-			buildStubs:         func(service *mock_domain.MockService) {},
+			buildStubs:         func(service *mock_domain.MockProductService) {},
 			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
 				assert.Equal(t, http.StatusBadRequest, res.Code)
 
@@ -553,7 +553,7 @@ func TestProductController_Delete(t *testing.T) {
 		{
 			name:      "NotFound",
 			productId: INVALID_ID,
-			buildStubs: func(service *mock_domain.MockService) {
+			buildStubs: func(service *mock_domain.MockProductService) {
 				service.
 					EXPECT().
 					Delete(INVALID_ID).
