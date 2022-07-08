@@ -1,4 +1,4 @@
-package products
+package domain
 
 type Product struct {
 	Id                             int     `json:"id"`
@@ -13,4 +13,20 @@ type Product struct {
 	FreezingRate                   float64 `json:"freezing_rate"`
 	ProductTypeId                  int     `json:"product_type_id"`
 	SellerId                       int     `json:"seller_id"`
+}
+
+type ProductRepository interface {
+	GetAll() ([]Product, error)
+	GetById(id int) (Product, error)
+	Create(arg Product) (Product, error)
+	Update(arg Product) (Product, error)
+	Delete(id int) error
+}
+
+type ProductService interface {
+	GetAll() ([]Product, error)
+	GetById(id int) (Product, error)
+	Create(arg Product) (Product, error)
+	Update(arg Product) (Product, error)
+	Delete(id int) error
 }
