@@ -19,7 +19,7 @@ type sqlCreateRequest struct {
 	CompanyName string `json:"company_name" bindind:"required"`
 	Address     string `json:"address" bindind:"required"`
 	Telephone   string `json:"telephone" bindind:"required"`
-	LocalityId  string `json:"locality_id" bindind:"required"`
+	LocalityId  int `json:"locality_id" bindind:"required"`
 }
 
 type sqlUpdateRequest struct {
@@ -27,7 +27,7 @@ type sqlUpdateRequest struct {
 	CompanyName string `json:"company_name"`
 	Address     string `json:"address"`
 	Telephone   string `json:"telephone"`
-	LocalityId  string `json:"locality_id"`
+	LocalityId  int `json:"locality_id"`
 }
 
 func NewSeller(s domain.Service) *SellerController {
@@ -128,7 +128,7 @@ func (c *SellerController) Create() gin.HandlerFunc {
 				response.DecodeError("telephone is required"))
 			return
 		}
-		if req.LocalityId == "" {
+		if req.LocalityId == 0 {
 			ctx.JSON(http.StatusUnprocessableEntity,
 				response.DecodeError("locality id is required"))
 			return

@@ -24,7 +24,7 @@ func TestRepository_GetAll_Ok(t *testing.T) {
 			CompanyName: "Gasp",
 			Address:     "Rua Gaspar, 101",
 			Telephone:   "23225422",
-			LocalityId:  "1",
+			LocalityId:  1,
 		},
 		{
 			ID:          2,
@@ -32,7 +32,7 @@ func TestRepository_GetAll_Ok(t *testing.T) {
 			CompanyName: "Leaf",
 			Address:     "Rua Arvoredo, 32",
 			Telephone:   "98923425",
-			LocalityId:  "1",
+			LocalityId:  1,
 		},
 	}
 
@@ -156,7 +156,7 @@ func TestRepository_Create_Ok(t *testing.T) {
 		CompanyName: "Gasp",
 		Address:     "Rua Gaspar, 101",
 		Telephone:   "23225422",
-		LocalityId:  "1",
+		LocalityId:  1,
 	}
 
 	mock.ExpectExec(regexp.QuoteMeta(queryCreate)).WithArgs(
@@ -169,7 +169,7 @@ func TestRepository_Create_Ok(t *testing.T) {
 
 	slRepo := NewRepository(db)
 
-	result, err := slRepo.Create(context.TODO(), 44, "Gasp", "Rua Gaspar, 101", "23225422", "1")
+	result, err := slRepo.Create(context.TODO(), 44, "Gasp", "Rua Gaspar, 101", "23225422", 1)
 	assert.NoError(t, err)
 
 	assert.Equal(t, result.Cid, 44)
@@ -187,7 +187,7 @@ func TestRepository_Create_NOk(t *testing.T) {
 
 	slRepo := NewRepository(db)
 
-	_, err = slRepo.Create(context.TODO(), 44, "Gasp", "Rua Gaspar, 101", "23225422", "1")
+	_, err = slRepo.Create(context.TODO(), 44, "Gasp", "Rua Gaspar, 101", "23225422", 1)
 
 	assert.Error(t, err)
 }
@@ -204,7 +204,7 @@ func TestRepository_Update_Ok(t *testing.T) {
 		CompanyName: "Gasp",
 		Address:     "Rua Gaspar, 101",
 		Telephone:   "23225422",
-		LocalityId:  "1",
+		LocalityId:  1,
 	}
 
 	sellerMockUpdated := domain.Seller{
@@ -213,7 +213,7 @@ func TestRepository_Update_Ok(t *testing.T) {
 		CompanyName: "Gasp",
 		Address:     "Rua Gaspar, 111",
 		Telephone:   "23222222",
-		LocalityId:  "1",
+		LocalityId:  1,
 	}
 
 	rows := sqlmock.NewRows([]string{
@@ -240,7 +240,7 @@ func TestRepository_Update_Ok(t *testing.T) {
 
 	slRepo := NewRepository(db)
 
-	result, err := slRepo.Update(context.TODO(), 1, 44, "Gasp", "Rua Gaspar, 111", "23222222", "1")
+	result, err := slRepo.Update(context.TODO(), 1, 44, "Gasp", "Rua Gaspar, 111", "23222222", 1)
 	assert.NoError(t, err)
 	assert.Equal(t, sellerMockUpdated, result)
 }
@@ -255,7 +255,7 @@ func TestRepository_Update_NOk(t *testing.T) {
 
 	slRepo := NewRepository(db)
 
-	_, err = slRepo.Update(context.TODO(), 1, 44, "Gasp", "Rua Gaspar, 111", "23222222", "1")
+	_, err = slRepo.Update(context.TODO(), 1, 44, "Gasp", "Rua Gaspar, 111", "23222222", 1)
 	assert.Error(t, err)
 }
 
@@ -271,7 +271,7 @@ func TestRepository_Update_ExecContextError(t *testing.T) {
 		CompanyName: "Gasp",
 		Address:     "Rua Gaspar, 111",
 		Telephone:   "23222222",
-		LocalityId:  "1",
+		LocalityId:  1,
 	}
 
 	sellerMock := domain.Seller{
@@ -280,7 +280,7 @@ func TestRepository_Update_ExecContextError(t *testing.T) {
 		CompanyName: "Gasp",
 		Address:     "Rua Gaspar, 101",
 		Telephone:   "23225422",
-		LocalityId:  "1",
+		LocalityId:  1,
 	}
 
 	rows := sqlmock.NewRows([]string{
@@ -306,7 +306,7 @@ func TestRepository_Update_ExecContextError(t *testing.T) {
 
 	slRepo := NewRepository(db)
 
-	_, err = slRepo.Update(context.TODO(), 1, 44, "Gasp", "Rua Gaspar, 111", "23222222", "1")
+	_, err = slRepo.Update(context.TODO(), 1, 44, "Gasp", "Rua Gaspar, 111", "23222222", 1)
 	assert.Error(t, err)
 }
 

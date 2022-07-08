@@ -16,18 +16,26 @@ func NewService(r domain.LocalityRepository) domain.LocalityService {
 	}
 }
 
-func (s service) GetAll(ctx context.Context) ([]domain.Locality, error) {
-	lc, err := s.repository.GetAll(ctx)
-	if err != nil {
-		return []domain.Locality{}, err
-	}
-	return lc, nil
-}
+// func (s service) GetAll(ctx context.Context) ([]domain.Locality, error) {
+// 	lc, err := s.repository.GetAll(ctx)
+// 	if err != nil {
+// 		return []domain.Locality{}, err
+// 	}
+// 	return lc, nil
+// }
 
 func (s service) GetById(ctx context.Context, id int) (domain.Locality, error) {
 	lc, err := s.repository.GetById(ctx, id)
 	if err != nil {
 		return domain.Locality{}, err
+	}
+	return lc, nil
+}
+
+func (s service) GetBySellers(ctx context.Context, id int) ([]domain.SellersByLocality, error) {
+	lc, err := s.repository.GetBySellers(ctx, id)
+	if err != nil {
+		return []domain.SellersByLocality{}, err
 	}
 	return lc, nil
 }
