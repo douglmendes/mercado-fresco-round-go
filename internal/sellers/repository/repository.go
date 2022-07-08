@@ -68,7 +68,7 @@ func (r *repository) GetById(ctx context.Context, id int) (domain.Seller, error)
 	return seller, nil
 }
 
-func (r *repository) Create(ctx context.Context, cid int, commpanyName, address, telephone, localityId string) (domain.Seller, error) {
+func (r *repository) Create(ctx context.Context, cid int, commpanyName, address, telephone string, localityId int) (domain.Seller, error) {
 
 	seller := domain.Seller{
 		Cid:         cid,
@@ -102,7 +102,7 @@ func (r *repository) Create(ctx context.Context, cid int, commpanyName, address,
 	return seller, nil
 }
 
-func (r *repository) Update(ctx context.Context, id, cid int, commpanyName, address, telephone, localityId string) (domain.Seller, error) {
+func (r *repository) Update(ctx context.Context, id, cid int, commpanyName, address, telephone string, localityId int) (domain.Seller, error) {
 
 	seller, err := r.GetById(ctx, id)
 	if err != nil {
@@ -121,7 +121,7 @@ func (r *repository) Update(ctx context.Context, id, cid int, commpanyName, addr
 	if telephone != "" {
 		seller.Telephone = telephone
 	}
-	if localityId != "" {
+	if localityId != 0 {
 		seller.LocalityId = localityId
 	}
 

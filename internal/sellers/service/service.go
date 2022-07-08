@@ -36,7 +36,7 @@ func (s service) GetById(ctx context.Context, id int) (domain.Seller, error) {
 
 }
 
-func (s service) Create(ctx context.Context, cid int, companyName, address, telephone, localityId string) (domain.Seller, error) {
+func (s service) Create(ctx context.Context, cid int, companyName, address, telephone string, localityId int) (domain.Seller, error) {
 
 	sl, err := s.repository.GetAll(ctx)
 	if err != nil {
@@ -58,7 +58,7 @@ func (s service) Create(ctx context.Context, cid int, companyName, address, tele
 	return seller, nil
 }
 
-func (s service) Update(ctx context.Context, id, cid int, companyName, address, telephone, localityId string) (domain.Seller, error) {
+func (s service) Update(ctx context.Context, id, cid int, companyName, address, telephone string, localityId int) (domain.Seller, error) {
 	sl, err := s.repository.GetAll(ctx)
 	if err != nil {
 		return domain.Seller{}, err

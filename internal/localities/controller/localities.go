@@ -31,19 +31,19 @@ func NewLocality(s domain.LocalityService) *LocalityController {
 	}
 }
 
-func (c *LocalityController) GetAll() gin.HandlerFunc {
-	return func(ctx *gin.Context) {
-		l, err := c.service.GetAll(ctx)
-		if err != nil {
-			ctx.JSON(http.StatusNotFound, gin.H{
-				"error": err.Error(),
-			})
-			return
-		}
+// func (c *LocalityController) GetAll() gin.HandlerFunc {
+// 	return func(ctx *gin.Context) {
+// 		l, err := c.service.GetAll(ctx)
+// 		if err != nil {
+// 			ctx.JSON(http.StatusNotFound, gin.H{
+// 				"error": err.Error(),
+// 			})
+// 			return
+// 		}
 
-		ctx.JSON(http.StatusOK, response.NewResponse(l))
-	}
-}
+// 		ctx.JSON(http.StatusOK, response.NewResponse(l))
+// 	}
+// }
 
 func (c *LocalityController) GetById() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
@@ -54,6 +54,27 @@ func (c *LocalityController) GetById() gin.HandlerFunc {
 		}
 
 		l, err := c.service.GetById(ctx, id)
+		if err != nil {
+			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+			return
+		}
+
+		ctx.JSON(http.StatusOK, response.NewResponse(l))
+	}
+}
+
+func (c *LocalityController) GetBySellers() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		localityId, byId := ctx.GetQuery("id")
+		id, err := strconv.Atoi(localityId)
+		if byId == true {
+			if err != nil {
+				ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid Id"})
+				return
+			}
+		}
+
+		l, err := c.service.GetBySellers(ctx, id)
 		if err != nil {
 			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 			return
