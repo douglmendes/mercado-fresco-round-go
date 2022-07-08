@@ -275,6 +275,32 @@ func TestMariaDB_Create(t *testing.T) {
 				assert.Equal(t, firstProduct, result)
 			},
 		},
+		{
+			name: "Fail",
+			buildStubs: func() {
+				mock.
+					ExpectExec(regexp.QuoteMeta(CreateQuery)).
+					WithArgs(
+						firstProduct.ProductCode,
+						firstProduct.Description,
+						firstProduct.Width,
+						firstProduct.Height,
+						firstProduct.Length,
+						firstProduct.NetWeight,
+						firstProduct.ExpirationRate,
+						firstProduct.RecommendedFreezingTemperature,
+						firstProduct.FreezingRate,
+						firstProduct.ProductTypeId,
+						firstProduct.SellerId,
+					).
+					WillReturnError(sql.ErrConnDone)
+			},
+			product: firstProduct,
+			checkResult: func(t *testing.T, result domain.Product, err error) {
+				assert.Error(t, err)
+				assert.Equal(t, emptyProduct, result)
+			},
+		},
 	}
 
 	for _, testCase := range testsCases {
