@@ -20,6 +20,24 @@ func (r repository) GetById(id int) ([]domain.ProductRecord, error) {
 }
 
 func (r repository) Create(arg domain.ProductRecord) (domain.ProductRecord, error) {
-	// TODO: implementation
-	return domain.ProductRecord{}, nil
+	result, err := r.db.Exec(
+		CreateQuery,
+		arg.LastUpdateDate,
+		arg.PurchasePrice,
+		arg.SalePrice,
+		arg.ProductId,
+	)
+	if err != nil {
+		return domain.ProductRecord{}, err
+	}
+
+	id, err := result.LastInsertId()
+	if err != nil {
+		return domain.ProductRecord{}, err
+	}
+
+	productRecord := arg
+	productRecord.Id = int(id)
+
+	return productRecord, nil
 }
