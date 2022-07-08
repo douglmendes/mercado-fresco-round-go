@@ -58,5 +58,29 @@ func TestRepository_GetAll(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, result[0].WarehouseCode, "AAA")
 	assert.Equal(t, len(result), 2)
+}
+func TestRepository_GetById(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	assert.NoError(t, err)
+	defer db.Close()
 
+	wh := domain.Warehouse{
+		Id:            1,
+		Address:       "Rua 25 de Março",
+		Telephone:     "9911100011",
+		WarehouseCode: "XYZ",
+		LocalityId:    101,
+	}
+
+	row := sqlmock.NewRows([]string{
+		"id", "address", "telephone", "warehouse_code", "locality_id",
+	}).AddRow(wh.Id, wh.Address, wh.Telephone, wh.WarehouseCode, wh.LocalityId)
+
+	mock.ExpectQuery(sqlGetById).WillReturnRows(row)
+
+	whRepo := NewRepository(db)
+
+	result, err := whRepo.GetById(context.Background(), 1)
+	assert.NoError(t, err)
+	assert.Equal(t, wh.WarehouseCode, result.WarehouseCode)
 }
