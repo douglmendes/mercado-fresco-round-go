@@ -9,3 +9,8 @@ type ProductRecord struct {
 	SalePrice      float64   `json:"sale_price"`
 	ProductId      int       `json:"product_id"`
 }
+
+type ProductRecordRepository interface {
+	GetById(id int) ([]ProductRecord, error)
+	Create(arg ProductRecord) (ProductRecord, error)
+}
