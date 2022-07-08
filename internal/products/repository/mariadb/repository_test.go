@@ -152,3 +152,68 @@ func TestMariaDB_GetAll(t *testing.T) {
 		})
 	}
 }
+
+func TestMariaDB_GetById(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	assert.NoError(t, err)
+	defer db.Close()
+
+	testsCases := []struct {
+		name        string
+		buildStubs  func()
+		id          int
+		checkResult func(t *testing.T, result domain.Product, err error)
+	}{
+		{
+			name: "OK",
+			buildStubs: func() {
+				rows := sqlmock.NewRows([]string{
+					"id",
+					"product_code",
+					"description",
+					"width",
+					"height",
+					"length",
+					"net_weight",
+					"expiration_rate",
+					"recommended_freezing_temperature",
+					"freezing_rate",
+					"product_type_id",
+					"seller_id",
+				}).AddRow(
+					firstProduct.Id,
+					firstProduct.ProductCode,
+					firstProduct.Description,
+					firstProduct.Width,
+					firstProduct.Height,
+					firstProduct.Length,
+					firstProduct.NetWeight,
+					firstProduct.ExpirationRate,
+					firstProduct.RecommendedFreezingTemperature,
+					firstProduct.FreezingRate,
+					firstProduct.ProductTypeId,
+					firstProduct.SellerId,
+				)
+
+				mock.ExpectQuery(GetByIdQuery).WillReturnRows(rows)
+			},
+			id: firstProduct.Id,
+			checkResult: func(t *testing.T, result domain.Product, err error) {
+				assert.NoError(t, err)
+				assert.Equal(t, firstProduct, result)
+			},
+		},
+	}
+
+	for _, testCase := range testsCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			testCase.buildStubs()
+
+			repository := NewRepository(db)
+
+			result, err := repository.GetById(testCase.id)
+
+			testCase.checkResult(t, result, err)
+		})
+	}
+}
