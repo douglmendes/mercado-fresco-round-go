@@ -1,6 +1,7 @@
 package mariadb
 
 import (
+	"database/sql"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -42,6 +43,7 @@ var (
 		firstProduct,
 		secondProduct,
 	}
+	noProducts = []domain.Product{}
 )
 
 func TestRepository_GetAll(t *testing.T) {
@@ -103,6 +105,16 @@ func TestRepository_GetAll(t *testing.T) {
 			checkResult: func(t *testing.T, result []domain.Product, err error) {
 				assert.NoError(t, err)
 				assert.Equal(t, allProducts, result)
+			},
+		},
+		{
+			name: "Fail",
+			buildStubs: func() {
+				mock.ExpectQuery(GetAllQuery).WillReturnError(sql.ErrConnDone)
+			},
+			checkResult: func(t *testing.T, result []domain.Product, err error) {
+				assert.Error(t, err)
+				assert.Equal(t, noProducts, result)
 			},
 		},
 	}
