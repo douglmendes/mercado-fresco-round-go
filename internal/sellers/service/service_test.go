@@ -29,6 +29,7 @@ func TestService_GetAll_Ok(t *testing.T) {
 			CompanyName: "Mercado Fresco",
 			Address:     "Rua Fantasma",
 			Telephone:   "54327683",
+			LocalityId:  "1",
 		},
 		{
 			ID:          2,
@@ -36,6 +37,7 @@ func TestService_GetAll_Ok(t *testing.T) {
 			CompanyName: "Mercado Pago",
 			Address:     "Rua Cachoeira",
 			Telephone:   "23098712",
+			LocalityId:  "1",
 		},
 	}
 
@@ -68,6 +70,7 @@ func TestService_GetById_Ok(t *testing.T) {
 		CompanyName: "Mercado Livre",
 		Address:     "Melicidade",
 		Telephone:   "98787687",
+		LocalityId:  "1",
 	}
 
 	apiMock, service := callMock(t)
@@ -99,6 +102,7 @@ func TestCreate_Ok(t *testing.T) {
 			CompanyName: "Mercado Fresco",
 			Address:     "Rua Meli",
 			Telephone:   "34235432",
+			LocalityId:  "1",
 		},
 		{
 			ID:          2,
@@ -106,6 +110,7 @@ func TestCreate_Ok(t *testing.T) {
 			CompanyName: "Mercado Pago",
 			Address:     "Rua Parque",
 			Telephone:   "12349870",
+			LocalityId:  "1",
 		},
 	}
 
@@ -115,15 +120,16 @@ func TestCreate_Ok(t *testing.T) {
 		CompanyName: "Mercado Livre",
 		Address:     "Melicidade",
 		Telephone:   "98787687",
+		LocalityId:  "1",
 	}
 
 	apiMock, service := callMock(t)
 
 	// apiMock.EXPECT().LastID().Return(2, nil)
 	apiMock.EXPECT().GetAll(context.TODO()).Return(slList, nil)
-	apiMock.EXPECT().Create(context.TODO(), 20, "Mercado Livre", "Melicidade", "98787687").Return(sl, nil)
+	apiMock.EXPECT().Create(context.TODO(), 20, "Mercado Livre", "Melicidade", "98787687", "1").Return(sl, nil)
 
-	result, err := service.Create(context.TODO(), 20, "Mercado Livre", "Melicidade", "98787687")
+	result, err := service.Create(context.TODO(), 20, "Mercado Livre", "Melicidade", "98787687", "1")
 	assert.Equal(t, result, sl)
 	assert.Nil(t, err)
 }
@@ -137,6 +143,7 @@ func TestCreate_NOk(t *testing.T) {
 			CompanyName: "Mercado Fresco",
 			Address:     "Rua Meli",
 			Telephone:   "34235432",
+			LocalityId:  "1",
 		},
 		{
 			ID:          2,
@@ -144,6 +151,7 @@ func TestCreate_NOk(t *testing.T) {
 			CompanyName: "Mercado Pago",
 			Address:     "Rua Parque",
 			Telephone:   "12349870",
+			LocalityId:  "1",
 		},
 	}
 
@@ -153,7 +161,7 @@ func TestCreate_NOk(t *testing.T) {
 	apiMock.EXPECT().GetAll(context.TODO()).Return(slList, nil)
 	// apiMock.EXPECT().Create(3, 24, "Mercado Livre", "Melicidade", "98787687").Return(sellers.Seller{}, errors.New("this seller already exists"))
 
-	_, err := service.Create(context.TODO(), 22, "Mercado Livre", "Melicidade", "98787687")
+	_, err := service.Create(context.TODO(), 22, "Mercado Livre", "Melicidade", "98787687", "1")
 	assert.NotNil(t, err)
 }
 
@@ -164,6 +172,7 @@ func TestService_Update_Ok(t *testing.T) {
 		CompanyName: "Mercado Livre",
 		Address:     "Melicidade",
 		Telephone:   "98787687",
+		LocalityId:  "1",
 	}
 
 	slList := []domain.Seller{
@@ -173,6 +182,7 @@ func TestService_Update_Ok(t *testing.T) {
 			CompanyName: "Mercado Fresco",
 			Address:     "Rua Meli",
 			Telephone:   "34235432",
+			LocalityId:  "1",
 		},
 		{
 			ID:          2,
@@ -180,15 +190,16 @@ func TestService_Update_Ok(t *testing.T) {
 			CompanyName: "Mercado Pago",
 			Address:     "Rua Parque",
 			Telephone:   "12349870",
+			LocalityId:  "1",
 		},
 	}
 
 	apiMock, service := callMock(t)
 
 	apiMock.EXPECT().GetAll(context.TODO()).Return(slList, nil)
-	apiMock.EXPECT().Update(context.TODO(), 1, 20, "Mercado Livre", "Melicidade", "98787687").Return(sl, nil)
+	apiMock.EXPECT().Update(context.TODO(), 1, 20, "Mercado Livre", "Melicidade", "98787687", "1").Return(sl, nil)
 
-	result, err := service.Update(context.TODO(), 1, 20, "Mercado Livre", "Melicidade", "98787687")
+	result, err := service.Update(context.TODO(), 1, 20, "Mercado Livre", "Melicidade", "98787687", "1")
 	assert.Nil(t, err)
 	assert.Equal(t, result, sl)
 }
@@ -204,6 +215,7 @@ func TestService_Update_NOk(t *testing.T) {
 			CompanyName: "Mercado Fresco",
 			Address:     "Rua Meli",
 			Telephone:   "34235432",
+			LocalityId:  "1",
 		},
 		{
 			ID:          2,
@@ -211,15 +223,16 @@ func TestService_Update_NOk(t *testing.T) {
 			CompanyName: "Mercado Pago",
 			Address:     "Rua Parque",
 			Telephone:   "12349870",
+			LocalityId:  "1",
 		},
 	}
 
 	apiMock, service := callMock(t)
 
 	apiMock.EXPECT().GetAll(context.TODO()).Return(slList, nil)
-	apiMock.EXPECT().Update(context.TODO(), 10, 20, "Mercado Livre", "Melicidade", "98787687").Return(sl, errors.New("seller 10 not found"))
+	apiMock.EXPECT().Update(context.TODO(), 10, 20, "Mercado Livre", "Melicidade", "98787687", "1").Return(sl, errors.New("seller 10 not found"))
 
-	result, err := service.Update(context.TODO(), 10, 20, "Mercado Livre", "Melicidade", "98787687")
+	result, err := service.Update(context.TODO(), 10, 20, "Mercado Livre", "Melicidade", "98787687", "1")
 	assert.NotNil(t, err)
 	assert.Equal(t, result, sl)
 }
@@ -235,6 +248,7 @@ func TestService_Update_ExistentCid_NOk(t *testing.T) {
 			CompanyName: "Mercado Fresco",
 			Address:     "Rua Meli",
 			Telephone:   "34235432",
+			LocalityId:  "1",
 		},
 		{
 			ID:          2,
@@ -242,6 +256,7 @@ func TestService_Update_ExistentCid_NOk(t *testing.T) {
 			CompanyName: "Mercado Pago",
 			Address:     "Rua Parque",
 			Telephone:   "12349870",
+			LocalityId:  "1",
 		},
 	}
 
@@ -249,7 +264,7 @@ func TestService_Update_ExistentCid_NOk(t *testing.T) {
 
 	apiMock.EXPECT().GetAll(context.TODO()).Return(slList, nil)
 
-	result, err := service.Update(context.TODO(), 10, 22, "Mercado Livre", "Melicidade", "98787687")
+	result, err := service.Update(context.TODO(), 10, 22, "Mercado Livre", "Melicidade", "98787687", "1")
 	assert.NotNil(t, err)
 	assert.Equal(t, result, sl)
 }

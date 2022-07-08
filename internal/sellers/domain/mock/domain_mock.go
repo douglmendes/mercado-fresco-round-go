@@ -36,18 +36,18 @@ func (m *MockRepository) EXPECT() *MockRepositoryMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockRepository) Create(ctx context.Context, cid int, commpanyName, address, telephone string) (domain.Seller, error) {
+func (m *MockRepository) Create(ctx context.Context, cid int, commpanyName, address, telephone, localityId string) (domain.Seller, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Create", ctx, cid, commpanyName, address, telephone)
+	ret := m.ctrl.Call(m, "Create", ctx, cid, commpanyName, address, telephone, localityId)
 	ret0, _ := ret[0].(domain.Seller)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Create indicates an expected call of Create.
-func (mr *MockRepositoryMockRecorder) Create(ctx, cid, commpanyName, address, telephone interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) Create(ctx, cid, commpanyName, address, telephone, localityId interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockRepository)(nil).Create), ctx, cid, commpanyName, address, telephone)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockRepository)(nil).Create), ctx, cid, commpanyName, address, telephone, localityId)
 }
 
 // Delete mocks base method.
@@ -95,18 +95,18 @@ func (mr *MockRepositoryMockRecorder) GetById(ctx, id interface{}) *gomock.Call 
 }
 
 // Update mocks base method.
-func (m *MockRepository) Update(ctx context.Context, id, cid int, commpanyName, address, telephone string) (domain.Seller, error) {
+func (m *MockRepository) Update(ctx context.Context, id, cid int, commpanyName, address, telephone, localityId string) (domain.Seller, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Update", ctx, id, cid, commpanyName, address, telephone)
+	ret := m.ctrl.Call(m, "Update", ctx, id, cid, commpanyName, address, telephone, localityId)
 	ret0, _ := ret[0].(domain.Seller)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Update indicates an expected call of Update.
-func (mr *MockRepositoryMockRecorder) Update(ctx, id, cid, commpanyName, address, telephone interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) Update(ctx, id, cid, commpanyName, address, telephone, localityId interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockRepository)(nil).Update), ctx, id, cid, commpanyName, address, telephone)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockRepository)(nil).Update), ctx, id, cid, commpanyName, address, telephone, localityId)
 }
 
 // MockService is a mock of Service interface.
@@ -133,18 +133,18 @@ func (m *MockService) EXPECT() *MockServiceMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockService) Create(ctx context.Context, cid int, commpanyName, address, telephone string) (domain.Seller, error) {
+func (m *MockService) Create(ctx context.Context, cid int, commpanyName, address, telephone, localityId string) (domain.Seller, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Create", ctx, cid, commpanyName, address, telephone)
+	ret := m.ctrl.Call(m, "Create", ctx, cid, commpanyName, address, telephone, localityId)
 	ret0, _ := ret[0].(domain.Seller)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Create indicates an expected call of Create.
-func (mr *MockServiceMockRecorder) Create(ctx, cid, commpanyName, address, telephone interface{}) *gomock.Call {
+func (mr *MockServiceMockRecorder) Create(ctx, cid, commpanyName, address, telephone, localityId interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockService)(nil).Create), ctx, cid, commpanyName, address, telephone)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockService)(nil).Create), ctx, cid, commpanyName, address, telephone, localityId)
 }
 
 // Delete mocks base method.
@@ -192,16 +192,16 @@ func (mr *MockServiceMockRecorder) GetById(ctx, id interface{}) *gomock.Call {
 }
 
 // Update mocks base method.
-func (m *MockService) Update(ctx context.Context, id, cid int, companyname, address, telephone string) (domain.Seller, error) {
+func (m *MockService) Update(ctx context.Context, id, cid int, companyname, address, telephone, localityId string) (domain.Seller, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Update", ctx, id, cid, companyname, address, telephone)
+	ret := m.ctrl.Call(m, "Update", ctx, id, cid, companyname, address, telephone, localityId)
 	ret0, _ := ret[0].(domain.Seller)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Update indicates an expected call of Update.
-func (mr *MockServiceMockRecorder) Update(ctx, id, cid, companyname, address, telephone interface{}) *gomock.Call {
+func (mr *MockServiceMockRecorder) Update(ctx, id, cid, companyname, address, telephone, localityId interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockService)(nil).Update), ctx, id, cid, companyname, address, telephone)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockService)(nil).Update), ctx, id, cid, companyname, address, telephone, localityId)
 }
