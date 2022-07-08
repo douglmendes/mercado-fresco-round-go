@@ -342,3 +342,56 @@ func TestMariaDB_Create(t *testing.T) {
 		})
 	}
 }
+
+func TestMariaDB_Update(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	assert.NoError(t, err)
+	defer db.Close()
+
+	testsCases := []struct {
+		name        string
+		buildStubs  func()
+		product     domain.Product
+		checkResult func(t *testing.T, result domain.Product, err error)
+	}{
+		{
+			name: "OK",
+			buildStubs: func() {
+				mock.
+					ExpectExec(regexp.QuoteMeta(UpdateQuery)).
+					WithArgs(
+						firstProduct.ProductCode,
+						firstProduct.Description,
+						firstProduct.Width,
+						firstProduct.Height,
+						firstProduct.Length,
+						firstProduct.NetWeight,
+						firstProduct.ExpirationRate,
+						firstProduct.RecommendedFreezingTemperature,
+						firstProduct.FreezingRate,
+						firstProduct.ProductTypeId,
+						firstProduct.SellerId,
+						firstProduct.Id,
+					).
+					WillReturnResult(sqlmock.NewResult(0, 1))
+			},
+			product: firstProduct,
+			checkResult: func(t *testing.T, result domain.Product, err error) {
+				assert.NoError(t, err)
+				assert.Equal(t, firstProduct, result)
+			},
+		},
+	}
+
+	for _, testCase := range testsCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			testCase.buildStubs()
+
+			repository := NewRepository(db)
+
+			result, err := repository.Update(testCase.product)
+
+			testCase.checkResult(t, result, err)
+		})
+	}
+}
