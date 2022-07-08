@@ -422,3 +422,42 @@ func TestMariaDB_Update(t *testing.T) {
 		})
 	}
 }
+
+func TestMariaDB_Delete(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	assert.NoError(t, err)
+	defer db.Close()
+
+	testsCases := []struct {
+		name        string
+		buildStubs  func()
+		id          int
+		checkResult func(t *testing.T, err error)
+	}{
+		{
+			name: "OK",
+			buildStubs: func() {
+				mock.
+					ExpectExec(regexp.QuoteMeta(DeleteQuery)).
+					WithArgs(firstProduct.Id).
+					WillReturnResult(sqlmock.NewResult(0, 1))
+			},
+			id: firstProduct.Id,
+			checkResult: func(t *testing.T, err error) {
+				assert.NoError(t, err)
+			},
+		},
+	}
+
+	for _, testCase := range testsCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			testCase.buildStubs()
+
+			repository := NewRepository(db)
+
+			err := repository.Delete(testCase.id)
+
+			testCase.checkResult(t, err)
+		})
+	}
+}
