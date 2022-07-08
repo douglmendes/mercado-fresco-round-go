@@ -4,12 +4,10 @@ import (
 	"context"
 	"fmt"
 	carrierRepo "github.com/douglmendes/mercado-fresco-round-go/internal/carriers/domain"
-	warehouseRepo "github.com/douglmendes/mercado-fresco-round-go/internal/warehouses/domain"
 )
 
 type service struct {
-	carrierRepository   carrierRepo.CarrierRepository
-	warehouseRepository warehouseRepo.WarehouseRepository
+	carrierRepository carrierRepo.CarrierRepository
 }
 
 func NewService(r carrierRepo.CarrierRepository) carrierRepo.CarrierService {
@@ -18,7 +16,7 @@ func NewService(r carrierRepo.CarrierRepository) carrierRepo.CarrierService {
 	}
 }
 
-func (s service) CreateCarrier(
+func (s *service) CreateCarrier(
 	ctx context.Context,
 	cid,
 	companyName,
@@ -38,13 +36,14 @@ func (s service) CreateCarrier(
 		}
 	}
 
+	locality, err := s.carrierRepository.GetLocal(localityId)
+	if locality.Id == 0 {
+		return carrierRepo.Carrier{}, fmt.Errorf("locality %d not found", localityId)
+	}
+
 	carrier, err := s.carrierRepository.Create(ctx, cid, companyName, address, telephone, localityId)
 	if err != nil {
 		return carrierRepo.Carrier{}, err
 	}
-
-	// aqui precisa verificar sobre locality_id, se existe ou nao, deve criar um carrier se a localidade existir, caso contrario retornar 409
-	// agaurdar implementar o dominio de localidade - discutir a melhor forma de fazer isso
-
 	return carrier, nil
 }
