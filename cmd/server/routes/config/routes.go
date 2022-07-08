@@ -22,6 +22,7 @@ func ConfigurationRoutes(router *gin.Engine) *gin.Engine {
 		routes.SectionsRoutes(baseUrl)
 		routes.SellersRoutes(baseUrl)
 		routes.WarehousesRoutes(baseUrl)
+		routes.LocalitiesRoutes(baseUrl)
 	}
 
 	return router

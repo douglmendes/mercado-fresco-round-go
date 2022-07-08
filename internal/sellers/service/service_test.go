@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"errors"
 	"testing"
 
@@ -28,6 +29,7 @@ func TestService_GetAll_Ok(t *testing.T) {
 			CompanyName: "Mercado Fresco",
 			Address:     "Rua Fantasma",
 			Telephone:   "54327683",
+			LocalityId:  "1",
 		},
 		{
 			ID:          2,
@@ -35,14 +37,15 @@ func TestService_GetAll_Ok(t *testing.T) {
 			CompanyName: "Mercado Pago",
 			Address:     "Rua Cachoeira",
 			Telephone:   "23098712",
+			LocalityId:  "1",
 		},
 	}
 
 	apiMock, service := callMock(t)
 
-	apiMock.EXPECT().GetAll().Return(sl, nil)
+	apiMock.EXPECT().GetAll(context.TODO()).Return(sl, nil)
 
-	result, err := service.GetAll()
+	result, err := service.GetAll(context.TODO())
 	assert.Equal(t, len(result), len(sl))
 	assert.Nil(t, err)
 
@@ -53,9 +56,9 @@ func TestService_GetAll_NOk(t *testing.T) {
 
 	apiMock, service := callMock(t)
 
-	apiMock.EXPECT().GetAll().Return(sList, errors.New("erro"))
+	apiMock.EXPECT().GetAll(context.TODO()).Return(sList, errors.New("erro"))
 
-	s, err := service.GetAll()
+	s, err := service.GetAll(context.TODO())
 	assert.Equal(t, sList, s, "empty list")
 	assert.NotNil(t, err)
 }
@@ -67,13 +70,14 @@ func TestService_GetById_Ok(t *testing.T) {
 		CompanyName: "Mercado Livre",
 		Address:     "Melicidade",
 		Telephone:   "98787687",
+		LocalityId:  "1",
 	}
 
 	apiMock, service := callMock(t)
 
-	apiMock.EXPECT().GetById(gomock.Eq(id)).Return(sl, nil)
+	apiMock.EXPECT().GetById(context.TODO(), gomock.Eq(id)).Return(sl, nil)
 
-	result, err := service.GetById(id)
+	result, err := service.GetById(context.TODO(), id)
 	assert.Equal(t, result.ID, id)
 	assert.Nil(t, err)
 
@@ -82,9 +86,9 @@ func TestService_GetById_Ok(t *testing.T) {
 func TestService_GetById_NOk(t *testing.T) {
 	apiMock, service := callMock(t)
 
-	apiMock.EXPECT().GetById(gomock.Eq(id)).Return(domain.Seller{}, errors.New("seller not found"))
+	apiMock.EXPECT().GetById(context.TODO(), gomock.Eq(id)).Return(domain.Seller{}, errors.New("seller not found"))
 
-	_, err := service.GetById(id)
+	_, err := service.GetById(context.TODO(), id)
 	assert.NotNil(t, err)
 
 }
@@ -98,6 +102,7 @@ func TestCreate_Ok(t *testing.T) {
 			CompanyName: "Mercado Fresco",
 			Address:     "Rua Meli",
 			Telephone:   "34235432",
+			LocalityId:  "1",
 		},
 		{
 			ID:          2,
@@ -105,6 +110,7 @@ func TestCreate_Ok(t *testing.T) {
 			CompanyName: "Mercado Pago",
 			Address:     "Rua Parque",
 			Telephone:   "12349870",
+			LocalityId:  "1",
 		},
 	}
 
@@ -114,15 +120,16 @@ func TestCreate_Ok(t *testing.T) {
 		CompanyName: "Mercado Livre",
 		Address:     "Melicidade",
 		Telephone:   "98787687",
+		LocalityId:  "1",
 	}
 
 	apiMock, service := callMock(t)
 
-	apiMock.EXPECT().LastID().Return(2, nil)
-	apiMock.EXPECT().GetAll().Return(slList, nil)
-	apiMock.EXPECT().Create(3, 20, "Mercado Livre", "Melicidade", "98787687").Return(sl, nil)
+	// apiMock.EXPECT().LastID().Return(2, nil)
+	apiMock.EXPECT().GetAll(context.TODO()).Return(slList, nil)
+	apiMock.EXPECT().Create(context.TODO(), 20, "Mercado Livre", "Melicidade", "98787687", "1").Return(sl, nil)
 
-	result, err := service.Create(20, "Mercado Livre", "Melicidade", "98787687")
+	result, err := service.Create(context.TODO(), 20, "Mercado Livre", "Melicidade", "98787687", "1")
 	assert.Equal(t, result, sl)
 	assert.Nil(t, err)
 }
@@ -136,6 +143,7 @@ func TestCreate_NOk(t *testing.T) {
 			CompanyName: "Mercado Fresco",
 			Address:     "Rua Meli",
 			Telephone:   "34235432",
+			LocalityId:  "1",
 		},
 		{
 			ID:          2,
@@ -143,16 +151,17 @@ func TestCreate_NOk(t *testing.T) {
 			CompanyName: "Mercado Pago",
 			Address:     "Rua Parque",
 			Telephone:   "12349870",
+			LocalityId:  "1",
 		},
 	}
 
 	apiMock, service := callMock(t)
 
-	apiMock.EXPECT().LastID().Return(2, nil)
-	apiMock.EXPECT().GetAll().Return(slList, nil)
+	// apiMock.EXPECT().LastID().Return(2, nil)
+	apiMock.EXPECT().GetAll(context.TODO()).Return(slList, nil)
 	// apiMock.EXPECT().Create(3, 24, "Mercado Livre", "Melicidade", "98787687").Return(sellers.Seller{}, errors.New("this seller already exists"))
 
-	_, err := service.Create(22, "Mercado Livre", "Melicidade", "98787687")
+	_, err := service.Create(context.TODO(), 22, "Mercado Livre", "Melicidade", "98787687", "1")
 	assert.NotNil(t, err)
 }
 
@@ -163,6 +172,7 @@ func TestService_Update_Ok(t *testing.T) {
 		CompanyName: "Mercado Livre",
 		Address:     "Melicidade",
 		Telephone:   "98787687",
+		LocalityId:  "1",
 	}
 
 	slList := []domain.Seller{
@@ -172,6 +182,7 @@ func TestService_Update_Ok(t *testing.T) {
 			CompanyName: "Mercado Fresco",
 			Address:     "Rua Meli",
 			Telephone:   "34235432",
+			LocalityId:  "1",
 		},
 		{
 			ID:          2,
@@ -179,15 +190,16 @@ func TestService_Update_Ok(t *testing.T) {
 			CompanyName: "Mercado Pago",
 			Address:     "Rua Parque",
 			Telephone:   "12349870",
+			LocalityId:  "1",
 		},
 	}
 
 	apiMock, service := callMock(t)
 
-	apiMock.EXPECT().GetAll().Return(slList, nil)
-	apiMock.EXPECT().Update(1, 20, "Mercado Livre", "Melicidade", "98787687").Return(sl, nil)
+	apiMock.EXPECT().GetAll(context.TODO()).Return(slList, nil)
+	apiMock.EXPECT().Update(context.TODO(), 1, 20, "Mercado Livre", "Melicidade", "98787687", "1").Return(sl, nil)
 
-	result, err := service.Update(1, 20, "Mercado Livre", "Melicidade", "98787687")
+	result, err := service.Update(context.TODO(), 1, 20, "Mercado Livre", "Melicidade", "98787687", "1")
 	assert.Nil(t, err)
 	assert.Equal(t, result, sl)
 }
@@ -203,6 +215,7 @@ func TestService_Update_NOk(t *testing.T) {
 			CompanyName: "Mercado Fresco",
 			Address:     "Rua Meli",
 			Telephone:   "34235432",
+			LocalityId:  "1",
 		},
 		{
 			ID:          2,
@@ -210,15 +223,16 @@ func TestService_Update_NOk(t *testing.T) {
 			CompanyName: "Mercado Pago",
 			Address:     "Rua Parque",
 			Telephone:   "12349870",
+			LocalityId:  "1",
 		},
 	}
 
 	apiMock, service := callMock(t)
 
-	apiMock.EXPECT().GetAll().Return(slList, nil)
-	apiMock.EXPECT().Update(10, 20, "Mercado Livre", "Melicidade", "98787687").Return(sl, errors.New("seller 10 not found"))
+	apiMock.EXPECT().GetAll(context.TODO()).Return(slList, nil)
+	apiMock.EXPECT().Update(context.TODO(), 10, 20, "Mercado Livre", "Melicidade", "98787687", "1").Return(sl, errors.New("seller 10 not found"))
 
-	result, err := service.Update(10, 20, "Mercado Livre", "Melicidade", "98787687")
+	result, err := service.Update(context.TODO(), 10, 20, "Mercado Livre", "Melicidade", "98787687", "1")
 	assert.NotNil(t, err)
 	assert.Equal(t, result, sl)
 }
@@ -234,6 +248,7 @@ func TestService_Update_ExistentCid_NOk(t *testing.T) {
 			CompanyName: "Mercado Fresco",
 			Address:     "Rua Meli",
 			Telephone:   "34235432",
+			LocalityId:  "1",
 		},
 		{
 			ID:          2,
@@ -241,14 +256,15 @@ func TestService_Update_ExistentCid_NOk(t *testing.T) {
 			CompanyName: "Mercado Pago",
 			Address:     "Rua Parque",
 			Telephone:   "12349870",
+			LocalityId:  "1",
 		},
 	}
 
 	apiMock, service := callMock(t)
 
-	apiMock.EXPECT().GetAll().Return(slList, nil)
+	apiMock.EXPECT().GetAll(context.TODO()).Return(slList, nil)
 
-	result, err := service.Update(10, 22, "Mercado Livre", "Melicidade", "98787687")
+	result, err := service.Update(context.TODO(), 10, 22, "Mercado Livre", "Melicidade", "98787687", "1")
 	assert.NotNil(t, err)
 	assert.Equal(t, result, sl)
 }
@@ -256,17 +272,17 @@ func TestService_Update_ExistentCid_NOk(t *testing.T) {
 func TestService_Delete_Ok(t *testing.T) {
 	apiMock, service := callMock(t)
 
-	apiMock.EXPECT().Delete(gomock.Eq(id)).Return(nil)
+	apiMock.EXPECT().Delete(context.TODO(), gomock.Eq(id)).Return(nil)
 
-	err := service.Delete(id)
+	err := service.Delete(context.TODO(), id)
 	assert.Nil(t, err)
 }
 
 func TestService_Delete_NOk(t *testing.T) {
 	apiMock, service := callMock(t)
 
-	apiMock.EXPECT().Delete(gomock.Eq(id)).Return(errors.New("id is not valid"))
+	apiMock.EXPECT().Delete(context.TODO(), gomock.Eq(id)).Return(errors.New("id is not valid"))
 
-	err := service.Delete(id)
+	err := service.Delete(context.TODO(), id)
 	assert.NotNil(t, err)
 }

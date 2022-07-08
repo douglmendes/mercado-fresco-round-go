@@ -1,10 +1,10 @@
 package routes
 
 import (
+	"github.com/douglmendes/mercado-fresco-round-go/connections"
 	sellersController "github.com/douglmendes/mercado-fresco-round-go/internal/sellers/controller"
 	sellersRepository "github.com/douglmendes/mercado-fresco-round-go/internal/sellers/repository"
 	sellerService "github.com/douglmendes/mercado-fresco-round-go/internal/sellers/service"
-	"github.com/douglmendes/mercado-fresco-round-go/pkg/store"
 	"github.com/gin-gonic/gin"
 )
 
@@ -12,7 +12,7 @@ func SellersRoutes(group *gin.RouterGroup) {
 
 	sellerRouterGroup := group.Group("/sellers")
 	{
-		sellersDb := store.New(store.FileType, store.PathBuilder("/sellers.json"))
+		sellersDb := connections.NewConnection()
 		sellersRepo := sellersRepository.NewRepository(sellersDb)
 		sellersService := sellerService.NewService(sellersRepo)
 		s := sellersController.NewSeller(sellersService)
