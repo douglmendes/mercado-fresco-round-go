@@ -117,6 +117,27 @@ func TestRepository_GetAll(t *testing.T) {
 				assert.Equal(t, noProducts, result)
 			},
 		},
+		{
+			name: "Scan Fail",
+			buildStubs: func() {
+				rows := sqlmock.NewRows([]string{
+					"id",
+					"product_code",
+				}).AddRow(
+					firstProduct.Id,
+					firstProduct.ProductCode,
+				).AddRow(
+					secondProduct.Id,
+					secondProduct.ProductCode,
+				)
+
+				mock.ExpectQuery(GetAllQuery).WillReturnRows(rows)
+			},
+			checkResult: func(t *testing.T, result []domain.Product, err error) {
+				assert.Error(t, err)
+				assert.Equal(t, noProducts, result)
+			},
+		},
 	}
 
 	for _, testCase := range testsCases {
