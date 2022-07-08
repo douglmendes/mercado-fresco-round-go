@@ -5,6 +5,7 @@ import (
 	carriersController "github.com/douglmendes/mercado-fresco-round-go/internal/carriers/controller"
 	carriersRepository "github.com/douglmendes/mercado-fresco-round-go/internal/carriers/repository"
 	carriersService "github.com/douglmendes/mercado-fresco-round-go/internal/carriers/service"
+	localityRepo "github.com/douglmendes/mercado-fresco-round-go/internal/localities/repository"
 
 	"github.com/gin-gonic/gin"
 )
@@ -13,8 +14,9 @@ func CarriersRoutes(group *gin.RouterGroup) {
 
 	carriersRouterGroup := group.Group("/carriers")
 	{
+		localRepo := localityRepo.NewRepository(connections.NewConnection())
 		carriersRepo := carriersRepository.NewRepository(connections.NewConnection())
-		carrierService := carriersService.NewService(carriersRepo)
+		carrierService := carriersService.NewService(carriersRepo, localRepo)
 		controller := carriersController.NewCarries(carrierService)
 
 		carriersRouterGroup.POST("/", controller.Create())

@@ -4,15 +4,18 @@ import (
 	"context"
 	"fmt"
 	carrierRepo "github.com/douglmendes/mercado-fresco-round-go/internal/carriers/domain"
+	localityRepo "github.com/douglmendes/mercado-fresco-round-go/internal/localities/domain"
 )
 
 type service struct {
-	carrierRepository carrierRepo.CarrierRepository
+	carrierRepository  carrierRepo.CarrierRepository
+	localityRepository localityRepo.LocalityRepository
 }
 
-func NewService(r carrierRepo.CarrierRepository) carrierRepo.CarrierService {
+func NewService(r carrierRepo.CarrierRepository, l localityRepo.LocalityRepository) carrierRepo.CarrierService {
 	return &service{
-		carrierRepository: r,
+		carrierRepository:  r,
+		localityRepository: l,
 	}
 }
 
@@ -36,7 +39,7 @@ func (s *service) CreateCarrier(
 		}
 	}
 
-	locality, err := s.carrierRepository.GetLocal(localityId)
+	locality, err := s.localityRepository.GetById(ctx, localityId)
 	if locality.Id == 0 {
 		return carrierRepo.Carrier{}, fmt.Errorf("locality %d not found", localityId)
 	}
