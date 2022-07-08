@@ -1,8 +1,8 @@
-package controllers
+package controller
 
 import (
 	"fmt"
-	"github.com/douglmendes/mercado-fresco-round-go/internal/buyers"
+	"github.com/douglmendes/mercado-fresco-round-go/internal/buyers/domain"
 	"github.com/douglmendes/mercado-fresco-round-go/pkg/response"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -10,7 +10,7 @@ import (
 )
 
 type BuyerController struct {
-	service buyers.Service
+	service domain.Service
 }
 
 type buyerRequest struct {
@@ -19,7 +19,7 @@ type buyerRequest struct {
 	LastName     string `json:"last_name"`
 }
 
-func NewBuyer(s buyers.Service) *BuyerController {
+func NewBuyer(s domain.Service) *BuyerController {
 	return &BuyerController{
 		service: s,
 	}
@@ -181,5 +181,4 @@ func (c *BuyerController) Delete() gin.HandlerFunc {
 
 		ctx.JSON(http.StatusNoContent, gin.H{"data": fmt.Sprintf("seller %d was removed", id)})
 	}
-
 }

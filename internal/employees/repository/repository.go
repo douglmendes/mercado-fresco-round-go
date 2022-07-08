@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"github.com/douglmendes/mercado-fresco-round-go/internal/employees/domain"
@@ -11,8 +12,8 @@ type repository struct {
 	db *sql.DB
 }
 
-func (r *repository) GetAll() ([]domain.Employee, error) {
-	getAllSql := "SELECT id, id_card_number, first_name, last_name, warehouse_id FROM employees"
+func (r *repository) GetAll(ctx context.Context) ([]domain.Employee, error) {
+	getAllSql := queryGetAll
 	rows, err := r.db.Query(getAllSql)
 	if err != nil {
 		log.Println("Error while querying customer table" + err.Error())
@@ -32,9 +33,8 @@ func (r *repository) GetAll() ([]domain.Employee, error) {
 
 }
 
-func (r *repository) GetById(id int64) (*domain.Employee, error) {
-	getByIdSql := "SELECT id, id_card_number, first_name, last_name, warehouse_id FROM employees where id = ?"
-	row := r.db.QueryRow(getByIdSql, id)
+func (r *repository) GetById(ctx context.Context, id int64) (*domain.Employee, error) {
+	row := r.db.QueryRow(queryGetById, id)
 	var e domain.Employee
 	err := row.Scan(&e.Id, &e.CardNumberId, &e.FirstName, &e.LastName, &e.WarehouseId)
 	if err != nil {
@@ -48,21 +48,8 @@ func (r *repository) GetById(id int64) (*domain.Employee, error) {
 	return &e, nil
 }
 
-/*
-func (r *repository) LastID() (int, error) {
-	var emp []domain.Employee
-	if err := r.db.Read(&emp); err != nil {
-		return 0, err
-	}
-	if len(emp) == 0 {
-		return 0, nil
-	}
-	return emp[len(emp)-1].Id, nil
-}
-*/
-func (r *repository) Create(cardNumberId string, firstName string, lastName string, warehouseId int) (*domain.Employee, error) {
-	createSql := "insert into employees (id_card_number , first_name, last_name, warehouse_id) values (?,?,?,?)"
-	result, err := r.db.Exec(createSql, cardNumberId, firstName, lastName, warehouseId)
+func (r *repository) Create(ctx context.Context, cardNumberId string, firstName string, lastName string, warehouseId int) (*domain.Employee, error) {
+	result, err := r.db.Exec(queryCreate, cardNumberId, firstName, lastName, warehouseId)
 	if err != nil {
 		return nil, err
 	}
@@ -75,17 +62,17 @@ func (r *repository) Create(cardNumberId string, firstName string, lastName stri
 
 }
 
-func (r *repository) Update(id int64, cardNumberId string, firstName string, lastName string, warehouseId int) (*domain.Employee, error) {
-	updateSql := "UPDATE employees  SET id_card_number  =  ? , first_name= ? , last_name = ? , warehouse_id  = ? WHERE id=?"
+func (r *repository) Update(ctx context.Context, id int64, cardNumberId string, firstName string, lastName string, warehouseId int) (*domain.Employee, error) {
 
-	emp, err := r.GetById(id)
+	emp, err := r.GetById(ctx, id)
 	if err != nil {
 		return nil, fmt.Errorf("employee %d not found", id)
 	}
 	if cardNumberId != "" {
 		emp.CardNumberId = cardNumberId
 	}
-	if firstName == " " {
+	//TODO validar firstName
+	if firstName != "" {
 		emp.FirstName = firstName
 	}
 	if lastName != "" {
@@ -95,17 +82,15 @@ func (r *repository) Update(id int64, cardNumberId string, firstName string, las
 		emp.WarehouseId = warehouseId
 	}
 
-	result, err := r.db.Exec(updateSql, emp.CardNumberId, emp.FirstName, emp.LastName, emp.WarehouseId, id)
-	log.Println(result.RowsAffected())
+	_, err = r.db.Exec(queryUpdate, emp.CardNumberId, emp.FirstName, emp.LastName, emp.WarehouseId, id)
 
 	return emp, nil
 
 }
 
-func (r *repository) Delete(id int64) error {
+func (r *repository) Delete(ctx context.Context, id int64) error {
 
-	deleteSql := "DELETE FROM employees  WHERE id =?"
-	_, err := r.db.Exec(deleteSql, id)
+	_, err := r.db.Exec(queryDelete, id)
 	if err != nil {
 		return fmt.Errorf("error when deleting employee %d", id)
 	}

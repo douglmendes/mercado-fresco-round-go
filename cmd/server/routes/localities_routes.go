@@ -18,8 +18,9 @@ func LocalitiesRoutes(group *gin.RouterGroup)  {
 		l := controller.NewLocality(localitiesService)
 
 		localityRouterGroup.POST("/", l.Create())
-		localityRouterGroup.GET("/", l.GetAll())
-		localityRouterGroup.GET("/:id", l.GetById())
+		// localityRouterGroup.GET("/", l.GetAll())
+		// localityRouterGroup.GET("/:id", l.GetById())
+		localityRouterGroup.GET("/reportSellers", l.GetBySellers())
 		localityRouterGroup.PATCH("/:id", l.Update())
 		localityRouterGroup.DELETE("/:id", l.Delete())
 	}

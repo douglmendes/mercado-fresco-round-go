@@ -2,24 +2,25 @@ package test
 
 import (
 	"errors"
-	"github.com/douglmendes/mercado-fresco-round-go/internal/buyers"
+	"github.com/douglmendes/mercado-fresco-round-go/internal/buyers/domain"
 	mock_buyers "github.com/douglmendes/mercado-fresco-round-go/internal/buyers/mock"
+	"github.com/douglmendes/mercado-fresco-round-go/internal/buyers/service"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
-func callMock(t *testing.T) (*mock_buyers.MockRepository, buyers.Service) {
+func callMock(t *testing.T) (*mock_buyers.MockRepository, service.Service) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	apiMock := mock_buyers.NewMockRepository(ctrl)
-	service := buyers.NewService(apiMock)
+	service := service.NewService(apiMock)
 	return apiMock, service
 }
 
 //CREATE create_ok Se contiver os campos necessários, será criado
 func TestService_Create_Ok(t *testing.T) {
-	buyList := []buyers.Buyer{
+	buyList := []domain.Buyer{
 		{
 			1,
 			"2",
@@ -34,7 +35,7 @@ func TestService_Create_Ok(t *testing.T) {
 		},
 	}
 
-	buy := buyers.Buyer{
+	buy := domain.Buyer{
 		Id:           3,
 		CardNumberId: "5",
 		FirstName:    "Douglas",
@@ -54,8 +55,8 @@ func TestService_Create_Ok(t *testing.T) {
 
 //CREATE create_conflict Se o card_number_id já existir, ele não pode ser criado
 func TestService_Create_Nok(t *testing.T) {
-	buy := buyers.Buyer{}
-	buyList := []buyers.Buyer{
+	buy := domain.Buyer{}
+	buyList := []domain.Buyer{
 		{
 			1,
 			"2",
@@ -74,7 +75,7 @@ func TestService_Create_Nok(t *testing.T) {
 	//repository
 	apiMock.EXPECT().LastID().Return(2, nil)
 	apiMock.EXPECT().GetAll().Return(buyList, nil)
-	apiMock.EXPECT().Create(3, "3", "Douglas", "Mendes").Return(buyers.Buyer{}, errors.New("this Buyer already exists"))
+	apiMock.EXPECT().Create(3, "3", "Douglas", "Mendes").Return(domain.Buyer{}, errors.New("this Buyer already exists"))
 	//service
 	result, err := service.Create("3", "Douglas", "Mendes")
 	assert.Equal(t, result, buy)
@@ -84,7 +85,7 @@ func TestService_Create_Nok(t *testing.T) {
 
 //READ find_all Se a lista tiver "n" elementos, retornará uma quantidade do total de elementos
 func TestService_GetAll(t *testing.T) {
-	buyList := []buyers.Buyer{
+	buyList := []domain.Buyer{
 		{
 			1,
 			"2",
@@ -110,7 +111,7 @@ func TestService_GetAll(t *testing.T) {
 //READ find_by_id_non_existent Se o elemento procurado por id não existir, retorna null
 func TestService_GetById_Nok(t *testing.T) {
 	apiMock, service := callMock(t)
-	apiMock.EXPECT().GetById(gomock.Eq(1)).Return(buyers.Buyer{}, errors.New("Buyer 1 not found"))
+	apiMock.EXPECT().GetById(gomock.Eq(1)).Return(domain.Buyer{}, errors.New("Buyer 1 not found"))
 
 	_, err := service.GetById(1)
 	assert.NotNil(t, err)
@@ -118,7 +119,7 @@ func TestService_GetById_Nok(t *testing.T) {
 
 //READ find_by_id_existent Se o elemento procurado por id existir.
 func TestService_GetById_ok(t *testing.T) {
-	buy := buyers.Buyer{
+	buy := domain.Buyer{
 		Id:           1,
 		CardNumberId: "5",
 		FirstName:    "Douglas",
@@ -149,7 +150,7 @@ func TestService_Delete_Nok(t *testing.T) {
 }
 
 func TestService_Update_Ok(t *testing.T) {
-	buyList := []buyers.Buyer{
+	buyList := []domain.Buyer{
 		{
 			1,
 			"2",
@@ -164,7 +165,7 @@ func TestService_Update_Ok(t *testing.T) {
 		},
 	}
 
-	buy := buyers.Buyer{
+	buy := domain.Buyer{
 		Id:           3,
 		CardNumberId: "5",
 		FirstName:    "Douglas",
@@ -181,8 +182,8 @@ func TestService_Update_Ok(t *testing.T) {
 }
 
 func TestService_Update_Nok(t *testing.T) {
-	buy := buyers.Buyer{}
-	buyList := []buyers.Buyer{
+	buy := domain.Buyer{}
+	buyList := []domain.Buyer{
 		{
 			1,
 			"2",

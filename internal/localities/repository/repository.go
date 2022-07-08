@@ -63,6 +63,54 @@ func (r *repository) GetById(ctx context.Context, id int) (domain.Locality, erro
 	return locality, nil
 }
 
+func (r *repository) GetBySellers(ctx context.Context, id int) ([]domain.SellersByLocality, error) {
+
+	var sellersByLocality []domain.SellersByLocality
+
+	if id != 0 {
+		row := r.db.QueryRowContext(ctx, queryGetBySeller, id)
+	
+		var sellers domain.SellersByLocality
+	
+		err := row.Scan(
+			&sellers.LocalityId,
+			&sellers.LocalityName,
+			&sellers.SellersCount,
+		)
+	
+		if errors.Is(err, sql.ErrNoRows) {
+			return sellersByLocality, fmt.Errorf("locality %d not found", id)
+		}
+	
+		if err != nil {
+			return sellersByLocality, err
+		}
+	
+		sellersByLocality = append(sellersByLocality, sellers)
+	} else {
+		rows, err := r.db.QueryContext(ctx, queryGetBySellers)
+		if err != nil {
+			return []domain.SellersByLocality{}, err
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			var sellers domain.SellersByLocality
+			err := rows.Scan(
+				&sellers.LocalityId,
+				&sellers.LocalityName,
+				&sellers.SellersCount,
+			)
+			if err != nil {
+				return sellersByLocality, err
+			}
+
+			sellersByLocality = append(sellersByLocality, sellers)
+		}
+	}
+	return sellersByLocality, nil
+}
+
 func (r *repository) Create(ctx context.Context, localityName, provinceName, countryName string) (domain.Locality, error) {
 	locality := domain.Locality{
 		LocalityName: localityName,
