@@ -11,7 +11,7 @@ type service struct {
 }
 
 func NewService(r domain.LocalityRepository) domain.LocalityService {
-	return &service {
+	return &service{
 		repository: r,
 	}
 }
@@ -39,7 +39,7 @@ func (s service) Create(ctx context.Context, localityname, provinceName, country
 	// }
 
 	// for i := range lc {
-	// 	if lc[i].Id == 
+	// 	if lc[i].Id ==
 	// }
 
 	locality, err := s.repository.Create(ctx, localityname, provinceName, countryName)
@@ -56,7 +56,7 @@ func (s service) Update(ctx context.Context, id int, localityname, provinceName,
 	if err != nil {
 		return domain.Locality{}, err
 	}
-	
+
 	return locality, err
 }
 

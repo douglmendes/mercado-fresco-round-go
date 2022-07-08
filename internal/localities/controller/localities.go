@@ -73,17 +73,17 @@ func (c *LocalityController) Create() gin.HandlerFunc {
 
 		if req.LocalityName == "" {
 			ctx.JSON(http.StatusUnprocessableEntity,
-			response.DecodeError("locality name is required"))
+				response.DecodeError("locality name is required"))
 			return
 		}
 		if req.ProvinceName == "" {
 			ctx.JSON(http.StatusUnprocessableEntity,
-			response.DecodeError("province name is required"))
+				response.DecodeError("province name is required"))
 			return
 		}
 		if req.CountryName == "" {
 			ctx.JSON(http.StatusUnprocessableEntity,
-			response.DecodeError("country name is required"))
+				response.DecodeError("country name is required"))
 			return
 		}
 
