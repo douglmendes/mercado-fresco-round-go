@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"fmt"
 	"github.com/douglmendes/mercado-fresco-round-go/internal/employees/domain"
 	"log"
@@ -17,9 +18,9 @@ func NewService(r domain.Repository) domain.Service {
 
 }
 
-func (s service) GetAll() ([]domain.Employee, error) {
+func (s service) GetAll(ctx context.Context) ([]domain.Employee, error) {
 
-	emp, err := s.repository.GetAll()
+	emp, err := s.repository.GetAll(ctx)
 	log.Println(err)
 	if err != nil {
 		return nil, err
@@ -28,8 +29,8 @@ func (s service) GetAll() ([]domain.Employee, error) {
 
 }
 
-func (s service) GetById(id int64) (*domain.Employee, error) {
-	emp, err := s.repository.GetById(id)
+func (s service) GetById(ctx context.Context, id int64) (*domain.Employee, error) {
+	emp, err := s.repository.GetById(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -37,8 +38,8 @@ func (s service) GetById(id int64) (*domain.Employee, error) {
 
 }
 
-func (s service) Create(cardNumberId string, firstName string, lastName string, warehouseId int) (*domain.Employee, error) {
-	emp, err := s.repository.GetAll()
+func (s service) Create(ctx context.Context, cardNumberId string, firstName string, lastName string, warehouseId int) (*domain.Employee, error) {
+	emp, err := s.repository.GetAll(ctx)
 
 	if err != nil {
 		return nil, err
@@ -56,7 +57,7 @@ func (s service) Create(cardNumberId string, firstName string, lastName string, 
 
 	lastID++
 	*/
-	employee, err := s.repository.Create(cardNumberId, firstName, lastName, warehouseId)
+	employee, err := s.repository.Create(ctx, cardNumberId, firstName, lastName, warehouseId)
 
 	if err != nil {
 		return nil, err
@@ -65,8 +66,8 @@ func (s service) Create(cardNumberId string, firstName string, lastName string, 
 	return employee, nil
 }
 
-func (s service) Update(id int64, cardNumberId string, firstName string, lastName string, warehouseId int) (*domain.Employee, error) {
-	emp, err := s.repository.GetAll()
+func (s service) Update(ctx context.Context, id int64, cardNumberId string, firstName string, lastName string, warehouseId int) (*domain.Employee, error) {
+	emp, err := s.repository.GetAll(ctx)
 
 	if err != nil {
 		return nil, err
@@ -77,15 +78,15 @@ func (s service) Update(id int64, cardNumberId string, firstName string, lastNam
 			return nil, fmt.Errorf("this employee already exists")
 		}
 	}
-	employee, err := s.repository.Update(id, cardNumberId, firstName, lastName, warehouseId)
+	employee, err := s.repository.Update(ctx, id, cardNumberId, firstName, lastName, warehouseId)
 	if err != nil {
 		return nil, err
 	}
 	return employee, err
 }
 
-func (s service) Delete(id int64) error {
-	err := s.repository.Delete(id)
+func (s service) Delete(ctx context.Context, id int64) error {
+	err := s.repository.Delete(ctx, id)
 	if err != nil {
 		return err
 	}

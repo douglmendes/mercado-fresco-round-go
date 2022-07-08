@@ -5,6 +5,7 @@
 package mock_domain
 
 import (
+	context "context"
 	reflect "reflect"
 
 	domain "github.com/douglmendes/mercado-fresco-round-go/internal/employees/domain"
@@ -35,18 +36,18 @@ func (m *MockRepository) EXPECT() *MockRepositoryMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockRepository) Create(cardNumberId, firstName, lastName string, warehouseId int) (*domain.Employee, error) {
+func (m *MockRepository) Create(ctx context.Context, cardNumberId, firstName, lastName string, warehouseId int) (*domain.Employee, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Create", cardNumberId, firstName, lastName, warehouseId)
+	ret := m.ctrl.Call(m, "Create", ctx, cardNumberId, firstName, lastName, warehouseId)
 	ret0, _ := ret[0].(*domain.Employee)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Create indicates an expected call of Create.
-func (mr *MockRepositoryMockRecorder) Create(cardNumberId, firstName, lastName, warehouseId interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) Create(ctx, cardNumberId, firstName, lastName, warehouseId interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockRepository)(nil).Create), cardNumberId, firstName, lastName, warehouseId)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockRepository)(nil).Create), ctx, cardNumberId, firstName, lastName, warehouseId)
 }
 
 // Delete mocks base method.
@@ -64,48 +65,48 @@ func (mr *MockRepositoryMockRecorder) Delete(id interface{}) *gomock.Call {
 }
 
 // GetAll mocks base method.
-func (m *MockRepository) GetAll() ([]domain.Employee, error) {
+func (m *MockRepository) GetAll(ctx context.Context) ([]domain.Employee, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAll")
+	ret := m.ctrl.Call(m, "GetAll", ctx)
 	ret0, _ := ret[0].([]domain.Employee)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetAll indicates an expected call of GetAll.
-func (mr *MockRepositoryMockRecorder) GetAll() *gomock.Call {
+func (mr *MockRepositoryMockRecorder) GetAll(ctx interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockRepository)(nil).GetAll))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockRepository)(nil).GetAll), ctx)
 }
 
 // GetById mocks base method.
-func (m *MockRepository) GetById(id int64) (*domain.Employee, error) {
+func (m *MockRepository) GetById(ctx context.Context, id int64) (*domain.Employee, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetById", id)
+	ret := m.ctrl.Call(m, "GetById", ctx, id)
 	ret0, _ := ret[0].(*domain.Employee)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetById indicates an expected call of GetById.
-func (mr *MockRepositoryMockRecorder) GetById(id interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) GetById(ctx, id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetById", reflect.TypeOf((*MockRepository)(nil).GetById), id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetById", reflect.TypeOf((*MockRepository)(nil).GetById), ctx, id)
 }
 
 // Update mocks base method.
-func (m *MockRepository) Update(id int64, cardNumberId, firstName, lastName string, warehouseId int) (*domain.Employee, error) {
+func (m *MockRepository) Update(ctx context.Context, id int64, cardNumberId, firstName, lastName string, warehouseId int) (*domain.Employee, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Update", id, cardNumberId, firstName, lastName, warehouseId)
+	ret := m.ctrl.Call(m, "Update", ctx, id, cardNumberId, firstName, lastName, warehouseId)
 	ret0, _ := ret[0].(*domain.Employee)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Update indicates an expected call of Update.
-func (mr *MockRepositoryMockRecorder) Update(id, cardNumberId, firstName, lastName, warehouseId interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) Update(ctx, id, cardNumberId, firstName, lastName, warehouseId interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockRepository)(nil).Update), id, cardNumberId, firstName, lastName, warehouseId)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockRepository)(nil).Update), ctx, id, cardNumberId, firstName, lastName, warehouseId)
 }
 
 // MockService is a mock of Service interface.
