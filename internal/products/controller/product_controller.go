@@ -1,20 +1,22 @@
-package controllers
+package controller
 
 import (
+	"database/sql"
+	"errors"
 	"net/http"
 	"strconv"
 	"strings"
 
-	"github.com/douglmendes/mercado-fresco-round-go/internal/products"
+	"github.com/douglmendes/mercado-fresco-round-go/internal/products/domain"
 	"github.com/douglmendes/mercado-fresco-round-go/pkg/response"
 	"github.com/gin-gonic/gin"
 )
 
 type ProductController struct {
-	service products.Service
+	service domain.ProductService
 }
 
-func NewProductController(service products.Service) *ProductController {
+func NewProductController(service domain.ProductService) *ProductController {
 	return &ProductController{service}
 }
 
@@ -108,7 +110,7 @@ func (c *ProductController) Create() gin.HandlerFunc {
 			return
 		}
 
-		arg := products.Product{
+		arg := domain.Product{
 			ProductCode:                    req.ProductCode,
 			Description:                    req.Description,
 			Width:                          req.Width,
@@ -175,7 +177,7 @@ func (c *ProductController) Update() gin.HandlerFunc {
 			return
 		}
 
-		arg := products.Product{
+		arg := domain.Product{
 			Id:                             int(id),
 			ProductCode:                    req.ProductCode,
 			Description:                    req.Description,
@@ -192,7 +194,7 @@ func (c *ProductController) Update() gin.HandlerFunc {
 
 		product, err := c.service.Update(arg)
 		if err != nil {
-			if strings.Contains(err.Error(), "not found") {
+			if strings.Contains(err.Error(), "not found") || errors.Is(err, sql.ErrNoRows) {
 				ctx.JSON(http.StatusNotFound, response.DecodeError(err.Error()))
 				return
 			}
