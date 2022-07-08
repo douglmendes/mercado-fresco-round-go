@@ -203,6 +203,25 @@ func TestMariaDB_GetById(t *testing.T) {
 				assert.Equal(t, firstProduct, result)
 			},
 		},
+		{
+			name: "Scan Fail",
+			buildStubs: func() {
+				rows := sqlmock.NewRows([]string{
+					"id",
+					"product_code",
+				}).AddRow(
+					firstProduct.Id,
+					firstProduct.ProductCode,
+				)
+
+				mock.ExpectQuery(GetByIdQuery).WillReturnRows(rows)
+			},
+			id: firstProduct.Id,
+			checkResult: func(t *testing.T, result domain.Product, err error) {
+				assert.Error(t, err)
+				assert.Equal(t, emptyProduct, result)
+			},
+		},
 	}
 
 	for _, testCase := range testsCases {
