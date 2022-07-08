@@ -1,6 +1,9 @@
 package domain
 
-import "context"
+import (
+	"context"
+	"github.com/douglmendes/mercado-fresco-round-go/internal/localities/domain"
+)
 
 type Carrier struct {
 	Id          int    `json:"id,omitempty"`
@@ -13,11 +16,10 @@ type Carrier struct {
 
 type CarrierRepository interface {
 	GetAll(ctx context.Context) ([]Carrier, error)
-	//GetReportCarriers(ctx context.Context) (Carrier, error)
+	GetLocal(id int) (domain.Locality, error)
 	Create(ctx context.Context, cid, companyName, address, telephone string, localityId int) (Carrier, error)
 }
 
 type CarrierService interface {
-	//GetReportCarriers(ctx context.Context) (Carrier, error)
 	CreateCarrier(ctx context.Context, cid, companyName, address, telephone string, localityId int) (Carrier, error)
 }
