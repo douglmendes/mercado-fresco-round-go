@@ -18,3 +18,8 @@ type ProductRecordRepository interface {
 	GetByProductId(productId int) ([]ProductRecordCount, error)
 	Create(arg ProductRecord) (ProductRecord, error)
 }
+
+type ProductRecordService interface {
+	GetByProductId(productId int) ([]ProductRecordCount, error)
+	Create(arg ProductRecord) (ProductRecord, error)
+}
