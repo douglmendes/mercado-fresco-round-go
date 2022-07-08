@@ -46,7 +46,7 @@ var (
 	noProducts = []domain.Product{}
 )
 
-func TestRepository_GetAll(t *testing.T) {
+func TestMariaDB_GetAll(t *testing.T) {
 	db, mock, err := sqlmock.New()
 	assert.NoError(t, err)
 	defer db.Close()
