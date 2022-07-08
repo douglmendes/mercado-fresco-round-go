@@ -447,6 +447,19 @@ func TestMariaDB_Delete(t *testing.T) {
 				assert.NoError(t, err)
 			},
 		},
+		{
+			name: "Fail",
+			buildStubs: func() {
+				mock.
+					ExpectExec(regexp.QuoteMeta(DeleteQuery)).
+					WithArgs(firstProduct.Id).
+					WillReturnError(sql.ErrConnDone)
+			},
+			id: firstProduct.Id,
+			checkResult: func(t *testing.T, err error) {
+				assert.Error(t, err)
+			},
+		},
 	}
 
 	for _, testCase := range testsCases {
