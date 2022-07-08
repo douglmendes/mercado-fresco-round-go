@@ -14,9 +14,47 @@ func NewRepository(db *sql.DB) domain.ProductRecordRepository {
 	return &repository{db}
 }
 
-func (r repository) GetById(id int) ([]domain.ProductRecord, error) {
-	// TODO: implementation
-	return []domain.ProductRecord{}, nil
+func (r repository) GetByProductId(productId int) ([]domain.ProductRecordCount, error) {
+	productRecords := []domain.ProductRecordCount{}
+
+	if productId == 0 {
+		row := r.db.QueryRow(GetAllGroupByProductIdWhereIdQuery, productId)
+
+		productRecordCount := domain.ProductRecordCount{}
+
+		err := row.Scan(
+			&productRecordCount.ProductId,
+			&productRecordCount.Description,
+			&productRecordCount.RecordsCount,
+		)
+		if err != nil {
+			return productRecords, err
+		}
+
+		productRecords = append(productRecords, productRecordCount)
+	} else {
+		rows, err := r.db.Query(GetAllGroupByProductIdQuery)
+		if err != nil {
+			return productRecords, err
+		}
+
+		for rows.Next() {
+			productRecordCount := domain.ProductRecordCount{}
+
+			err := rows.Scan(
+				&productRecordCount.ProductId,
+				&productRecordCount.Description,
+				&productRecordCount.RecordsCount,
+			)
+			if err != nil {
+				return productRecords, err
+			}
+
+			productRecords = append(productRecords, productRecordCount)
+		}
+	}
+
+	return productRecords, nil
 }
 
 func (r repository) Create(arg domain.ProductRecord) (domain.ProductRecord, error) {
