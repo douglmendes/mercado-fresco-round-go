@@ -51,7 +51,7 @@ func callProductsMock(t *testing.T) (
 	return service, handler, api
 }
 
-func TestProductController_Create(t *testing.T) {
+func TestProductRecordController_Create(t *testing.T) {
 	newProductRecord := productRecord
 	newProductRecord.Id = 0
 
