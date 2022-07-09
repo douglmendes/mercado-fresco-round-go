@@ -2,6 +2,7 @@ package service
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"testing"
 
@@ -98,6 +99,29 @@ func TestCreate(t *testing.T) {
 			productRecord: productRecord,
 			checkResult: func(t *testing.T, result domain.ProductRecord, err error) {
 				assert.Equal(t, fmt.Errorf("failed to create product record"), err)
+
+				assert.Equal(t, emptyProductRecord, result)
+			},
+		},
+		{
+			name: "Fail_Product_GetByID",
+			buildStubs: func(
+				productRecordRepository *productRecordMockDomain.MockProductRecordRepository,
+				productRepository *productMockDomain.MockProductRepository,
+			) {
+				productRepository.
+					EXPECT().
+					GetById(productRecord.ProductId).
+					Times(ONCE).
+					Return(emptyProduct, errors.New("some error"))
+			},
+			productRecord: productRecord,
+			checkResult: func(t *testing.T, result domain.ProductRecord, err error) {
+				assert.Equal(
+					t,
+					fmt.Errorf("product with id (%v) not found", productRecord.ProductId),
+					err,
+				)
 
 				assert.Equal(t, emptyProductRecord, result)
 			},
