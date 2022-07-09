@@ -2,7 +2,6 @@ package domain
 
 import (
 	"context"
-	"github.com/douglmendes/mercado-fresco-round-go/internal/localities/domain"
 )
 
 type Carrier struct {
@@ -16,7 +15,6 @@ type Carrier struct {
 
 type CarrierRepository interface {
 	GetAll(ctx context.Context) ([]Carrier, error)
-	GetLocal(id int) (domain.Locality, error)
 	Create(ctx context.Context, cid, companyName, address, telephone string, localityId int) (Carrier, error)
 }
 
