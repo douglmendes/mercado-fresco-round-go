@@ -20,6 +20,8 @@ const (
 	PRODUCT_RECORDS_PATH        = "/api/v1/productRecords/"
 	PRODUCT_REPORT_RECORDS_PATH = "/api/v1/products/reportRecords"
 	GET_ALL_ID                  = 0
+	ONCE                        = 1
+	INVALID_ID                  = "string"
 )
 
 var (
@@ -49,6 +51,7 @@ var (
 	someProductRecordsCount = []domain.ProductRecordCount{
 		firstProductRecordsCount,
 	}
+	nilProductRecordsCount []domain.ProductRecordCount
 )
 
 type productRecordResponseBody struct {
@@ -95,7 +98,7 @@ func TestProductRecordController_Create(t *testing.T) {
 				service.
 					EXPECT().
 					Create(newProductRecord).
-					Times(1).
+					Times(ONCE).
 					Return(productRecord, nil)
 			},
 			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
@@ -130,7 +133,7 @@ func TestProductRecordController_Create(t *testing.T) {
 				service.
 					EXPECT().
 					Create(newProductRecord).
-					Times(1).
+					Times(ONCE).
 					Return(emptyProductRecord, someError)
 			},
 			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
@@ -170,7 +173,7 @@ func TestProductRecordController_Create(t *testing.T) {
 func TestProductRecordController_GetByProductId(t *testing.T) {
 	testCases := []struct {
 		name        string
-		productId   int
+		productId   any
 		buildStubs  func(service *productRecordMockDomain.MockProductRecordService)
 		checkResult func(t *testing.T, res *httptest.ResponseRecorder)
 	}{
@@ -181,7 +184,7 @@ func TestProductRecordController_GetByProductId(t *testing.T) {
 				service.
 					EXPECT().
 					GetByProductId(GET_ALL_ID).
-					Times(1).
+					Times(ONCE).
 					Return(allProductRecordsCount, nil)
 			},
 			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
@@ -201,7 +204,7 @@ func TestProductRecordController_GetByProductId(t *testing.T) {
 				service.
 					EXPECT().
 					GetByProductId(productRecord.ProductId).
-					Times(1).
+					Times(ONCE).
 					Return(someProductRecordsCount, nil)
 			},
 			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
@@ -212,6 +215,21 @@ func TestProductRecordController_GetByProductId(t *testing.T) {
 
 				assert.Equal(t, someProductRecordsCount, body.Data)
 				assert.Empty(t, body.Error)
+			},
+		},
+		{
+			name:      "Bad Request",
+			productId: INVALID_ID,
+			buildStubs: func(service *productRecordMockDomain.MockProductRecordService) {
+			},
+			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
+				assert.Equal(t, http.StatusBadRequest, res.Code)
+
+				body := sliceResponseBody{}
+				json.Unmarshal(res.Body.Bytes(), &body)
+
+				assert.Equal(t, nilProductRecordsCount, body.Data)
+				assert.NotEmpty(t, body.Error)
 			},
 		},
 	}
@@ -229,7 +247,7 @@ func TestProductRecordController_GetByProductId(t *testing.T) {
 				req = httptest.
 					NewRequest(
 						http.MethodGet,
-						fmt.Sprintf("%s?id=%d", PRODUCT_REPORT_RECORDS_PATH, testCase.productId),
+						fmt.Sprintf("%s?id=%v", PRODUCT_REPORT_RECORDS_PATH, testCase.productId),
 						nil,
 					)
 			} else {
