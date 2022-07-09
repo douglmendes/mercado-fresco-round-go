@@ -78,6 +78,30 @@ func TestMariaDB_GetByProductId(t *testing.T) {
 			},
 		},
 		{
+			name: "Fail_Scan_GetAll",
+			buildStubs: func() {
+				rows := sqlmock.NewRows([]string{
+					"product_id",
+					"description",
+				}).AddRow(
+					firstProductRecordsCount.ProductId,
+					firstProductRecordsCount.Description,
+				).AddRow(
+					secondProductRecordsCount.ProductId,
+					secondProductRecordsCount.Description,
+				)
+
+				mock.
+					ExpectQuery(regexp.QuoteMeta(GetAllGroupByProductIdQuery)).
+					WillReturnRows(rows)
+			},
+			productId: 0,
+			checkResult: func(t *testing.T, result []domain.ProductRecordCount, err error) {
+				assert.Error(t, err)
+				assert.Equal(t, noProductRecordsCount, result)
+			},
+		},
+		{
 			name: "OK_GetByProductId",
 			buildStubs: func() {
 				rows := sqlmock.NewRows([]string{
