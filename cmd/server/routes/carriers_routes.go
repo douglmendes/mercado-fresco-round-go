@@ -14,9 +14,9 @@ func CarriersRoutes(group *gin.RouterGroup) {
 
 	carriersRouterGroup := group.Group("/carriers")
 	{
-		localRepo := localityRepo.NewRepository(connections.NewConnection())
+		localitiesRepo := localityRepo.NewRepository(connections.NewConnection())
 		carriersRepo := carriersRepository.NewRepository(connections.NewConnection())
-		carrierService := carriersService.NewService(carriersRepo, localRepo)
+		carrierService := carriersService.NewService(carriersRepo, localitiesRepo)
 		controller := carriersController.NewCarries(carrierService)
 
 		carriersRouterGroup.POST("/", controller.Create())
