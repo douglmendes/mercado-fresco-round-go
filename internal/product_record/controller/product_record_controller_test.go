@@ -33,7 +33,7 @@ var (
 	emptyProductRecord       = domain.ProductRecord{}
 	someError                = errors.New("some error")
 	firstProductRecordsCount = domain.ProductRecordCount{
-		ProductId:    2,
+		ProductId:    1,
 		Description:  "Chocolate",
 		RecordsCount: 3,
 	}
@@ -45,6 +45,9 @@ var (
 	allProductRecordsCount = []domain.ProductRecordCount{
 		firstProductRecordsCount,
 		secondProductRecordsCount,
+	}
+	someProductRecordsCount = []domain.ProductRecordCount{
+		firstProductRecordsCount,
 	}
 )
 
@@ -188,6 +191,26 @@ func TestProductRecordController_GetByProductId(t *testing.T) {
 				json.Unmarshal(res.Body.Bytes(), &body)
 
 				assert.Equal(t, allProductRecordsCount, body.Data)
+				assert.Empty(t, body.Error)
+			},
+		},
+		{
+			name:      "OK_GetByProductId",
+			productId: productRecord.ProductId,
+			buildStubs: func(service *productRecordMockDomain.MockProductRecordService) {
+				service.
+					EXPECT().
+					GetByProductId(productRecord.ProductId).
+					Times(1).
+					Return(someProductRecordsCount, nil)
+			},
+			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
+				assert.Equal(t, http.StatusOK, res.Code)
+
+				body := sliceResponseBody{}
+				json.Unmarshal(res.Body.Bytes(), &body)
+
+				assert.Equal(t, someProductRecordsCount, body.Data)
 				assert.Empty(t, body.Error)
 			},
 		},
