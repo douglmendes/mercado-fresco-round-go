@@ -3,18 +3,12 @@ package repository
 import (
 	"context"
 	"database/sql"
-	"errors"
-	"fmt"
 	"github.com/douglmendes/mercado-fresco-round-go/internal/carriers/domain"
-	locality "github.com/douglmendes/mercado-fresco-round-go/internal/localities/domain"
 )
 
 const (
 	sqlCreateCarrier  = "INSERT INTO carries (cid, company_name, address, telephone, locality_id) VALUES (?, ?, ?, ?, ?)"
 	sqlGetAllCarriers = "SELECT id, cid, company_name, address, telephone, locality_id FROM carries"
-	sqlLocality       = "SELECT carries.id, carries.cid, carries.company_name, carries.address, carries.telephone, carries.locality_id " +
-		"FROM carries INNER JOIN localities local ON carries.locality_id = local.id WHERE carries.id = ?"
-	sqlGetLocality = "SELECT id, locality_name, province_name, country_name FROM localities WHERE id = ?"
 )
 
 type repository struct {
@@ -52,29 +46,6 @@ func (r repository) GetAll(ctx context.Context) ([]domain.Carrier, error) {
 		carrierList = append(carrierList, carrier)
 	}
 	return carrierList, nil
-}
-
-func (r repository) GetLocal(id int) (locality.Locality, error) {
-	row := r.db.QueryRow(sqlGetLocality, id)
-
-	local := locality.Locality{}
-
-	err := row.Scan(
-		&local.Id,
-		&local.LocalityName,
-		&local.ProvinceName,
-		&local.CountryName,
-	)
-
-	if errors.Is(err, sql.ErrNoRows) {
-		return local, fmt.Errorf("local %d not found", id)
-	}
-
-	if err != nil {
-		return local, err
-	}
-
-	return local, nil
 }
 
 func (r repository) Create(ctx context.Context, cid, companyName, address, telephone string, localityId int) (domain.Carrier, error) {
