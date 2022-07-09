@@ -18,13 +18,16 @@ const (
 	PRODUCT_RECORDS_PATH = "/api/v1/productRecords/"
 )
 
-var productRecord = domain.ProductRecord{
-	Id:             1,
-	LastUpdateDate: "2022-07-09",
-	PurchasePrice:  22.2,
-	SalePrice:      33.3,
-	ProductId:      1,
-}
+var (
+	productRecord = domain.ProductRecord{
+		Id:             1,
+		LastUpdateDate: "2022-07-09",
+		PurchasePrice:  22.2,
+		SalePrice:      33.3,
+		ProductId:      1,
+	}
+	emptyProductRecord = domain.ProductRecord{}
+)
 
 type productRecordResponseBody struct {
 	Data  domain.ProductRecord `json:"data"`
@@ -50,6 +53,8 @@ func TestProductController_Create(t *testing.T) {
 	newProductRecord := productRecord
 	newProductRecord.Id = 0
 
+	productRecordWithMissingFields := struct{}{}
+
 	testCases := []struct {
 		name        string
 		payload     interface{}
@@ -74,6 +79,21 @@ func TestProductController_Create(t *testing.T) {
 
 				assert.Equal(t, productRecord, body.Data)
 				assert.Empty(t, body.Error)
+			},
+		},
+		{
+			name:    "Fail",
+			payload: productRecordWithMissingFields,
+			buildStubs: func(service *productRecordMockDomain.MockProductRecordService) {
+			},
+			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
+				assert.Equal(t, http.StatusUnprocessableEntity, res.Code)
+
+				body := productRecordResponseBody{}
+				json.Unmarshal(res.Body.Bytes(), &body)
+
+				assert.Equal(t, emptyProductRecord, body.Data)
+				assert.NotEmpty(t, body.Error)
 			},
 		},
 	}
