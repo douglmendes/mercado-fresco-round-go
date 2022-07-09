@@ -17,7 +17,7 @@ func NewRepository(db *sql.DB) domain.ProductRecordRepository {
 func (r repository) GetByProductId(productId int) ([]domain.ProductRecordCount, error) {
 	productRecords := []domain.ProductRecordCount{}
 
-	if productId == 0 {
+	if productId != 0 {
 		row := r.db.QueryRow(GetAllGroupByProductIdWhereIdQuery, productId)
 
 		productRecordCount := domain.ProductRecordCount{}
