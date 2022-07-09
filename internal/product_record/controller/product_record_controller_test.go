@@ -22,6 +22,7 @@ const (
 	GET_ALL_ID                  = 0
 	ONCE                        = 1
 	INVALID_ID                  = "string"
+	INVALID_PRODUCT_ID          = 99
 )
 
 var (
@@ -224,6 +225,26 @@ func TestProductRecordController_GetByProductId(t *testing.T) {
 			},
 			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
 				assert.Equal(t, http.StatusBadRequest, res.Code)
+
+				body := sliceResponseBody{}
+				json.Unmarshal(res.Body.Bytes(), &body)
+
+				assert.Equal(t, nilProductRecordsCount, body.Data)
+				assert.NotEmpty(t, body.Error)
+			},
+		},
+		{
+			name:      "Not Found",
+			productId: INVALID_PRODUCT_ID,
+			buildStubs: func(service *productRecordMockDomain.MockProductRecordService) {
+				service.
+					EXPECT().
+					GetByProductId(INVALID_PRODUCT_ID).
+					Times(ONCE).
+					Return(nilProductRecordsCount, someError)
+			},
+			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
+				assert.Equal(t, http.StatusNotFound, res.Code)
 
 				body := sliceResponseBody{}
 				json.Unmarshal(res.Body.Bytes(), &body)
