@@ -14,7 +14,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-const ONCE = 1
+const (
+	ONCE       = 1
+	GET_ALL_ID = 0
+)
 
 var (
 	emptyProductRecord = domain.ProductRecord{}
@@ -32,7 +35,22 @@ var (
 		SalePrice:      43.99,
 		ProductId:      1,
 	}
-	emptyProduct = productDomain.Product{}
+	firstProductRecordsCount = domain.ProductRecordCount{
+		ProductId:    2,
+		Description:  "Chocolate",
+		RecordsCount: 3,
+	}
+	secondProductRecordsCount = domain.ProductRecordCount{
+		ProductId:    4,
+		Description:  "Ice Cream",
+		RecordsCount: 1,
+	}
+	allProductRecordsCount = []domain.ProductRecordCount{
+		firstProductRecordsCount,
+		secondProductRecordsCount,
+	}
+	noProductRecordsCount = []domain.ProductRecordCount{}
+	emptyProduct          = productDomain.Product{}
 )
 
 func callMock(t *testing.T) (
@@ -162,6 +180,49 @@ func TestCreate(t *testing.T) {
 			testCase.buildStubs(productRecordRepository, productRepository)
 
 			result, err := service.Create(testCase.productRecord)
+			testCase.checkResult(t, result, err)
+		})
+	}
+}
+
+func TestGetByProductId(t *testing.T) {
+	testCases := []struct {
+		name       string
+		productId  int
+		buildStubs func(
+			productRecordRepository *productRecordMockDomain.MockProductRecordRepository,
+			productRepository *productMockDomain.MockProductRepository,
+		)
+		checkResult func(t *testing.T, result []domain.ProductRecordCount, err error)
+	}{
+		{
+			name:      "OK_GetAll",
+			productId: GET_ALL_ID,
+			buildStubs: func(
+				productRecordRepository *productRecordMockDomain.MockProductRecordRepository,
+				productRepository *productMockDomain.MockProductRepository,
+			) {
+				productRecordRepository.
+					EXPECT().
+					GetByProductId(GET_ALL_ID).
+					Times(1).
+					Return(allProductRecordsCount, nil)
+			},
+			checkResult: func(t *testing.T, result []domain.ProductRecordCount, err error) {
+				assert.NoError(t, err)
+
+				assert.Equal(t, allProductRecordsCount, result)
+			},
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			productRecordRepository, productRepository, service := callMock(t)
+
+			testCase.buildStubs(productRecordRepository, productRepository)
+
+			result, err := service.GetByProductId(testCase.productId)
 			testCase.checkResult(t, result, err)
 		})
 	}
