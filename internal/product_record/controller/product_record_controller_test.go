@@ -3,6 +3,7 @@ package controller
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -27,6 +28,7 @@ var (
 		ProductId:      1,
 	}
 	emptyProductRecord = domain.ProductRecord{}
+	someError          = errors.New("some error")
 )
 
 type productRecordResponseBody struct {
@@ -88,6 +90,26 @@ func TestProductController_Create(t *testing.T) {
 			},
 			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
 				assert.Equal(t, http.StatusUnprocessableEntity, res.Code)
+
+				body := productRecordResponseBody{}
+				json.Unmarshal(res.Body.Bytes(), &body)
+
+				assert.Equal(t, emptyProductRecord, body.Data)
+				assert.NotEmpty(t, body.Error)
+			},
+		},
+		{
+			name:    "Conflict",
+			payload: newProductRecord,
+			buildStubs: func(service *productRecordMockDomain.MockProductRecordService) {
+				service.
+					EXPECT().
+					Create(newProductRecord).
+					Times(1).
+					Return(emptyProductRecord, someError)
+			},
+			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
+				assert.Equal(t, http.StatusConflict, res.Code)
 
 				body := productRecordResponseBody{}
 				json.Unmarshal(res.Body.Bytes(), &body)
