@@ -12,10 +12,10 @@ type service struct {
 	localityRepository localityRepo.LocalityRepository
 }
 
-func NewService(r carrierRepo.CarrierRepository, l localityRepo.LocalityRepository) carrierRepo.CarrierService {
+func NewService(cr carrierRepo.CarrierRepository, lr localityRepo.LocalityRepository) carrierRepo.CarrierService {
 	return &service{
-		carrierRepository:  r,
-		localityRepository: l,
+		carrierRepository:  cr,
+		localityRepository: lr,
 	}
 }
 
