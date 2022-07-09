@@ -40,17 +40,21 @@ func (s service) GetByProductId(productId int) ([]domain.ProductRecordCount, err
 	return productRecords, nil
 }
 
-func isValidDate(dateString string) (bool, error) {
-	layout := "2020-02-20"
+func isValidDate(dateString string) bool {
+	layout := "2006-01-02"
 
 	parsedDate, err := time.Parse(layout, dateString)
 	if err != nil {
-		return false, err
+		return false
 	}
 
 	currentDate := time.Now()
+	currentDateString := currentDate.String()[:10]
+	parsedCurrentDate, _ := time.Parse(layout, currentDateString)
 
-	return parsedDate.Sub(currentDate) < 0, nil
+	diff := parsedDate.Sub(parsedCurrentDate)
+
+	return diff >= 0
 }
 
 func (s service) Create(arg domain.ProductRecord) (
@@ -59,8 +63,7 @@ func (s service) Create(arg domain.ProductRecord) (
 ) {
 	productRecord := domain.ProductRecord{}
 
-	validDate, _ := isValidDate(arg.LastUpdateDate)
-	if !validDate {
+	if !isValidDate(arg.LastUpdateDate) {
 		return productRecord,
 			errors.New("last update date must be valid date (ex.: 2020-02-20) and greater than or equal current date")
 	}
