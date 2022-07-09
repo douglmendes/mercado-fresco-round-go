@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -16,7 +17,9 @@ import (
 )
 
 const (
-	PRODUCT_RECORDS_PATH = "/api/v1/productRecords/"
+	PRODUCT_RECORDS_PATH        = "/api/v1/productRecords/"
+	PRODUCT_REPORT_RECORDS_PATH = "/api/v1/products/reportRecords"
+	GET_ALL_ID                  = 0
 )
 
 var (
@@ -27,13 +30,32 @@ var (
 		SalePrice:      33.3,
 		ProductId:      1,
 	}
-	emptyProductRecord = domain.ProductRecord{}
-	someError          = errors.New("some error")
+	emptyProductRecord       = domain.ProductRecord{}
+	someError                = errors.New("some error")
+	firstProductRecordsCount = domain.ProductRecordCount{
+		ProductId:    2,
+		Description:  "Chocolate",
+		RecordsCount: 3,
+	}
+	secondProductRecordsCount = domain.ProductRecordCount{
+		ProductId:    4,
+		Description:  "Ice Cream",
+		RecordsCount: 1,
+	}
+	allProductRecordsCount = []domain.ProductRecordCount{
+		firstProductRecordsCount,
+		secondProductRecordsCount,
+	}
 )
 
 type productRecordResponseBody struct {
 	Data  domain.ProductRecord `json:"data"`
 	Error string               `json:"error"`
+}
+
+type sliceResponseBody struct {
+	Data  []domain.ProductRecordCount `json:"data"`
+	Error string                      `json:"error"`
 }
 
 func callProductsMock(t *testing.T) (
@@ -134,6 +156,67 @@ func TestProductRecordController_Create(t *testing.T) {
 				PRODUCT_RECORDS_PATH,
 				bytes.NewBuffer(payload),
 			)
+			res := httptest.NewRecorder()
+			api.ServeHTTP(res, req)
+
+			testCase.checkResult(t, res)
+		})
+	}
+}
+
+func TestProductRecordController_GetByProductId(t *testing.T) {
+	testCases := []struct {
+		name        string
+		productId   int
+		buildStubs  func(service *productRecordMockDomain.MockProductRecordService)
+		checkResult func(t *testing.T, res *httptest.ResponseRecorder)
+	}{
+		{
+			name:      "OK_GetAll",
+			productId: GET_ALL_ID,
+			buildStubs: func(service *productRecordMockDomain.MockProductRecordService) {
+				service.
+					EXPECT().
+					GetByProductId(GET_ALL_ID).
+					Times(1).
+					Return(allProductRecordsCount, nil)
+			},
+			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
+				assert.Equal(t, http.StatusOK, res.Code)
+
+				body := sliceResponseBody{}
+				json.Unmarshal(res.Body.Bytes(), &body)
+
+				assert.Equal(t, allProductRecordsCount, body.Data)
+				assert.Empty(t, body.Error)
+			},
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			service, handler, api := callProductsMock(t)
+
+			api.GET(PRODUCT_REPORT_RECORDS_PATH, handler.GetByProductId())
+
+			testCase.buildStubs(service)
+
+			var req *http.Request
+			if testCase.productId != GET_ALL_ID {
+				req = httptest.
+					NewRequest(
+						http.MethodGet,
+						fmt.Sprintf("%s?id=%d", PRODUCT_REPORT_RECORDS_PATH, testCase.productId),
+						nil,
+					)
+			} else {
+				req = httptest.
+					NewRequest(
+						http.MethodGet,
+						fmt.Sprintf("%s", PRODUCT_REPORT_RECORDS_PATH),
+						nil,
+					)
+			}
 			res := httptest.NewRecorder()
 			api.ServeHTTP(res, req)
 
