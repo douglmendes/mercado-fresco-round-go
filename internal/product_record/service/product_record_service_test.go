@@ -1,6 +1,8 @@
 package service
 
 import (
+	"database/sql"
+	"fmt"
 	"testing"
 
 	"github.com/douglmendes/mercado-fresco-round-go/internal/product_record/domain"
@@ -11,13 +13,19 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var productRecord = domain.ProductRecord{
-	Id:             1,
-	LastUpdateDate: "2022-07-09",
-	PurchasePrice:  23.89,
-	SalePrice:      43.99,
-	ProductId:      1,
-}
+const ONCE = 1
+
+var (
+	emptyProductRecord = domain.ProductRecord{}
+	productRecord      = domain.ProductRecord{
+		Id:             1,
+		LastUpdateDate: "2022-07-09",
+		PurchasePrice:  23.89,
+		SalePrice:      43.99,
+		ProductId:      1,
+	}
+	emptyProduct = productDomain.Product{}
+)
 
 func callMock(t *testing.T) (
 	*productRecordMockDomain.MockProductRecordRepository,
@@ -53,13 +61,13 @@ func TestCreate(t *testing.T) {
 				productRepository.
 					EXPECT().
 					GetById(productRecord.ProductId).
-					Times(1).
-					Return(productDomain.Product{}, nil)
+					Times(ONCE).
+					Return(emptyProduct, nil)
 
 				productRecordRepository.
 					EXPECT().
 					Create(productRecord).
-					Times(1).
+					Times(ONCE).
 					Return(productRecord, nil)
 			},
 			productRecord: productRecord,
@@ -67,6 +75,31 @@ func TestCreate(t *testing.T) {
 				assert.NoError(t, err)
 
 				assert.Equal(t, productRecord, result)
+			},
+		},
+		{
+			name: "Fail",
+			buildStubs: func(
+				productRecordRepository *productRecordMockDomain.MockProductRecordRepository,
+				productRepository *productMockDomain.MockProductRepository,
+			) {
+				productRepository.
+					EXPECT().
+					GetById(productRecord.ProductId).
+					Times(ONCE).
+					Return(emptyProduct, nil)
+
+				productRecordRepository.
+					EXPECT().
+					Create(productRecord).
+					Times(ONCE).
+					Return(emptyProductRecord, sql.ErrConnDone)
+			},
+			productRecord: productRecord,
+			checkResult: func(t *testing.T, result domain.ProductRecord, err error) {
+				assert.Equal(t, fmt.Errorf("failed to create product record"), err)
+
+				assert.Equal(t, emptyProductRecord, result)
 			},
 		},
 	}
