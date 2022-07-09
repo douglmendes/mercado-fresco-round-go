@@ -50,3 +50,47 @@ func (c *ProductRecordController) GetByProductId() gin.HandlerFunc {
 		ctx.JSON(http.StatusOK, response.NewResponse(productRecords))
 	}
 }
+
+type productRecordsRequest struct {
+	LastUpdateDate string  `json:"last_update_date" binding:"required"`
+	PurchasePrice  float64 `json:"purchase_price" binding:"required,min=0"`
+	SalePrice      float64 `json:"sale_price" binding:"required,min=0"`
+	ProductId      int     `json:"product_id" binding:"required,min=1"`
+}
+
+// CreateProductRecord godoc
+// @Summary      Create a new product record
+// @Description  Create a new product record in the system
+// @Tags         productRecords
+// @Accept       json
+// @Produce      json
+// @Param        productRecord  body  productRecordsRequest  true  "Product record to be created"
+// @Success      201      {object}  domain.ProductRecord
+// @Failure      409      {object}  response.Response
+// @Failure      422      {object}  response.Response
+// @Router       /api/v1/productRecords [post]
+func (c *ProductRecordController) Create() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		var req productRecordsRequest
+
+		if err := ctx.ShouldBindJSON(&req); err != nil {
+			ctx.AbortWithStatusJSON(http.StatusUnprocessableEntity, response.DecodeError(err.Error()))
+			return
+		}
+
+		arg := domain.ProductRecord{
+			LastUpdateDate: req.LastUpdateDate,
+			PurchasePrice:  req.PurchasePrice,
+			SalePrice:      req.SalePrice,
+			ProductId:      req.ProductId,
+		}
+
+		product, err := c.service.Create(arg)
+		if err != nil {
+			ctx.JSON(http.StatusConflict, response.DecodeError(err.Error()))
+			return
+		}
+
+		ctx.JSON(http.StatusCreated, response.NewResponse(product))
+	}
+}
