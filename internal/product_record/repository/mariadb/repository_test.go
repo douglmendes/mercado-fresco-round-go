@@ -1,6 +1,7 @@
 package mariadb
 
 import (
+	"database/sql"
 	"regexp"
 	"testing"
 
@@ -24,6 +25,7 @@ var (
 		firstProductRecordsCount,
 		secondProductRecordsCount,
 	}
+	noProductRecordsCount = []domain.ProductRecordCount{}
 )
 
 func TestMariaDB_GetByProductId(t *testing.T) {
@@ -60,6 +62,40 @@ func TestMariaDB_GetByProductId(t *testing.T) {
 			checkResult: func(t *testing.T, result []domain.ProductRecordCount, err error) {
 				assert.NoError(t, err)
 				assert.Equal(t, allProductRecordsCount, result)
+			},
+		},
+		{
+			name: "Fail_GetAll",
+			buildStubs: func() {
+				mock.
+					ExpectQuery(regexp.QuoteMeta(GetAllGroupByProductIdQuery)).
+					WillReturnError(sql.ErrConnDone)
+			},
+			productId: 0,
+			checkResult: func(t *testing.T, result []domain.ProductRecordCount, err error) {
+				assert.Error(t, err)
+				assert.Equal(t, noProductRecordsCount, result)
+			},
+		},
+		{
+			name: "OK_GetByProductId",
+			buildStubs: func() {
+				rows := sqlmock.NewRows([]string{
+					"product_id",
+					"description",
+					"records_count",
+				}).AddRow(
+					firstProductRecordsCount.ProductId,
+					firstProductRecordsCount.Description,
+					firstProductRecordsCount.RecordsCount,
+				)
+
+				mock.ExpectQuery(regexp.QuoteMeta(GetAllGroupByProductIdWhereIdQuery)).WillReturnRows(rows)
+			},
+			productId: firstProductRecordsCount.ProductId,
+			checkResult: func(t *testing.T, result []domain.ProductRecordCount, err error) {
+				assert.NoError(t, err)
+				assert.Equal(t, []domain.ProductRecordCount{firstProductRecordsCount}, result)
 			},
 		},
 	}
