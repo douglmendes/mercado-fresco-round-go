@@ -1,6 +1,8 @@
 package domain
 
-import "context"
+import (
+	"context"
+)
 
 type Seller struct {
 	ID          int    `json:"id"`
