@@ -49,6 +49,9 @@ var (
 		firstProductRecordsCount,
 		secondProductRecordsCount,
 	}
+	someProductRecordsCount = []domain.ProductRecordCount{
+		firstProductRecordsCount,
+	}
 	noProductRecordsCount = []domain.ProductRecordCount{}
 	emptyProduct          = productDomain.Product{}
 )
@@ -205,13 +208,38 @@ func TestGetByProductId(t *testing.T) {
 				productRecordRepository.
 					EXPECT().
 					GetByProductId(GET_ALL_ID).
-					Times(1).
+					Times(ONCE).
 					Return(allProductRecordsCount, nil)
 			},
 			checkResult: func(t *testing.T, result []domain.ProductRecordCount, err error) {
 				assert.NoError(t, err)
 
 				assert.Equal(t, allProductRecordsCount, result)
+			},
+		},
+		{
+			name:      "OK_GetByProductId",
+			productId: productRecord.ProductId,
+			buildStubs: func(
+				productRecordRepository *productRecordMockDomain.MockProductRecordRepository,
+				productRepository *productMockDomain.MockProductRepository,
+			) {
+				productRepository.
+					EXPECT().
+					GetById(productRecord.ProductId).
+					Times(ONCE).
+					Return(emptyProduct, nil)
+
+				productRecordRepository.
+					EXPECT().
+					GetByProductId(productRecord.ProductId).
+					Times(ONCE).
+					Return(someProductRecordsCount, nil)
+			},
+			checkResult: func(t *testing.T, result []domain.ProductRecordCount, err error) {
+				assert.NoError(t, err)
+
+				assert.Equal(t, someProductRecordsCount, result)
 			},
 		},
 	}
