@@ -263,6 +263,31 @@ func TestGetByProductId(t *testing.T) {
 				assert.Equal(t, emptyProductRecordsCount, result)
 			},
 		},
+		{
+			name:      "Fail",
+			productId: productRecord.ProductId,
+			buildStubs: func(
+				productRecordRepository *productRecordMockDomain.MockProductRecordRepository,
+				productRepository *productMockDomain.MockProductRepository,
+			) {
+				productRepository.
+					EXPECT().
+					GetById(productRecord.ProductId).
+					Times(ONCE).
+					Return(emptyProduct, nil)
+
+				productRecordRepository.
+					EXPECT().
+					GetByProductId(productRecord.ProductId).
+					Times(ONCE).
+					Return(emptyProductRecordsCount, someError)
+			},
+			checkResult: func(t *testing.T, result []domain.ProductRecordCount, err error) {
+				assert.Error(t, err)
+
+				assert.Equal(t, emptyProductRecordsCount, result)
+			},
+		},
 	}
 
 	for _, testCase := range testCases {
