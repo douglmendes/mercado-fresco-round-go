@@ -25,6 +25,13 @@ var (
 		SalePrice:      43.99,
 		ProductId:      1,
 	}
+	productRecordWithInvalidUpdateDate = domain.ProductRecord{
+		Id:             1,
+		LastUpdateDate: "2022/07/09",
+		PurchasePrice:  23.89,
+		SalePrice:      43.99,
+		ProductId:      1,
+	}
 	emptyProduct = productDomain.Product{}
 )
 
@@ -120,6 +127,26 @@ func TestCreate(t *testing.T) {
 				assert.Equal(
 					t,
 					fmt.Errorf("product with id (%v) not found", productRecord.ProductId),
+					err,
+				)
+
+				assert.Equal(t, emptyProductRecord, result)
+			},
+		},
+		{
+			name: "Last Update Date Error",
+			buildStubs: func(
+				productRecordRepository *productRecordMockDomain.MockProductRecordRepository,
+				productRepository *productMockDomain.MockProductRepository,
+			) {
+			},
+			productRecord: productRecordWithInvalidUpdateDate,
+			checkResult: func(t *testing.T, result domain.ProductRecord, err error) {
+				assert.Equal(
+					t,
+					errors.New(
+						"last update date must be valid date (ex.: 2020-02-20) and greater than or equal current date",
+					),
 					err,
 				)
 
