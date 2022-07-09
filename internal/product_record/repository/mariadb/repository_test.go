@@ -26,6 +26,12 @@ var (
 		secondProductRecordsCount,
 	}
 	noProductRecordsCount = []domain.ProductRecordCount{}
+	productRecord         = domain.ProductRecord{
+		Id:             1,
+		LastUpdateDate: "2022-07-09",
+		PurchasePrice:  25.50,
+		SalePrice:      49.99,
+	}
 )
 
 func TestMariaDB_GetByProductId(t *testing.T) {
@@ -152,6 +158,51 @@ func TestMariaDB_GetByProductId(t *testing.T) {
 			repository := NewRepository(db)
 
 			result, err := repository.GetByProductId(testCase.productId)
+
+			testCase.checkResult(t, result, err)
+		})
+	}
+}
+
+func TestMariaDB_Create(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	assert.NoError(t, err)
+	defer db.Close()
+
+	testsCases := []struct {
+		name        string
+		buildStubs  func()
+		product     domain.ProductRecord
+		checkResult func(t *testing.T, result domain.ProductRecord, err error)
+	}{
+		{
+			name: "OK",
+			buildStubs: func() {
+				mock.
+					ExpectExec(regexp.QuoteMeta(CreateQuery)).
+					WithArgs(
+						productRecord.LastUpdateDate,
+						productRecord.PurchasePrice,
+						productRecord.SalePrice,
+						productRecord.ProductId,
+					).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+			},
+			product: productRecord,
+			checkResult: func(t *testing.T, result domain.ProductRecord, err error) {
+				assert.NoError(t, err)
+				assert.Equal(t, productRecord, result)
+			},
+		},
+	}
+
+	for _, testCase := range testsCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			testCase.buildStubs()
+
+			repository := NewRepository(db)
+
+			result, err := repository.Create(testCase.product)
 
 			testCase.checkResult(t, result, err)
 		})
