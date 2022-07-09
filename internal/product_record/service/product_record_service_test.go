@@ -52,8 +52,10 @@ var (
 	someProductRecordsCount = []domain.ProductRecordCount{
 		firstProductRecordsCount,
 	}
-	noProductRecordsCount = []domain.ProductRecordCount{}
-	emptyProduct          = productDomain.Product{}
+	emptyProductRecordsCount = []domain.ProductRecordCount{}
+	noProductRecordsCount    = []domain.ProductRecordCount{}
+	emptyProduct             = productDomain.Product{}
+	someError                = errors.New("some error")
 )
 
 func callMock(t *testing.T) (
@@ -141,7 +143,7 @@ func TestCreate(t *testing.T) {
 					EXPECT().
 					GetById(productRecord.ProductId).
 					Times(ONCE).
-					Return(emptyProduct, errors.New("some error"))
+					Return(emptyProduct, someError)
 			},
 			productRecord: productRecord,
 			checkResult: func(t *testing.T, result domain.ProductRecord, err error) {
@@ -240,6 +242,25 @@ func TestGetByProductId(t *testing.T) {
 				assert.NoError(t, err)
 
 				assert.Equal(t, someProductRecordsCount, result)
+			},
+		},
+		{
+			name:      "Fail_GetByProductId",
+			productId: productRecord.ProductId,
+			buildStubs: func(
+				productRecordRepository *productRecordMockDomain.MockProductRecordRepository,
+				productRepository *productMockDomain.MockProductRepository,
+			) {
+				productRepository.
+					EXPECT().
+					GetById(productRecord.ProductId).
+					Times(ONCE).
+					Return(emptyProduct, someError)
+			},
+			checkResult: func(t *testing.T, result []domain.ProductRecordCount, err error) {
+				assert.Error(t, err)
+
+				assert.Equal(t, emptyProductRecordsCount, result)
 			},
 		},
 	}
