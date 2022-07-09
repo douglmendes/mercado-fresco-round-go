@@ -32,6 +32,7 @@ var (
 		PurchasePrice:  25.50,
 		SalePrice:      49.99,
 	}
+	emptyProductRecord = domain.ProductRecord{}
 )
 
 func TestMariaDB_GetByProductId(t *testing.T) {
@@ -192,6 +193,25 @@ func TestMariaDB_Create(t *testing.T) {
 			checkResult: func(t *testing.T, result domain.ProductRecord, err error) {
 				assert.NoError(t, err)
 				assert.Equal(t, productRecord, result)
+			},
+		},
+		{
+			name: "Fail",
+			buildStubs: func() {
+				mock.
+					ExpectExec(regexp.QuoteMeta(CreateQuery)).
+					WithArgs(
+						productRecord.LastUpdateDate,
+						productRecord.PurchasePrice,
+						productRecord.SalePrice,
+						productRecord.ProductId,
+					).
+					WillReturnError(sql.ErrConnDone)
+			},
+			product: productRecord,
+			checkResult: func(t *testing.T, result domain.ProductRecord, err error) {
+				assert.Error(t, err)
+				assert.Equal(t, emptyProductRecord, result)
 			},
 		},
 	}
