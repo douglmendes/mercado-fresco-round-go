@@ -25,8 +25,19 @@ func NewProductRecordService(
 }
 
 func (s service) GetByProductId(productId int) ([]domain.ProductRecordCount, error) {
-	// TODO: implementation
-	return []domain.ProductRecordCount{}, nil
+	if productId != 0 {
+		_, err := s.productRepository.GetById(productId)
+		if err != nil {
+			return []domain.ProductRecordCount{}, err
+		}
+	}
+
+	productRecords, err := s.productRecordRepository.GetByProductId(productId)
+	if err != nil {
+		return []domain.ProductRecordCount{}, err
+	}
+
+	return productRecords, nil
 }
 
 func isValidDate(dateString string) (bool, error) {
