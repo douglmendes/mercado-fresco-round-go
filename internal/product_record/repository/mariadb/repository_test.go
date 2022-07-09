@@ -2,6 +2,7 @@ package mariadb
 
 import (
 	"database/sql"
+	"database/sql/driver"
 	"regexp"
 	"testing"
 
@@ -207,6 +208,25 @@ func TestMariaDB_Create(t *testing.T) {
 						productRecord.ProductId,
 					).
 					WillReturnError(sql.ErrConnDone)
+			},
+			product: productRecord,
+			checkResult: func(t *testing.T, result domain.ProductRecord, err error) {
+				assert.Error(t, err)
+				assert.Equal(t, emptyProductRecord, result)
+			},
+		},
+		{
+			name: "Last ID Error",
+			buildStubs: func() {
+				mock.
+					ExpectExec(regexp.QuoteMeta(CreateQuery)).
+					WithArgs(
+						productRecord.LastUpdateDate,
+						productRecord.PurchasePrice,
+						productRecord.SalePrice,
+						productRecord.ProductId,
+					).
+					WillReturnResult(driver.ResultNoRows)
 			},
 			product: productRecord,
 			checkResult: func(t *testing.T, result domain.ProductRecord, err error) {
