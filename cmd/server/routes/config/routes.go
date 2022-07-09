@@ -1,16 +1,16 @@
 package config
 
 import (
+	"os"
+
 	"github.com/douglmendes/mercado-fresco-round-go/cmd/server/routes"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"github.com/swaggo/swag/example/basic/docs"
-	"os"
 )
 
 func ConfigurationRoutes(router *gin.Engine) *gin.Engine {
-
 	docs.SwaggerInfo.Host = os.Getenv("HOST")
 	router.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
@@ -24,6 +24,7 @@ func ConfigurationRoutes(router *gin.Engine) *gin.Engine {
 		routes.WarehousesRoutes(baseUrl)
 		routes.LocalitiesRoutes(baseUrl)
 		routes.InboudOrdersRoutes(baseUrl)
+		routes.ProductRecordsRoutes(baseUrl)
 	}
 
 	return router
