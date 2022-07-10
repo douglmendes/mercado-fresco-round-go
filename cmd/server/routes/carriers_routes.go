@@ -14,7 +14,7 @@ func CarriersRoutes(group *gin.RouterGroup) {
 
 	carriersRouterGroup := group.Group("/carriers")
 	{
-                 connection := connections.NewConnection()
+		connection := connections.NewConnection()
 
 		localitiesRepo := localityRepo.NewRepository(connection)
 		carriersRepo := carriersRepository.NewRepository(connection)
