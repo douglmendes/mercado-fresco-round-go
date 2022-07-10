@@ -84,6 +84,27 @@ func (c *LocalityController) GetBySellers() gin.HandlerFunc {
 	}
 }
 
+func (c *LocalityController) GetByCarriers() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		localityId, byId := ctx.GetQuery("id")
+		id, err := strconv.Atoi(localityId)
+		if byId == true {
+			if err != nil {
+				ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid Id"})
+				return
+			}
+		}
+
+		l, err := c.service.GetByCarriers(ctx, id)
+		if err != nil {
+			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+			return
+		}
+
+		ctx.JSON(http.StatusOK, response.NewResponse(l))
+	}
+}
+
 func (c *LocalityController) Create() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var req sqlCreateRequest

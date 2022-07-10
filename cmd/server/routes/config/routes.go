@@ -17,6 +17,7 @@ func ConfigurationRoutes(router *gin.Engine) *gin.Engine {
 	baseUrl := router.Group("/api/v1/")
 	{
 		routes.BuyersRoutes(baseUrl)
+		routes.CarriersRoutes(baseUrl)
 		routes.EmployeesRoutes(baseUrl)
 		routes.ProductsRoutes(baseUrl)
 		routes.SectionsRoutes(baseUrl)

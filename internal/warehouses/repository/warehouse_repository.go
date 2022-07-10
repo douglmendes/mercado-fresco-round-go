@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"github.com/douglmendes/mercado-fresco-round-go/internal/warehouses/domain"
@@ -25,8 +26,8 @@ func NewRepository(db *sql.DB) domain.WarehouseRepository {
 	}
 }
 
-func (r *repository) GetById(id int64) (warehouse domain.Warehouse, err error) {
-	row := r.db.QueryRow(sqlGetById, id)
+func (r *repository) GetById(ctx context.Context, id int) (warehouse domain.Warehouse, err error) {
+	row := r.db.QueryRowContext(ctx, sqlGetById, id)
 	if err := row.Scan(
 		&warehouse.Id,
 		&warehouse.Address,
@@ -40,10 +41,10 @@ func (r *repository) GetById(id int64) (warehouse domain.Warehouse, err error) {
 
 }
 
-func (r *repository) GetAll() ([]domain.Warehouse, error) {
+func (r *repository) GetAll(ctx context.Context) ([]domain.Warehouse, error) {
 	var warehouses []domain.Warehouse
 
-	rows, err := r.db.Query(sqlGetAll)
+	rows, err := r.db.QueryContext(ctx, sqlGetAll)
 	if err != nil {
 		return []domain.Warehouse{}, err
 	}
@@ -66,7 +67,7 @@ func (r *repository) GetAll() ([]domain.Warehouse, error) {
 	return warehouses, nil
 }
 
-func (r *repository) Create(address, telephone, warehouseCode string, localityId int64) (domain.Warehouse, error) {
+func (r *repository) Create(ctx context.Context, address, telephone, warehouseCode string, localityId int) (domain.Warehouse, error) {
 	warehouse := domain.Warehouse{
 		Address:       address,
 		Telephone:     telephone,
@@ -74,7 +75,7 @@ func (r *repository) Create(address, telephone, warehouseCode string, localityId
 		LocalityId:    localityId,
 	}
 
-	result, err := r.db.Exec(sqlCreate, &address, &telephone, &warehouseCode, &localityId)
+	result, err := r.db.ExecContext(ctx, sqlCreate, &address, &telephone, &warehouseCode, &localityId)
 	if err != nil {
 		return domain.Warehouse{}, nil
 	}
@@ -84,20 +85,21 @@ func (r *repository) Create(address, telephone, warehouseCode string, localityId
 		return domain.Warehouse{}, err
 	}
 
-	warehouse.Id = incrementId
+	warehouse.Id = int(incrementId)
 
 	return warehouse, nil
 }
 
 func (r *repository) Update(
-	id int64,
+	ctx context.Context,
+	id int,
 	address,
 	telephone,
 	warehouseCode string,
-	localityId int64,
+	localityId int,
 ) (domain.Warehouse, error) {
 
-	warehouse, err := r.GetById(id)
+	warehouse, err := r.GetById(ctx, id)
 	if err != nil {
 		return domain.Warehouse{}, fmt.Errorf("warehouse not found")
 	}
@@ -118,7 +120,8 @@ func (r *repository) Update(
 		warehouse.LocalityId = localityId
 	}
 
-	result, err := r.db.Exec(
+	result, err := r.db.ExecContext(
+		ctx,
 		sqlUpdate,
 		&warehouse.Address,
 		&warehouse.Telephone,
@@ -136,8 +139,8 @@ func (r *repository) Update(
 	return warehouse, nil
 }
 
-func (r *repository) Delete(id int64) (err error) {
-	_, err = r.db.Exec(sqlDelete, id)
+func (r *repository) Delete(ctx context.Context, id int) (err error) {
+	_, err = r.db.ExecContext(ctx, sqlDelete, id)
 	if err != nil {
 		return fmt.Errorf("warehouse with id %d not found", id)
 	}

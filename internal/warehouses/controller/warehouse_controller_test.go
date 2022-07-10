@@ -19,9 +19,11 @@ const (
 	relativePath       = "/api/v1/warehouses/"
 	relativePathWithId = "/api/v1/warehouses/:id"
 	idString           = "1"
-	idNumber           = int64(1)
-	locality           = int64(101)
+	idNumber           = 1
+	locality           = 101
 )
+
+var ctxMock = gomock.Any()
 
 func callWarehousesMock(t *testing.T) (*mockwarehouses.MockWarehouseService, *WarehousesController, *gin.Engine) {
 	ctrl := gomock.NewController(t)
@@ -49,13 +51,13 @@ func TestWarehousesController_GetAll(t *testing.T) {
 	}
 
 	service, handler, api := callWarehousesMock(t)
+	req := httptest.NewRequest(http.MethodGet, relativePath, nil)
+	resp := httptest.NewRecorder()
 
 	api.GET(relativePath, handler.GetAll())
 
-	service.EXPECT().GetAll().Return(whList, nil)
+	service.EXPECT().GetAll(ctxMock).Return(whList, nil)
 
-	req := httptest.NewRequest(http.MethodGet, relativePath, nil)
-	resp := httptest.NewRecorder()
 	api.ServeHTTP(resp, req)
 
 	assert.Equal(t, http.StatusOK, resp.Code)
@@ -71,7 +73,7 @@ func TestWarehousesController_GetAll_NOK(t *testing.T) {
 
 	api.GET(relativePath, handler.GetAll())
 
-	service.EXPECT().GetAll().Return([]domain.Warehouse{}, errors.New("error 404"))
+	service.EXPECT().GetAll(ctxMock).Return([]domain.Warehouse{}, errors.New("error 404"))
 
 	req := httptest.NewRequest(http.MethodGet, relativePath, nil)
 	resp := httptest.NewRecorder()
@@ -84,18 +86,18 @@ func TestWarehousesController_GetAll_NOK(t *testing.T) {
 func TestWarehousesController_GetById(t *testing.T) {
 
 	wh := domain.Warehouse{
-		Id:            int64(1),
+		Id:            idNumber,
 		Address:       "Rua Nova",
 		Telephone:     "12121212",
 		WarehouseCode: "GHI",
-		LocalityId:    int64(100),
+		LocalityId:    locality,
 	}
 
 	service, handler, api := callWarehousesMock(t)
 
 	api.GET(relativePathWithId, handler.GetById())
 
-	service.EXPECT().GetById(gomock.Eq(idNumber)).Return(wh, nil)
+	service.EXPECT().GetById(ctxMock, gomock.Eq(idNumber)).Return(wh, nil)
 
 	req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/warehouses/%s", idString), nil)
 	resp := httptest.NewRecorder()
@@ -111,7 +113,7 @@ func TestWarehousesController_GetById(t *testing.T) {
 func TestWarehousesController_GetById_NOK(t *testing.T) {
 	service, handler, api := callWarehousesMock(t)
 	api.GET(relativePathWithId, handler.GetById())
-	service.EXPECT().GetById(gomock.Eq(idNumber)).Return(domain.Warehouse{}, errors.New("warehouse not found"))
+	service.EXPECT().GetById(ctxMock, gomock.Eq(idNumber)).Return(domain.Warehouse{}, errors.New("warehouse not found"))
 
 	req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/warehouses/%s", idString), nil)
 	resp := httptest.NewRecorder()
@@ -144,6 +146,7 @@ func TestWarehousesController_Create(t *testing.T) {
 	api.POST(relativePath, handler.Create())
 
 	service.EXPECT().Create(
+		ctxMock,
 		"Rua 1",
 		"555555555",
 		"ZAQ",
@@ -163,6 +166,7 @@ func TestWarehousesController_Create_Conflict(t *testing.T) {
 	api.POST(relativePath, handler.Create())
 
 	service.EXPECT().Create(
+		ctxMock,
 		"Rua 1",
 		"555555555",
 		"ZAQ",
@@ -193,7 +197,7 @@ func TestWarehousesController_Delete_OK(t *testing.T) {
 	service, handler, api := callWarehousesMock(t)
 	api.DELETE(relativePathWithId, handler.Delete())
 
-	service.EXPECT().Delete(gomock.Eq(idNumber)).Return(nil)
+	service.EXPECT().Delete(ctxMock, gomock.Eq(idNumber)).Return(nil)
 
 	req := httptest.NewRequest(http.MethodDelete, fmt.Sprintf("/api/v1/warehouses/%s", idString), nil)
 	resp := httptest.NewRecorder()
@@ -206,7 +210,7 @@ func TestWarehousesController_Delete_NOK(t *testing.T) {
 	service, handler, api := callWarehousesMock(t)
 	api.DELETE(relativePathWithId, handler.Delete())
 
-	service.EXPECT().Delete(gomock.Eq(idNumber)).Return(errors.New("erro 404"))
+	service.EXPECT().Delete(ctxMock, gomock.Eq(idNumber)).Return(errors.New("erro 404"))
 
 	req := httptest.NewRequest(http.MethodDelete, fmt.Sprintf("/api/v1/warehouses/%s", idString), nil)
 	resp := httptest.NewRecorder()
@@ -239,7 +243,8 @@ func TestWarehousesController_Update(t *testing.T) {
 	api.PATCH(relativePathWithId, handler.Update())
 
 	service.EXPECT().Update(
-		gomock.Eq(idNumber),
+		ctxMock,
+		idNumber,
 		"Rua Sem Saida",
 		"888888888",
 		"LSW",
@@ -265,7 +270,8 @@ func TestWarehousesController_Update_NOK(t *testing.T) {
 	api.PATCH(relativePathWithId, handler.Update())
 
 	service.EXPECT().Update(
-		gomock.Eq(idNumber),
+		ctxMock,
+		idNumber,
 		"Rua Sem Saida",
 		"888888888",
 		"LSW",
