@@ -14,13 +14,13 @@ func BuyersRoutes(group *gin.RouterGroup) {
 	{
 		buyersDbRepo := buyersRepository.NewRepository(connections.NewConnection())
 		buyersService := buyersService.NewService(buyersDbRepo)
-		e := buyersController.NewBuyer(buyersService)
+		b := buyersController.NewBuyer(buyersService)
 
-		buyerRouterGroup.POST("/", e.Create())
-		buyerRouterGroup.GET("/", e.GetAll())
-		buyerRouterGroup.GET("/:id", e.GetById())
-		buyerRouterGroup.PATCH("/:id", e.Update())
-		buyerRouterGroup.DELETE("/:id", e.Delete())
-
+		buyerRouterGroup.POST("/", b.Create())
+		buyerRouterGroup.GET("/", b.GetAll())
+		buyerRouterGroup.GET("/:id", b.GetById())
+		buyerRouterGroup.GET("/reportPurchaseOrders", b.GetOrdersByBuyers())
+		buyerRouterGroup.PATCH("/:id", b.Update())
+		buyerRouterGroup.DELETE("/:id", b.Delete())
 	}
 }

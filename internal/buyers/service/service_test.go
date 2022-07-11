@@ -1,20 +1,23 @@
-package test
+package service
 
 import (
 	"errors"
+
 	"github.com/douglmendes/mercado-fresco-round-go/internal/buyers/domain"
-	mock_buyers "github.com/douglmendes/mercado-fresco-round-go/internal/buyers/mock"
-	"github.com/douglmendes/mercado-fresco-round-go/internal/buyers/service"
+	mock_domain "github.com/douglmendes/mercado-fresco-round-go/internal/buyers/domain/mock"
+
+	// "github.com/douglmendes/mercado-fresco-round-go/internal/buyers/service"
+	"testing"
+
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
-func callMock(t *testing.T) (*mock_buyers.MockRepository, service.Service) {
+func callMock(t *testing.T) (*mock_domain.MockRepository, domain.Service) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	apiMock := mock_buyers.NewMockRepository(ctrl)
-	service := service.NewService(apiMock)
+	apiMock := mock_domain.NewMockRepository()
+	service := NewService(apiMock)
 	return apiMock, service
 }
 

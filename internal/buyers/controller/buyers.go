@@ -76,6 +76,27 @@ func (c *BuyerController) GetById() gin.HandlerFunc {
 	}
 }
 
+func (c *BuyerController) GetOrdersByBuyers() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		buyerId, byId := ctx.GetQuery("id")
+		id, err := strconv.Atoi(buyerId)
+		if byId == true {
+			if err != nil {
+				ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid Id"})
+				return
+			}
+		}
+
+		l, err := c.service.GetOrdersByBuyers(ctx, id)
+		if err != nil {
+			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+			return
+		}
+
+		ctx.JSON(http.StatusOK, response.NewResponse(l))
+	}
+}
+
 // Create godoc
 // @Summary Create buyers
 // @Tags Buyers

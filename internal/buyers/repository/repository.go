@@ -1,10 +1,13 @@
 package repository
 
 import (
+	"context"
 	"database/sql"
+	"errors"
 	"fmt"
-	"github.com/douglmendes/mercado-fresco-round-go/internal/buyers/domain"
 	"log"
+
+	"github.com/douglmendes/mercado-fresco-round-go/internal/buyers/domain"
 )
 
 type repository struct {
@@ -43,6 +46,58 @@ func (r *repository) GetById(id int) (*domain.Buyer, error) {
 		}
 	}
 	return &b, nil
+}
+
+func (r *repository) GetOrdersByBuyers(ctx context.Context, id int) ([]domain.OrdersByBuyers, error) {
+
+	var ordersBySellers []domain.OrdersByBuyers
+
+	if id != 0 {
+		row := r.db.QueryRowContext(ctx, queryGetOrdersByBuyer, id)
+
+		var orders domain.OrdersByBuyers
+
+		err := row.Scan(
+			&orders.Id,
+			&orders.CardNumberId,
+			&orders.FirstName,
+			&orders.LastName,
+			&orders.PurchaseOrdersCount,
+		)
+
+		if errors.Is(err, sql.ErrNoRows) {
+			return ordersBySellers, fmt.Errorf("buyer %d not found", id)
+		}
+
+		if err != nil {
+			return ordersBySellers, err
+		}
+
+		ordersBySellers = append(ordersBySellers, orders)
+	} else {
+		rows, err := r.db.QueryContext(ctx, queryGetOrdersByBuyers)
+		if err != nil {
+			return []domain.OrdersByBuyers{}, err
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			var orders domain.OrdersByBuyers
+			err := rows.Scan(
+				&orders.Id,
+				&orders.CardNumberId,
+				&orders.FirstName,
+				&orders.LastName,
+				&orders.PurchaseOrdersCount,
+			)
+			if err != nil {
+				return ordersBySellers, err
+			}
+
+			ordersBySellers = append(ordersBySellers, orders)
+		}
+	}
+	return ordersBySellers, nil
 }
 
 func (r *repository) Create(cardNumberId, firstName, lastName string) (*domain.Buyer, error) {
@@ -92,5 +147,4 @@ func NewRepository(db *sql.DB) domain.Repository {
 	return &repository{
 		db: db,
 	}
-
 }
