@@ -149,3 +149,13 @@ func TestService_GetByCarriers_OK(t *testing.T) {
 	assert.Nil(t, err)
 
 }
+
+func TestService_GetByCarriers_NOK(t *testing.T) {
+	apiMock, service := callMock(t)
+
+	apiMock.EXPECT().GetByCarriers(context.TODO(), 1).Return([]domain.CarriersByLocality{}, errors.New("locality 1 not found"))
+
+	_, err := service.GetByCarriers(context.TODO(), 1)
+	assert.NotNil(t, err)
+	assert.EqualError(t, err, "locality 1 not found")
+}
