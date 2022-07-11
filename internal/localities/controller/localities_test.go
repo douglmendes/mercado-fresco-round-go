@@ -178,3 +178,15 @@ func TestLocalityController_GetByCarriers_OK(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.Code)
 	assert.Equal(t, respExpect.Data[0].CarriersCount, carriersLocal[0].CarriersCount)
 }
+
+func TestLocalityController_GetByCarriers_BadRequest(t *testing.T) {
+	_, handler, api := callMockLocality(t)
+
+	api.GET(localityPathCarrierReport, handler.GetByCarriers())
+
+	req := httptest.NewRequest(http.MethodGet, fmt.Sprint("/api/v1/localities/reportCarriers?id=vaifilhaum"), nil)
+	resp := httptest.NewRecorder()
+	api.ServeHTTP(resp, req)
+
+	assert.Equal(t, http.StatusBadRequest, resp.Code)
+}
