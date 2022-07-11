@@ -9,10 +9,6 @@ import (
 	"testing"
 )
 
-const (
-	queryGetAll = "SELECT id, address, telephone, warehouse_code, locality_id FROM warehouse"
-)
-
 func TestRepository_GetAll(t *testing.T) {
 	db, mock, err := sqlmock.New()
 	assert.NoError(t, err)
@@ -51,7 +47,7 @@ func TestRepository_GetAll(t *testing.T) {
 		warehosesMock[1].LocalityId,
 	)
 
-	mock.ExpectQuery(queryGetAll).WillReturnRows(rows)
+	mock.ExpectQuery(sqlGetAll).WillReturnRows(rows)
 
 	whRepo := NewRepository(db)
 
