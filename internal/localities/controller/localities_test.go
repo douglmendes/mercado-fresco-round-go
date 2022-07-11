@@ -190,3 +190,17 @@ func TestLocalityController_GetByCarriers_BadRequest(t *testing.T) {
 
 	assert.Equal(t, http.StatusBadRequest, resp.Code)
 }
+
+func TestLocalityController_GetByCarriers_StatusNotFound(t *testing.T) {
+	service, handler, api := callMockLocality(t)
+
+	api.GET(localityPathCarrierReport, handler.GetByCarriers())
+	service.EXPECT().GetByCarriers(gomock.Any(), gomock.Eq(1)).Return([]domain.CarriersByLocality{}, errors.New("error"))
+
+	req := httptest.NewRequest(http.MethodGet, fmt.Sprint("/api/v1/localities/reportCarriers?id=1"), nil)
+	resp := httptest.NewRecorder()
+	api.ServeHTTP(resp, req)
+
+	assert.Equal(t, http.StatusNotFound, resp.Code)
+
+}
