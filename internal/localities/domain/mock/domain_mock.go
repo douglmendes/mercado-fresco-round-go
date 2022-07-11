@@ -36,32 +36,48 @@ func (m *MockLocalityRepository) EXPECT() *MockLocalityRepositoryMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockLocalityRepository) Create(ctx context.Context, localityName, provinceName, countryName string) (domain.Locality, error) {
+func (m *MockLocalityRepository) Create(ctx context.Context, zipCode, localityName, provinceName, countryName string) (domain.Locality, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Create", ctx, localityName, provinceName, countryName)
+	ret := m.ctrl.Call(m, "Create", ctx, zipCode, localityName, provinceName, countryName)
 	ret0, _ := ret[0].(domain.Locality)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Create indicates an expected call of Create.
-func (mr *MockLocalityRepositoryMockRecorder) Create(ctx, localityName, provinceName, countryName interface{}) *gomock.Call {
+func (mr *MockLocalityRepositoryMockRecorder) Create(ctx, zipCode, localityName, provinceName, countryName interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockLocalityRepository)(nil).Create), ctx, localityName, provinceName, countryName)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockLocalityRepository)(nil).Create), ctx, zipCode, localityName, provinceName, countryName)
 }
 
-// Delete mocks base method.
-func (m *MockLocalityRepository) Delete(ctx context.Context, id int) error {
+// GetAll mocks base method.
+func (m *MockLocalityRepository) GetAll(ctx context.Context) ([]domain.Locality, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Delete", ctx, id)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret := m.ctrl.Call(m, "GetAll", ctx)
+	ret0, _ := ret[0].([]domain.Locality)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
-// Delete indicates an expected call of Delete.
-func (mr *MockLocalityRepositoryMockRecorder) Delete(ctx, id interface{}) *gomock.Call {
+// GetAll indicates an expected call of GetAll.
+func (mr *MockLocalityRepositoryMockRecorder) GetAll(ctx interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockLocalityRepository)(nil).Delete), ctx, id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockLocalityRepository)(nil).GetAll), ctx)
+}
+
+// GetByCarriers mocks base method.
+func (m *MockLocalityRepository) GetByCarriers(ctx context.Context, id int) ([]domain.CarriersByLocality, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetByCarriers", ctx, id)
+	ret0, _ := ret[0].([]domain.CarriersByLocality)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetByCarriers indicates an expected call of GetByCarriers.
+func (mr *MockLocalityRepositoryMockRecorder) GetByCarriers(ctx, id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByCarriers", reflect.TypeOf((*MockLocalityRepository)(nil).GetByCarriers), ctx, id)
 }
 
 // GetById mocks base method.
@@ -94,21 +110,6 @@ func (mr *MockLocalityRepositoryMockRecorder) GetBySellers(ctx, id interface{}) 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBySellers", reflect.TypeOf((*MockLocalityRepository)(nil).GetBySellers), ctx, id)
 }
 
-// Update mocks base method.
-func (m *MockLocalityRepository) Update(ctx context.Context, id int, localityName, provinceName, countryName string) (domain.Locality, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Update", ctx, id, localityName, provinceName, countryName)
-	ret0, _ := ret[0].(domain.Locality)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// Update indicates an expected call of Update.
-func (mr *MockLocalityRepositoryMockRecorder) Update(ctx, id, localityName, provinceName, countryName interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockLocalityRepository)(nil).Update), ctx, id, localityName, provinceName, countryName)
-}
-
 // MockLocalityService is a mock of LocalityService interface.
 type MockLocalityService struct {
 	ctrl     *gomock.Controller
@@ -133,47 +134,33 @@ func (m *MockLocalityService) EXPECT() *MockLocalityServiceMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockLocalityService) Create(ctx context.Context, localityName, provinceName, countryName string) (domain.Locality, error) {
+func (m *MockLocalityService) Create(ctx context.Context, zipCode, localityName, provinceName, countryName string) (domain.Locality, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Create", ctx, localityName, provinceName, countryName)
+	ret := m.ctrl.Call(m, "Create", ctx, zipCode, localityName, provinceName, countryName)
 	ret0, _ := ret[0].(domain.Locality)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Create indicates an expected call of Create.
-func (mr *MockLocalityServiceMockRecorder) Create(ctx, localityName, provinceName, countryName interface{}) *gomock.Call {
+func (mr *MockLocalityServiceMockRecorder) Create(ctx, zipCode, localityName, provinceName, countryName interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockLocalityService)(nil).Create), ctx, localityName, provinceName, countryName)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockLocalityService)(nil).Create), ctx, zipCode, localityName, provinceName, countryName)
 }
 
-// Delete mocks base method.
-func (m *MockLocalityService) Delete(ctx context.Context, id int) error {
+// GetByCarriers mocks base method.
+func (m *MockLocalityService) GetByCarriers(ctx context.Context, id int) ([]domain.CarriersByLocality, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Delete", ctx, id)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// Delete indicates an expected call of Delete.
-func (mr *MockLocalityServiceMockRecorder) Delete(ctx, id interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockLocalityService)(nil).Delete), ctx, id)
-}
-
-// GetById mocks base method.
-func (m *MockLocalityService) GetById(ctx context.Context, id int) (domain.Locality, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetById", ctx, id)
-	ret0, _ := ret[0].(domain.Locality)
+	ret := m.ctrl.Call(m, "GetByCarriers", ctx, id)
+	ret0, _ := ret[0].([]domain.CarriersByLocality)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetById indicates an expected call of GetById.
-func (mr *MockLocalityServiceMockRecorder) GetById(ctx, id interface{}) *gomock.Call {
+// GetByCarriers indicates an expected call of GetByCarriers.
+func (mr *MockLocalityServiceMockRecorder) GetByCarriers(ctx, id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetById", reflect.TypeOf((*MockLocalityService)(nil).GetById), ctx, id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByCarriers", reflect.TypeOf((*MockLocalityService)(nil).GetByCarriers), ctx, id)
 }
 
 // GetBySellers mocks base method.
@@ -189,19 +176,4 @@ func (m *MockLocalityService) GetBySellers(ctx context.Context, id int) ([]domai
 func (mr *MockLocalityServiceMockRecorder) GetBySellers(ctx, id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBySellers", reflect.TypeOf((*MockLocalityService)(nil).GetBySellers), ctx, id)
-}
-
-// Update mocks base method.
-func (m *MockLocalityService) Update(ctx context.Context, id int, localityName, provinceName, countryName string) (domain.Locality, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Update", ctx, id, localityName, provinceName, countryName)
-	ret0, _ := ret[0].(domain.Locality)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// Update indicates an expected call of Update.
-func (mr *MockLocalityServiceMockRecorder) Update(ctx, id, localityName, provinceName, countryName interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockLocalityService)(nil).Update), ctx, id, localityName, provinceName, countryName)
 }

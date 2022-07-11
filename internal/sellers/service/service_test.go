@@ -161,7 +161,7 @@ func TestCreate_NOk(t *testing.T) {
 	apiMock, _, service := callMock(t)
 
 	apiMock.EXPECT().GetAll(context.TODO()).Return(slList, nil)
-	apiMock.EXPECT().Create(3, 24, "Mercado Livre", "Melicidade", "98787687", 1).Return(domain.Seller{}, errors.New("this seller already exists"))
+	apiMock.EXPECT().Create(3, 22, "Mercado Livre", "Melicidade", "98787687", 1).Return(domain.Seller{}, errors.New("this seller already exists"))
 
 	_, err := service.Create(context.TODO(), 22, "Mercado Livre", "Melicidade", "98787687", 1)
 	assert.NotNil(t, err)

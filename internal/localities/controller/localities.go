@@ -14,52 +14,15 @@ type LocalityController struct {
 }
 
 type sqlCreateRequest struct {
+	ZipCode      string `json:"zip_code" binding:"required"`
 	LocalityName string `json:"locality_name" binding:"required"`
 	ProvinceName string `json:"province_name" binding:"required"`
 	CountryName  string `json:"country_name" binding:"required"`
 }
 
-type sqlUpdateRequest struct {
-	LocalityName string `json:"locality_name"`
-	ProvinceName string `json:"province_name"`
-	CountryName  string `json:"country_name"`
-}
-
 func NewLocality(s domain.LocalityService) *LocalityController {
 	return &LocalityController{
 		service: s,
-	}
-}
-
-// func (c *LocalityController) GetAll() gin.HandlerFunc {
-// 	return func(ctx *gin.Context) {
-// 		l, err := c.service.GetAll(ctx)
-// 		if err != nil {
-// 			ctx.JSON(http.StatusNotFound, gin.H{
-// 				"error": err.Error(),
-// 			})
-// 			return
-// 		}
-
-// 		ctx.JSON(http.StatusOK, response.NewResponse(l))
-// 	}
-// }
-
-func (c *LocalityController) GetById() gin.HandlerFunc {
-	return func(ctx *gin.Context) {
-		id, err := strconv.Atoi(ctx.Param("id"))
-		if err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid Id"})
-			return
-		}
-
-		l, err := c.service.GetById(ctx, id)
-		if err != nil {
-			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-			return
-		}
-
-		ctx.JSON(http.StatusOK, response.NewResponse(l))
 	}
 }
 
@@ -113,23 +76,7 @@ func (c *LocalityController) Create() gin.HandlerFunc {
 			return
 		}
 
-		if req.LocalityName == "" {
-			ctx.JSON(http.StatusUnprocessableEntity,
-				response.DecodeError("locality name is required"))
-			return
-		}
-		if req.ProvinceName == "" {
-			ctx.JSON(http.StatusUnprocessableEntity,
-				response.DecodeError("province name is required"))
-			return
-		}
-		if req.CountryName == "" {
-			ctx.JSON(http.StatusUnprocessableEntity,
-				response.DecodeError("country name is required"))
-			return
-		}
-
-		l, err := c.service.Create(ctx, req.LocalityName, req.ProvinceName, req.CountryName)
+		l, err := c.service.Create(ctx, req.ZipCode, req.LocalityName, req.ProvinceName, req.CountryName)
 		if err != nil {
 			ctx.JSON(http.StatusConflict, gin.H{"error": err.Error()})
 			return
@@ -137,45 +84,5 @@ func (c *LocalityController) Create() gin.HandlerFunc {
 
 		ctx.JSON(http.StatusCreated, response.NewResponse(l))
 
-	}
-}
-
-func (s *LocalityController) Update() gin.HandlerFunc {
-	return func(ctx *gin.Context) {
-		id, err := strconv.Atoi(ctx.Param("id"))
-		if err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid Id"})
-			return
-		}
-
-		var req sqlUpdateRequest
-		if err := ctx.ShouldBindJSON(&req); err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			return
-		}
-
-		l, err := s.service.Update(ctx, id, req.LocalityName, req.ProvinceName, req.CountryName)
-		if err != nil {
-			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		}
-		ctx.JSON(http.StatusOK, l)
-	}
-}
-
-func (c *LocalityController) Delete() gin.HandlerFunc {
-	return func(ctx *gin.Context) {
-		id, err := strconv.Atoi(ctx.Param("id"))
-		if err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid Id"})
-			return
-		}
-
-		err = c.service.Delete(ctx, id)
-		if err != nil {
-			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-			return
-		}
-
-		ctx.JSON(http.StatusNoContent, nil)
 	}
 }

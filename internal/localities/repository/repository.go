@@ -26,6 +26,7 @@ func (r *repository) GetAll(ctx context.Context) ([]domain.Locality, error) {
 
 		if err := rows.Scan(
 			&locality.Id,
+			&locality.ZipCode,
 			&locality.LocalityName,
 			&locality.ProvinceName,
 			&locality.CountryName,
@@ -46,6 +47,7 @@ func (r *repository) GetById(ctx context.Context, id int) (domain.Locality, erro
 
 	err := row.Scan(
 		&locality.Id,
+		&locality.ZipCode,
 		&locality.LocalityName,
 		&locality.ProvinceName,
 		&locality.CountryName,
@@ -110,6 +112,37 @@ func (r *repository) GetBySellers(ctx context.Context, id int) ([]domain.Sellers
 	return sellersByLocality, nil
 }
 
+func (r *repository) Create(ctx context.Context, zipCode, localityName, provinceName, countryName string) (domain.Locality, error) {
+	locality := domain.Locality{
+		ZipCode: zipCode,
+		LocalityName: localityName,
+		ProvinceName: provinceName,
+		CountryName:  countryName,
+	}
+
+	result, err := r.db.ExecContext(
+		ctx,
+		queryCreate,
+		zipCode,
+		localityName,
+		provinceName,
+		countryName,
+	)
+
+	if err != nil {
+		return domain.Locality{}, err
+	}
+
+	lastId, err := result.LastInsertId()
+	if err != nil {
+		return domain.Locality{}, err
+	}
+
+	locality.Id = int(lastId)
+
+	return locality, nil
+}
+
 func (r *repository) GetByCarriers(ctx context.Context, id int) ([]domain.CarriersByLocality, error) {
 	var carriersByLocality []domain.CarriersByLocality
 
@@ -154,91 +187,6 @@ func (r *repository) GetByCarriers(ctx context.Context, id int) ([]domain.Carrie
 		}
 	}
 	return carriersByLocality, nil
-}
-
-func (r *repository) Create(ctx context.Context, localityName, provinceName, countryName string) (domain.Locality, error) {
-	locality := domain.Locality{
-		LocalityName: localityName,
-		ProvinceName: provinceName,
-		CountryName:  countryName,
-	}
-
-	result, err := r.db.ExecContext(
-		ctx,
-		queryCreate,
-		localityName,
-		provinceName,
-		countryName,
-	)
-
-	if err != nil {
-		return domain.Locality{}, err
-	}
-
-	lastId, err := result.LastInsertId()
-	if err != nil {
-		return domain.Locality{}, err
-	}
-
-	locality.Id = int(lastId)
-
-	return locality, nil
-}
-
-func (r *repository) Update(ctx context.Context, id int, localityName, provinceName, countryName string) (domain.Locality, error) {
-
-	locality, err := r.GetById(ctx, id)
-	if err != nil {
-		return domain.Locality{}, fmt.Errorf("locality %d not found", id)
-	}
-
-	if localityName != "" {
-		locality.LocalityName = localityName
-	}
-	if provinceName != "" {
-		locality.ProvinceName = provinceName
-	}
-	if countryName != "" {
-		locality.CountryName = countryName
-	}
-
-	result, err := r.db.ExecContext(
-		ctx,
-		queryUpdate,
-		locality.LocalityName,
-		locality.ProvinceName,
-		locality.CountryName,
-		id,
-	)
-	if err != nil {
-		return domain.Locality{}, err
-	}
-
-	_, err = result.RowsAffected()
-	if err != nil {
-		return domain.Locality{}, err
-	}
-
-	return locality, nil
-}
-
-func (r *repository) Delete(ctx context.Context, id int) error {
-
-	result, err := r.db.ExecContext(ctx, queryDelete, id)
-	if err != nil {
-		return err
-	}
-
-	affectedRows, err := result.RowsAffected()
-	if affectedRows == 0 {
-		return fmt.Errorf("locality %d not found", id)
-	}
-
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
 
 func NewRepository(db *sql.DB) domain.LocalityRepository {
