@@ -118,3 +118,59 @@ func TestRepository_Create(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, result.WarehouseCode, whMock.WarehouseCode)
 }
+
+func TestRepository_Update(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	assert.NoError(t, err)
+	defer db.Close()
+
+	whMock := domain.Warehouse{
+		Id:            1,
+		Address:       "Rua do Teste",
+		Telephone:     "9888100000",
+		WarehouseCode: "TEST",
+		LocalityId:    1,
+	}
+
+	newWhMock := domain.Warehouse{
+		Id:            1,
+		Address:       "Rua do Teste Nova",
+		Telephone:     "911111111",
+		WarehouseCode: "TEST",
+		LocalityId:    1,
+	}
+
+	rows := sqlmock.NewRows([]string{
+		"id", "address", "telephone", "warehouse_code", "locality_id",
+	}).AddRow(
+		whMock.Id,
+		whMock.Address,
+		whMock.Telephone,
+		whMock.WarehouseCode,
+		whMock.LocalityId,
+	)
+
+	mock.ExpectQuery(sqlGetById).WillReturnRows(rows)
+
+	mock.ExpectExec(regexp.QuoteMeta(sqlUpdate)).WithArgs(
+		newWhMock.Address,
+		newWhMock.Telephone,
+		newWhMock.WarehouseCode,
+		newWhMock.LocalityId,
+		1,
+	).WillReturnResult(sqlmock.NewResult(0, 1))
+
+	whRepo := NewRepository(db)
+
+	result, err := whRepo.Update(
+		context.Background(),
+		1,
+		"Rua do Teste Nova",
+		"911111111",
+		"TEST",
+		1,
+	)
+
+	assert.NoError(t, err)
+	assert.Equal(t, newWhMock, result)
+}
