@@ -12,7 +12,7 @@ type ConfigurationServer struct {
 
 func NewServer() ConfigurationServer {
 	return ConfigurationServer{
-		port:   "8000",
+		port:   "8080",
 		server: gin.Default(),
 	}
 }
