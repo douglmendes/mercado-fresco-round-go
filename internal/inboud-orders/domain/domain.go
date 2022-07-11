@@ -1,5 +1,7 @@
 package domain
 
+import "context"
+
 type InboudOrder struct {
 	Id             int    `json:"id"`
 	OrderDate      string `json:"order_date"`
@@ -18,13 +20,14 @@ type EmployeeInboudOrder struct {
 	InboudOrderCount int    `json:"inboud_order_count"`
 }
 
+//go:generate mockgen -source=./domain.go -destination=./mock/domain_mock.go
 type Repository interface {
-	Create(string, string, int, int, int) (*InboudOrder, error)
-	GetAll() ([]InboudOrder, error)
-	GetByEmployee(employee int64) ([]EmployeeInboudOrder, error)
+	Create(context.Context, string, string, int, int, int) (*InboudOrder, error)
+	GetAll(context.Context) ([]InboudOrder, error)
+	GetByEmployee(ctx context.Context, employee int64) ([]EmployeeInboudOrder, error)
 }
 
 type Service interface {
-	Create(string, string, int, int, int) (*InboudOrder, error)
-	GetByEmployee(employee int64) ([]EmployeeInboudOrder, error)
+	Create(context.Context, string, string, int, int, int) (*InboudOrder, error)
+	GetByEmployee(ctx context.Context, employee int64) ([]EmployeeInboudOrder, error)
 }

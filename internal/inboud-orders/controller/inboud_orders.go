@@ -39,7 +39,7 @@ func (ioc *InboudOrdersController) Create() gin.HandlerFunc {
 				})
 			return
 		}
-		io, err := ioc.service.Create(req.OrderDate, req.OrderNumber, req.EmployeeId, req.ProductBatchId, req.WarehouseId)
+		io, err := ioc.service.Create(ctx, req.OrderDate, req.OrderNumber, req.EmployeeId, req.ProductBatchId, req.WarehouseId)
 		if err != nil {
 			ctx.JSON(http.StatusConflict, gin.H{"error": err.Error()})
 			return
@@ -55,7 +55,7 @@ func (ioc *InboudOrdersController) GetById() gin.HandlerFunc {
 		log.Println(employee)
 		employeeId, _ := strconv.Atoi(employee)
 		log.Println(employeeId)
-		i, err := ioc.service.GetByEmployee(int64(employeeId))
+		i, err := ioc.service.GetByEmployee(ctx, int64(employeeId))
 		if err != nil {
 			ctx.JSON(404, gin.H{"error": err.Error()})
 			return

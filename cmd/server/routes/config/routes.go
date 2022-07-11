@@ -25,6 +25,7 @@ func ConfigurationRoutes(router *gin.Engine) *gin.Engine {
 		routes.WarehousesRoutes(baseUrl)
 		routes.LocalitiesRoutes(baseUrl)
 		routes.InboudOrdersRoutes(baseUrl)
+		routes.PurchaseOrdersRoutes(baseUrl)
 		routes.ProductRecordsRoutes(baseUrl)
 	}
 
