@@ -313,3 +313,31 @@ func TestRepository_GetByCarriers_OK(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "NEXUS", result[0].LocalityName)
 }
+
+func TestRepository_GetByCarriers_WithoutID(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	assert.NoError(t, err)
+	defer db.Close()
+
+	localityMock := domain.CarriersByLocality{
+		LocalityId:    1,
+		LocalityName:  "Lux",
+		CarriersCount: 12,
+	}
+
+	row := sqlmock.NewRows([]string{
+		"id", "locality_name", "carriers_count",
+	}).AddRow(
+		localityMock.LocalityId,
+		localityMock.LocalityName,
+		localityMock.CarriersCount,
+	)
+
+	mock.ExpectQuery(regexp.QuoteMeta(queryGetByCarriers)).WillReturnRows(row)
+
+	lcRepo := NewRepository(db)
+
+	result, err := lcRepo.GetByCarriers(context.TODO(), 0)
+	assert.NoError(t, err)
+	assert.Equal(t, localityMock.CarriersCount, result[len(result)-1].CarriersCount)
+}
