@@ -1,24 +1,20 @@
-package products
+package service
 
-import "fmt"
+import (
+	"fmt"
 
-type Service interface {
-	GetAll() ([]Product, error)
-	GetById(id int) (Product, error)
-	Create(arg Product) (Product, error)
-	Update(arg Product) (Product, error)
-	Delete(id int) error
-}
+	"github.com/douglmendes/mercado-fresco-round-go/internal/products/domain"
+)
 
 type service struct {
-	repository Repository
+	repository domain.ProductRepository
 }
 
-func NewService(r Repository) Service {
+func NewService(r domain.ProductRepository) domain.ProductService {
 	return &service{repository: r}
 }
 
-func (s service) GetAll() ([]Product, error) {
+func (s service) GetAll() ([]domain.Product, error) {
 	products, err := s.repository.GetAll()
 	if err != nil {
 		return nil, err
@@ -27,43 +23,36 @@ func (s service) GetAll() ([]Product, error) {
 	return products, nil
 }
 
-func (s service) GetById(id int) (Product, error) {
+func (s service) GetById(id int) (domain.Product, error) {
 	product, err := s.repository.GetById(id)
 	if err != nil {
-		return Product{}, err
+		return domain.Product{}, err
 	}
 
 	return product, nil
 }
 
-func (s service) Create(arg Product) (Product, error) {
-	lastId, err := s.repository.LastID()
-	if err != nil {
-		return Product{}, err
-	}
-
+func (s service) Create(arg domain.Product) (domain.Product, error) {
 	products, err := s.repository.GetAll()
 	if err != nil {
-		return Product{}, err
+		return domain.Product{}, err
 	}
 
 	for _, product := range products {
 		if product.ProductCode == arg.ProductCode {
-			return Product{}, fmt.Errorf("the product with code \"%s\" already exists", arg.ProductCode)
+			return domain.Product{}, fmt.Errorf("the product with code \"%s\" already exists", arg.ProductCode)
 		}
 	}
 
-	arg.Id = lastId + 1
-
 	product, err := s.repository.Create(arg)
 	if err != nil {
-		return Product{}, err
+		return domain.Product{}, err
 	}
 
 	return product, nil
 }
 
-func (s service) productCodeExists(arg Product) (bool, error) {
+func (s service) productCodeExists(arg domain.Product) (bool, error) {
 	products, err := s.repository.GetAll()
 	if err != nil {
 		return true, err
@@ -78,15 +67,15 @@ func (s service) productCodeExists(arg Product) (bool, error) {
 	return false, nil
 }
 
-func (s service) updateProduct(product, arg Product) (Product, error) {
+func (s service) updateProduct(product, arg domain.Product) (domain.Product, error) {
 	if arg.ProductCode != "" {
 		validProductCode, err := s.productCodeExists(arg)
 		if err != nil {
-			return Product{}, err
+			return domain.Product{}, err
 		}
 
 		if validProductCode {
-			return Product{}, fmt.Errorf("the product with code \"%s\" already exists", arg.ProductCode)
+			return domain.Product{}, fmt.Errorf("the product with code \"%s\" already exists", arg.ProductCode)
 		}
 
 		product.ProductCode = arg.ProductCode
@@ -135,20 +124,20 @@ func (s service) updateProduct(product, arg Product) (Product, error) {
 	return product, nil
 }
 
-func (s service) Update(arg Product) (Product, error) {
+func (s service) Update(arg domain.Product) (domain.Product, error) {
 	foundProduct, err := s.repository.GetById(arg.Id)
 	if err != nil {
-		return Product{}, err
+		return domain.Product{}, err
 	}
 
 	updatedProduct, err := s.updateProduct(foundProduct, arg)
 	if err != nil {
-		return Product{}, err
+		return domain.Product{}, err
 	}
 
 	updatedProduct, err = s.repository.Update(updatedProduct)
 	if err != nil {
-		return Product{}, err
+		return domain.Product{}, err
 	}
 
 	return updatedProduct, nil
