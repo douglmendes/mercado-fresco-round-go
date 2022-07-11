@@ -1,5 +1,7 @@
 package domain
 
+import "golang.org/x/net/context"
+
 type Buyer struct {
 	Id           int    `json:"id"`
 	CardNumberId string `json:"card_number_id"`
@@ -7,11 +9,19 @@ type Buyer struct {
 	LastName     string `json:"last_name"`
 }
 
-//go:generate mockgen -source=./repository.go -destination=./mock/repository_mock.go
+type OrdersByBuyers struct {
+	Id                  int    `json:"id"`
+	CardNumberId        string `json:"card_number_id"`
+	FirstName           string `json:"first_name"`
+	LastName            string `json:"last_name"`
+	PurchaseOrdersCount int    `json:"purchase_orders_count"`
+}
+
+//go:generate mockgen -source=./domain.go -destination=./mock/domain_mock.go
 type Repository interface {
 	GetById(id int) (*Buyer, error)
 	GetAll() ([]Buyer, error)
-	//LastID() (int, error)
+	GetOrdersByBuyers(ctx context.Context, id int) ([]OrdersByBuyers, error)
 	Create(cardNumberId, firstName, lastName string) (*Buyer, error)
 	Update(id int, cardNumberId, firstName, lastName string) (*Buyer, error)
 	Delete(id int) error
@@ -20,6 +30,7 @@ type Repository interface {
 type Service interface {
 	GetById(id int) (*Buyer, error)
 	GetAll() ([]Buyer, error)
+	GetOrdersByBuyers(ctx context.Context, id int) ([]OrdersByBuyers, error)
 	Create(cardNumberId, firstName, lastName string) (*Buyer, error)
 	Update(id int, cardNumberId, firstName, lastName string) (*Buyer, error)
 	Delete(id int) error
