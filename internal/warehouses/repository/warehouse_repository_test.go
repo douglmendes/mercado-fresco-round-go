@@ -174,3 +174,18 @@ func TestRepository_Update(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, newWhMock, result)
 }
+
+func TestRepository_Delete(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	assert.NoError(t, err)
+	defer db.Close()
+
+	mock.ExpectExec(regexp.QuoteMeta(sqlDelete)).WithArgs(
+		1,
+	).WillReturnResult(sqlmock.NewResult(0, 1))
+
+	warehouseRepo := NewRepository(db)
+
+	err = warehouseRepo.Delete(context.Background(), 1)
+	assert.NoError(t, err)
+}
