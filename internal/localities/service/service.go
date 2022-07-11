@@ -25,6 +25,15 @@ func (s service) GetBySellers(ctx context.Context, id int) ([]domain.SellersByLo
 	return lc, nil
 }
 
+func (s service) GetByCarriers(ctx context.Context, id int) ([]domain.CarriersByLocality, error) {
+	carrier, err := s.repository.GetByCarriers(ctx, id)
+	if err != nil {
+		return []domain.CarriersByLocality{}, err
+	}
+
+	return carrier, nil
+}
+
 func (s service) Create(ctx context.Context, zipCode, localityname, provinceName, countryName string) (domain.Locality, error) {
 
 	sl, err := s.repository.GetAll(ctx)

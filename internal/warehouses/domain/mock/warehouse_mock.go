@@ -5,6 +5,7 @@
 package mock_domain
 
 import (
+	context "context"
 	reflect "reflect"
 
 	domain "github.com/douglmendes/mercado-fresco-round-go/internal/warehouses/domain"
@@ -35,77 +36,77 @@ func (m *MockWarehouseService) EXPECT() *MockWarehouseServiceMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockWarehouseService) Create(address, telephone, warehouseCode string, localityId int64) (*domain.Warehouse, error) {
+func (m *MockWarehouseService) Create(ctx context.Context, address, telephone, warehouseCode string, localityId int) (*domain.Warehouse, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Create", address, telephone, warehouseCode, localityId)
+	ret := m.ctrl.Call(m, "Create", ctx, address, telephone, warehouseCode, localityId)
 	ret0, _ := ret[0].(*domain.Warehouse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Create indicates an expected call of Create.
-func (mr *MockWarehouseServiceMockRecorder) Create(address, telephone, warehouseCode, localityId interface{}) *gomock.Call {
+func (mr *MockWarehouseServiceMockRecorder) Create(ctx, address, telephone, warehouseCode, localityId interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockWarehouseService)(nil).Create), address, telephone, warehouseCode, localityId)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockWarehouseService)(nil).Create), ctx, address, telephone, warehouseCode, localityId)
 }
 
 // Delete mocks base method.
-func (m *MockWarehouseService) Delete(id int64) error {
+func (m *MockWarehouseService) Delete(ctx context.Context, id int) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Delete", id)
+	ret := m.ctrl.Call(m, "Delete", ctx, id)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Delete indicates an expected call of Delete.
-func (mr *MockWarehouseServiceMockRecorder) Delete(id interface{}) *gomock.Call {
+func (mr *MockWarehouseServiceMockRecorder) Delete(ctx, id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockWarehouseService)(nil).Delete), id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockWarehouseService)(nil).Delete), ctx, id)
 }
 
 // GetAll mocks base method.
-func (m *MockWarehouseService) GetAll() ([]domain.Warehouse, error) {
+func (m *MockWarehouseService) GetAll(ctx context.Context) ([]domain.Warehouse, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAll")
+	ret := m.ctrl.Call(m, "GetAll", ctx)
 	ret0, _ := ret[0].([]domain.Warehouse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetAll indicates an expected call of GetAll.
-func (mr *MockWarehouseServiceMockRecorder) GetAll() *gomock.Call {
+func (mr *MockWarehouseServiceMockRecorder) GetAll(ctx interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockWarehouseService)(nil).GetAll))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockWarehouseService)(nil).GetAll), ctx)
 }
 
 // GetById mocks base method.
-func (m *MockWarehouseService) GetById(id int64) (domain.Warehouse, error) {
+func (m *MockWarehouseService) GetById(ctx context.Context, id int) (domain.Warehouse, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetById", id)
+	ret := m.ctrl.Call(m, "GetById", ctx, id)
 	ret0, _ := ret[0].(domain.Warehouse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetById indicates an expected call of GetById.
-func (mr *MockWarehouseServiceMockRecorder) GetById(id interface{}) *gomock.Call {
+func (mr *MockWarehouseServiceMockRecorder) GetById(ctx, id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetById", reflect.TypeOf((*MockWarehouseService)(nil).GetById), id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetById", reflect.TypeOf((*MockWarehouseService)(nil).GetById), ctx, id)
 }
 
 // Update mocks base method.
-func (m *MockWarehouseService) Update(id int64, address, telephone, warehouseCode string, localityId int64) (domain.Warehouse, error) {
+func (m *MockWarehouseService) Update(ctx context.Context, id int, address, telephone, warehouseCode string, localityId int) (domain.Warehouse, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Update", id, address, telephone, warehouseCode, localityId)
+	ret := m.ctrl.Call(m, "Update", ctx, id, address, telephone, warehouseCode, localityId)
 	ret0, _ := ret[0].(domain.Warehouse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Update indicates an expected call of Update.
-func (mr *MockWarehouseServiceMockRecorder) Update(id, address, telephone, warehouseCode, localityId interface{}) *gomock.Call {
+func (mr *MockWarehouseServiceMockRecorder) Update(ctx, id, address, telephone, warehouseCode, localityId interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockWarehouseService)(nil).Update), id, address, telephone, warehouseCode, localityId)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockWarehouseService)(nil).Update), ctx, id, address, telephone, warehouseCode, localityId)
 }
 
 // MockWarehouseRepository is a mock of WarehouseRepository interface.
@@ -132,75 +133,75 @@ func (m *MockWarehouseRepository) EXPECT() *MockWarehouseRepositoryMockRecorder 
 }
 
 // Create mocks base method.
-func (m *MockWarehouseRepository) Create(address, telephone, warehouseCode string, localityId int64) (domain.Warehouse, error) {
+func (m *MockWarehouseRepository) Create(ctx context.Context, address, telephone, warehouseCode string, localityId int) (domain.Warehouse, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Create", address, telephone, warehouseCode, localityId)
+	ret := m.ctrl.Call(m, "Create", ctx, address, telephone, warehouseCode, localityId)
 	ret0, _ := ret[0].(domain.Warehouse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Create indicates an expected call of Create.
-func (mr *MockWarehouseRepositoryMockRecorder) Create(address, telephone, warehouseCode, localityId interface{}) *gomock.Call {
+func (mr *MockWarehouseRepositoryMockRecorder) Create(ctx, address, telephone, warehouseCode, localityId interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockWarehouseRepository)(nil).Create), address, telephone, warehouseCode, localityId)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockWarehouseRepository)(nil).Create), ctx, address, telephone, warehouseCode, localityId)
 }
 
 // Delete mocks base method.
-func (m *MockWarehouseRepository) Delete(id int64) error {
+func (m *MockWarehouseRepository) Delete(ctx context.Context, id int) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Delete", id)
+	ret := m.ctrl.Call(m, "Delete", ctx, id)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Delete indicates an expected call of Delete.
-func (mr *MockWarehouseRepositoryMockRecorder) Delete(id interface{}) *gomock.Call {
+func (mr *MockWarehouseRepositoryMockRecorder) Delete(ctx, id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockWarehouseRepository)(nil).Delete), id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockWarehouseRepository)(nil).Delete), ctx, id)
 }
 
 // GetAll mocks base method.
-func (m *MockWarehouseRepository) GetAll() ([]domain.Warehouse, error) {
+func (m *MockWarehouseRepository) GetAll(ctx context.Context) ([]domain.Warehouse, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAll")
+	ret := m.ctrl.Call(m, "GetAll", ctx)
 	ret0, _ := ret[0].([]domain.Warehouse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetAll indicates an expected call of GetAll.
-func (mr *MockWarehouseRepositoryMockRecorder) GetAll() *gomock.Call {
+func (mr *MockWarehouseRepositoryMockRecorder) GetAll(ctx interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockWarehouseRepository)(nil).GetAll))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockWarehouseRepository)(nil).GetAll), ctx)
 }
 
 // GetById mocks base method.
-func (m *MockWarehouseRepository) GetById(id int64) (domain.Warehouse, error) {
+func (m *MockWarehouseRepository) GetById(ctx context.Context, id int) (domain.Warehouse, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetById", id)
+	ret := m.ctrl.Call(m, "GetById", ctx, id)
 	ret0, _ := ret[0].(domain.Warehouse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetById indicates an expected call of GetById.
-func (mr *MockWarehouseRepositoryMockRecorder) GetById(id interface{}) *gomock.Call {
+func (mr *MockWarehouseRepositoryMockRecorder) GetById(ctx, id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetById", reflect.TypeOf((*MockWarehouseRepository)(nil).GetById), id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetById", reflect.TypeOf((*MockWarehouseRepository)(nil).GetById), ctx, id)
 }
 
 // Update mocks base method.
-func (m *MockWarehouseRepository) Update(id int64, address, telephone, warehouseCode string, localityId int64) (domain.Warehouse, error) {
+func (m *MockWarehouseRepository) Update(ctx context.Context, id int, address, telephone, warehouseCode string, localityId int) (domain.Warehouse, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Update", id, address, telephone, warehouseCode, localityId)
+	ret := m.ctrl.Call(m, "Update", ctx, id, address, telephone, warehouseCode, localityId)
 	ret0, _ := ret[0].(domain.Warehouse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Update indicates an expected call of Update.
-func (mr *MockWarehouseRepositoryMockRecorder) Update(id, address, telephone, warehouseCode, localityId interface{}) *gomock.Call {
+func (mr *MockWarehouseRepositoryMockRecorder) Update(ctx, id, address, telephone, warehouseCode, localityId interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockWarehouseRepository)(nil).Update), id, address, telephone, warehouseCode, localityId)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockWarehouseRepository)(nil).Update), ctx, id, address, telephone, warehouseCode, localityId)
 }

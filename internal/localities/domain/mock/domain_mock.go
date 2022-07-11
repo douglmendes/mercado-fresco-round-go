@@ -65,6 +65,21 @@ func (mr *MockLocalityRepositoryMockRecorder) GetAll(ctx interface{}) *gomock.Ca
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockLocalityRepository)(nil).GetAll), ctx)
 }
 
+// GetByCarriers mocks base method.
+func (m *MockLocalityRepository) GetByCarriers(ctx context.Context, id int) ([]domain.CarriersByLocality, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetByCarriers", ctx, id)
+	ret0, _ := ret[0].([]domain.CarriersByLocality)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetByCarriers indicates an expected call of GetByCarriers.
+func (mr *MockLocalityRepositoryMockRecorder) GetByCarriers(ctx, id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByCarriers", reflect.TypeOf((*MockLocalityRepository)(nil).GetByCarriers), ctx, id)
+}
+
 // GetById mocks base method.
 func (m *MockLocalityRepository) GetById(ctx context.Context, id int) (domain.Locality, error) {
 	m.ctrl.T.Helper()
@@ -131,6 +146,21 @@ func (m *MockLocalityService) Create(ctx context.Context, zipCode, localityName,
 func (mr *MockLocalityServiceMockRecorder) Create(ctx, zipCode, localityName, provinceName, countryName interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockLocalityService)(nil).Create), ctx, zipCode, localityName, provinceName, countryName)
+}
+
+// GetByCarriers mocks base method.
+func (m *MockLocalityService) GetByCarriers(ctx context.Context, id int) ([]domain.CarriersByLocality, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetByCarriers", ctx, id)
+	ret0, _ := ret[0].([]domain.CarriersByLocality)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetByCarriers indicates an expected call of GetByCarriers.
+func (mr *MockLocalityServiceMockRecorder) GetByCarriers(ctx, id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByCarriers", reflect.TypeOf((*MockLocalityService)(nil).GetByCarriers), ctx, id)
 }
 
 // GetBySellers mocks base method.

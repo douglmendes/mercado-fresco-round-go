@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func LocalitiesRoutes(group *gin.RouterGroup)  {
+func LocalitiesRoutes(group *gin.RouterGroup) {
 
 	localityRouterGroup := group.Group("/localities")
 	{
@@ -19,5 +19,6 @@ func LocalitiesRoutes(group *gin.RouterGroup)  {
 
 		localityRouterGroup.POST("/", l.Create())
 		localityRouterGroup.GET("/reportSellers", l.GetBySellers())
+		localityRouterGroup.GET("/reportCarriers", l.GetByCarriers())
 	}
 }
