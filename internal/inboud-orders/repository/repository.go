@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"github.com/douglmendes/mercado-fresco-round-go/internal/inboud-orders/domain"
@@ -11,9 +12,9 @@ type repository struct {
 	db *sql.DB
 }
 
-func (r *repository) GetAll() ([]domain.InboudOrder, error) {
-	getAllSql := "SELECT id,order_date,order_number,employee_id,product_batch_id, warehouse_id FROM inbound_orders"
-	rows, err := r.db.Query(getAllSql)
+func (r *repository) GetAll(ctx context.Context) ([]domain.InboudOrder, error) {
+
+	rows, err := r.db.Query(queryGetAll)
 	if err != nil {
 		log.Println("Error while querying inboud orders table" + err.Error())
 		return nil, err
@@ -32,18 +33,10 @@ func (r *repository) GetAll() ([]domain.InboudOrder, error) {
 
 }
 
-func (r *repository) GetByEmployee(employee int64) ([]domain.EmployeeInboudOrder, error) {
-	log.Println(employee)
+func (r *repository) GetByEmployee(ctx context.Context, employee int64) ([]domain.EmployeeInboudOrder, error) {
 	io := make([]domain.EmployeeInboudOrder, 0)
 	if employee != 0 {
-		getByIdSql := "Select e.id , " +
-			"e.id_card_number , " +
-			"e.first_name , " +
-			"e.last_name , " +
-			"e.warehouse_id ," +
-			"count(*) as inbound_orders_count " +
-			"from inbound_orders io inner join employees e on e.id = io.employee_id where employee_id = ?"
-		row := r.db.QueryRow(getByIdSql, employee)
+		row := r.db.QueryRow(queryGetByEmplyee, employee)
 		var i domain.EmployeeInboudOrder
 		err := row.Scan(&i.Id, &i.CardNumberId, &i.FirstName, &i.LastName, &i.WarehouseId, &i.InboudOrderCount)
 		if err != nil {
@@ -52,14 +45,7 @@ func (r *repository) GetByEmployee(employee int64) ([]domain.EmployeeInboudOrder
 		}
 		io = append(io, i)
 	} else {
-		getByIdSql := "Select e.id , " +
-			"e.id_card_number , " +
-			"e.first_name , " +
-			"e.last_name , " +
-			"e.warehouse_id ," +
-			"count(*) as inbound_orders_count " +
-			"from inbound_orders io inner join employees e on e.id = io.employee_id group by e.id"
-		rows, err := r.db.Query(getByIdSql)
+		rows, err := r.db.Query(queryGetByEmplyee)
 		if err != nil {
 			log.Println("Error while querying inboud orders table" + err.Error())
 			return nil, err
@@ -77,9 +63,8 @@ func (r *repository) GetByEmployee(employee int64) ([]domain.EmployeeInboudOrder
 	return io, nil
 }
 
-func (r *repository) Create(orderDate string, orderNumber string, employeeId int, productBatchId int, warehouseId int) (*domain.InboudOrder, error) {
-	createSql := "insert into inbound_orders(order_date, order_number, employee_id, product_batch_id, warehouse_id) values(?,?,?,?,?)"
-	result, err := r.db.Exec(createSql, orderDate, orderNumber, employeeId, productBatchId, warehouseId)
+func (r *repository) Create(ctx context.Context, orderDate string, orderNumber string, employeeId int, productBatchId int, warehouseId int) (*domain.InboudOrder, error) {
+	result, err := r.db.Exec(queryCreate, orderDate, orderNumber, employeeId, productBatchId, warehouseId)
 	if err != nil {
 		return nil, err
 	}

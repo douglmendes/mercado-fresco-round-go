@@ -51,7 +51,7 @@ func TestController_GetAll(t *testing.T) {
 	api := gin.New()
 	api.GET(relativePathEmployees, handler.GetAll())
 
-	service.EXPECT().GetAll().Return(empList, nil)
+	service.EXPECT().GetAll(gomock.Any()).Return(empList, nil)
 	req := httptest.NewRequest(http.MethodGet, relativePathEmployees, nil)
 	resp := httptest.NewRecorder()
 	api.ServeHTTP(resp, req)
@@ -80,7 +80,7 @@ func TestController_ById_Nok(t *testing.T) {
 	service, handler := callMock(t)
 	api := gin.New()
 	api.GET(target, handler.GetById())
-	service.EXPECT().GetById(int64(1)).Return(nil, errors.New("employee 1 not found id"))
+	service.EXPECT().GetById(gomock.Any(), int64(1)).Return(nil, errors.New("employee 1 not found id"))
 	req := httptest.NewRequest(http.MethodGet, "/api/v1/employees/1", nil)
 	resp := httptest.NewRecorder()
 	api.ServeHTTP(resp, req)
@@ -104,7 +104,7 @@ func TestController_ById_Ok(t *testing.T) {
 	//id := "1"
 	api := gin.New()
 	api.GET(target, handler.GetById())
-	service.EXPECT().GetById(int64(1)).Return(emp, nil)
+	service.EXPECT().GetById(gomock.Any(), int64(1)).Return(emp, nil)
 	req := httptest.NewRequest(http.MethodGet, "/api/v1/employees/1", nil)
 	resp := httptest.NewRecorder()
 	api.ServeHTTP(resp, req)
@@ -129,7 +129,7 @@ func TestController_Create_Ok(t *testing.T) {
 	service, handler := callMock(t)
 	api := gin.New()
 	api.POST(relativePathEmployees, handler.Create())
-	service.EXPECT().Create("3030", "Douglas", "Mendes", 3).Return(emp, nil)
+	service.EXPECT().Create(gomock.Any(), "3030", "Douglas", "Mendes", 3).Return(emp, nil)
 	body := `{"card_number_id": "3030","first_name": "Douglas","last_name": "Mendes","warehouse_id": 3}`
 	req := httptest.NewRequest(http.MethodPost, relativePathEmployees, bytes.NewBuffer([]byte(body)))
 	resp := httptest.NewRecorder()
@@ -146,7 +146,7 @@ func TestController_Create_Nok(t *testing.T) {
 	api := gin.New()
 	api.POST(relativePathEmployees, handler.Create())
 
-	service.EXPECT().Create(
+	service.EXPECT().Create(gomock.Any(),
 		"3030",
 		"Douglas",
 		"Mendes",
@@ -178,7 +178,7 @@ func TestController_Update_Ok(t *testing.T) {
 	service, handler := callMock(t)
 	api := gin.New()
 	api.PATCH(target, handler.Update())
-	service.EXPECT().Update(
+	service.EXPECT().Update(gomock.Any(),
 		int64(1),
 		"3030",
 		"Douglas",
@@ -207,7 +207,7 @@ func TestController_Update_Nok(t *testing.T) {
 	service, handler := callMock(t)
 	api := gin.New()
 	api.PATCH(target, handler.Update())
-	service.EXPECT().Update(
+	service.EXPECT().Update(gomock.Any(),
 		int64(1),
 		"3030",
 		"Douglas",
@@ -233,7 +233,7 @@ func TestController_Delete_Ok(t *testing.T) {
 	api := gin.New()
 	api.DELETE(target, handler.Delete())
 
-	service.EXPECT().Delete(int64(1)).Return(nil)
+	service.EXPECT().Delete(gomock.Any(), int64(1)).Return(nil)
 	req := httptest.NewRequest(
 		http.MethodDelete,
 		"/api/v1/employees/1",
@@ -249,7 +249,7 @@ func TestController_Delete_Nok(t *testing.T) {
 	api := gin.New()
 	api.DELETE(target, handler.Delete())
 
-	service.EXPECT().Delete(int64(1)).Return(errors.New("this employee already exists"))
+	service.EXPECT().Delete(gomock.Any(), int64(1)).Return(errors.New("this employee already exists"))
 	req := httptest.NewRequest(
 		http.MethodDelete,
 		"/api/v1/employees/1",
