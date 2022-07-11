@@ -55,10 +55,10 @@ func TestCreate_Ok(t *testing.T) {
 
 	lcList := []domain.Locality{
 		{
-		Id:           3,
-		LocalityName: "Oliva",
-		ProvinceName: "Curitiba",
-		CountryName:  "Brasil",
+			Id:           3,
+			LocalityName: "Oliva",
+			ProvinceName: "Curitiba",
+			CountryName:  "Brasil",
 		},
 	}
 
@@ -83,11 +83,11 @@ func TestCreate_NOk(t *testing.T) {
 
 	lcList := []domain.Locality{
 		{
-		Id:           3,
-		ZipCode: "54365211",
-		LocalityName: "Oliva",
-		ProvinceName: "Curitiba",
-		CountryName:  "Brasil",
+			Id:           3,
+			ZipCode:      "54365211",
+			LocalityName: "Oliva",
+			ProvinceName: "Curitiba",
+			CountryName:  "Brasil",
 		},
 	}
 
@@ -104,11 +104,11 @@ func TestCreate_Conflict(t *testing.T) {
 
 	lcList := []domain.Locality{
 		{
-		Id:           3,
-		ZipCode: "54365212",
-		LocalityName: "Oliva",
-		ProvinceName: "Curitiba",
-		CountryName:  "Brasil",
+			Id:           3,
+			ZipCode:      "54365212",
+			LocalityName: "Oliva",
+			ProvinceName: "Curitiba",
+			CountryName:  "Brasil",
 		},
 	}
 
@@ -129,4 +129,23 @@ func TestCreate_GetAll_NOk(t *testing.T) {
 
 	_, err := service.Create(context.TODO(), "54365212", "Oliva", "Curitiba", "Brasil")
 	assert.NotNil(t, err)
+}
+
+func TestService_GetByCarriers_OK(t *testing.T) {
+	localCarrier := []domain.CarriersByLocality{
+		{
+			LocalityId:    1,
+			LocalityName:  "Nexus",
+			CarriersCount: 12,
+		},
+	}
+
+	apiMock, service := callMock(t)
+
+	apiMock.EXPECT().GetByCarriers(context.TODO(), 1).Return(localCarrier, nil)
+
+	result, err := service.GetByCarriers(context.TODO(), 1)
+	assert.Equal(t, localCarrier[0].CarriersCount, result[0].CarriersCount)
+	assert.Nil(t, err)
+
 }
