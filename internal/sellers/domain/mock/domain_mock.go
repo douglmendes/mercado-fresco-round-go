@@ -36,7 +36,7 @@ func (m *MockRepository) EXPECT() *MockRepositoryMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockRepository) Create(ctx context.Context, cid int, commpanyName, address, telephone, localityId string) (domain.Seller, error) {
+func (m *MockRepository) Create(ctx context.Context, cid int, commpanyName, address, telephone string, localityId int) (domain.Seller, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Create", ctx, cid, commpanyName, address, telephone, localityId)
 	ret0, _ := ret[0].(domain.Seller)
@@ -95,7 +95,7 @@ func (mr *MockRepositoryMockRecorder) GetById(ctx, id interface{}) *gomock.Call 
 }
 
 // Update mocks base method.
-func (m *MockRepository) Update(ctx context.Context, id, cid int, commpanyName, address, telephone, localityId string) (domain.Seller, error) {
+func (m *MockRepository) Update(ctx context.Context, id, cid int, commpanyName, address, telephone string, localityId int) (domain.Seller, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Update", ctx, id, cid, commpanyName, address, telephone, localityId)
 	ret0, _ := ret[0].(domain.Seller)
@@ -133,7 +133,7 @@ func (m *MockService) EXPECT() *MockServiceMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockService) Create(ctx context.Context, cid int, commpanyName, address, telephone, localityId string) (domain.Seller, error) {
+func (m *MockService) Create(ctx context.Context, cid int, commpanyName, address, telephone string, localityId int) (domain.Seller, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Create", ctx, cid, commpanyName, address, telephone, localityId)
 	ret0, _ := ret[0].(domain.Seller)
@@ -192,7 +192,7 @@ func (mr *MockServiceMockRecorder) GetById(ctx, id interface{}) *gomock.Call {
 }
 
 // Update mocks base method.
-func (m *MockService) Update(ctx context.Context, id, cid int, companyname, address, telephone, localityId string) (domain.Seller, error) {
+func (m *MockService) Update(ctx context.Context, id, cid int, companyname, address, telephone string, localityId int) (domain.Seller, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Update", ctx, id, cid, companyname, address, telephone, localityId)
 	ret0, _ := ret[0].(domain.Seller)

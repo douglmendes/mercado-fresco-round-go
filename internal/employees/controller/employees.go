@@ -37,7 +37,7 @@ func NewEmployees(e domain.Service) *EmployeesController {
 // @Router       /api/v1/employees [get]
 func (c *EmployeesController) GetAll() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		e, err := c.service.GetAll()
+		e, err := c.service.GetAll(ctx)
 		if err != nil {
 			ctx.JSON(http.StatusNotFound, gin.H{
 				"error": err.Error(),
@@ -65,7 +65,7 @@ func (c *EmployeesController) GetById() gin.HandlerFunc {
 			ctx.JSON(400, gin.H{"error": "Invalid ID"})
 			return
 		}
-		e, err := c.service.GetById(int64(id))
+		e, err := c.service.GetById(ctx, int64(id))
 		if err != nil {
 			ctx.JSON(404, gin.H{"error": err.Error()})
 			return
@@ -97,7 +97,7 @@ func (c *EmployeesController) Create() gin.HandlerFunc {
 				})
 			return
 		}
-		e, err := c.service.Create(req.CardNumberId, req.FirstName, req.LastName, req.WarehouseId)
+		e, err := c.service.Create(ctx, req.CardNumberId, req.FirstName, req.LastName, req.WarehouseId)
 		if err != nil {
 			ctx.JSON(http.StatusConflict, gin.H{"error": err.Error()})
 			return
@@ -132,7 +132,7 @@ func (c *EmployeesController) Update() gin.HandlerFunc {
 			ctx.JSON(400, gin.H{"error": err.Error})
 			return
 		}
-		e, err := c.service.Update(int64(id), req.CardNumberId, req.FirstName, req.LastName, req.WarehouseId)
+		e, err := c.service.Update(ctx, int64(id), req.CardNumberId, req.FirstName, req.LastName, req.WarehouseId)
 		if err != nil {
 			ctx.JSON(404, gin.H{"error": err.Error()})
 			return
@@ -161,7 +161,7 @@ func (c *EmployeesController) Delete() gin.HandlerFunc {
 			ctx.JSON(400, gin.H{"error": "invalid ID"})
 			return
 		}
-		err = c.service.Delete(int64(id))
+		err = c.service.Delete(ctx, int64(id))
 		if err != nil {
 			ctx.JSON(404, gin.H{"error": err.Error()})
 			return
