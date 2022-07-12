@@ -23,8 +23,8 @@ func NewCarries(c domain.CarrierService) *CarrierController {
 // @Description create one carrie
 // @Accept  json
 // @Produce  json
-// @Param warehouses body whRequest true "Warehouse to create"
-// @Success 201 {object} warehouses.Warehouse
+// @Param warehouses body carriesCreateRequest true "Carrier to create"
+// @Success 201 {object} domain.Carrier
 // @Failure 422 {object} response.Response
 // @Router /api/v1/carriers [post]
 func (c *CarrierController) Create() gin.HandlerFunc {
