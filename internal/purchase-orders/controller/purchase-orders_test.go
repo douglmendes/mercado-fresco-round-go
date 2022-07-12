@@ -3,6 +3,7 @@ package controller
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -30,6 +31,7 @@ var (
 		OrderStatusId:   1,
 	}
 	noPurchaseOrder domain.PurchaseOrder
+	someError       = errors.New("some error")
 )
 
 type purchaseOrderResponseBody struct {
@@ -99,6 +101,34 @@ func TestPurchaseOrderController_Create(t *testing.T) {
 			buildStubs: func(service *mock_domain.MockService, ctx gomock.Matcher) {},
 			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
 				assert.Equal(t, http.StatusUnprocessableEntity, res.Code)
+
+				body := purchaseOrderResponseBody{}
+				json.Unmarshal(res.Body.Bytes(), &body)
+
+				assert.Equal(t, noPurchaseOrder, body.Data)
+				assert.NotEmpty(t, body.Error)
+			},
+		},
+		{
+			name:    "Conflict",
+			payload: newPurchaseOrder,
+			buildStubs: func(service *mock_domain.MockService, ctx gomock.Matcher) {
+				service.
+					EXPECT().
+					Create(
+						ctx,
+						newPurchaseOrder.OrderNumber,
+						newPurchaseOrder.OrderDate,
+						newPurchaseOrder.TrackingCode,
+						newPurchaseOrder.BuyerId,
+						newPurchaseOrder.ProductRecordId,
+						newPurchaseOrder.OrderStatusId,
+					).
+					Times(ONCE).
+					Return(&noPurchaseOrder, someError)
+			},
+			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
+				assert.Equal(t, http.StatusConflict, res.Code)
 
 				body := purchaseOrderResponseBody{}
 				json.Unmarshal(res.Body.Bytes(), &body)
