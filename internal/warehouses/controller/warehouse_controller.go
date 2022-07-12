@@ -20,8 +20,8 @@ type WarehousesController struct {
 // @Description create one warehouse
 // @Accept  json
 // @Produce  json
-// @Param warehouses body whRequest true "Warehouse to create"
-// @Success 201 {object} warehouses.Warehouse
+// @Param warehouses body whCreateRequest true "Warehouse to create"
+// @Success 201 {object} domain.Warehouse
 // @Failure 422 {object} response.Response
 // @Router /api/v1/warehouses [post]
 func (w *WarehousesController) Create() gin.HandlerFunc {
@@ -76,7 +76,7 @@ func (w *WarehousesController) GetAll() gin.HandlerFunc {
 // @Accept  json
 // @Produce  json
 // @Param id path int true "Warehouse ID"
-// @Success 200 {object} warehouses.Warehouse
+// @Success 200 {object} domain.Warehouse
 // @Failure 400 {object} response.Response
 // @Failure 404 {object} response.Response
 // @Router /api/v1/warehouses/{id} [get]
@@ -106,15 +106,14 @@ func (w *WarehousesController) GetById() gin.HandlerFunc {
 // @Description Update a warehouse by ID
 // @Accept  json
 // @Produce  json
-// @Param warehouse body whRequest true "Warehouse to update"
+// @Param warehouse body whUpdateRequest true "Warehouse to update"
 // @Param id path int true "Warehouse ID"
-// @Success 200 {object} warehouses.Warehouse
+// @Success 200 {object} domain.Warehouse
 // @Failure 404 {object} response.Response
 // @Router /api/v1/warehouses/{id} [patch]
 func (w *WarehousesController) Update() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 
-		//id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		id, err := strconv.Atoi(ctx.Param("id"))
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": "id is not valid"})
@@ -155,7 +154,6 @@ func (w *WarehousesController) Update() gin.HandlerFunc {
 func (w *WarehousesController) Delete() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 
-		//id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		id, err := strconv.Atoi(ctx.Param("id"))
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": "id is not valid"})

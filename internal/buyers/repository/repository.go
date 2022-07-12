@@ -109,7 +109,7 @@ func (r *repository) Create(cardNumberId, firstName, lastName string) (*domain.B
 	if err != nil {
 		return nil, fmt.Errorf("error retrieving id %d ", id)
 	}
-	e := domain.Buyer{int(id), cardNumberId, firstName, lastName}
+	e := domain.Buyer{Id: int(id), CardNumberId: cardNumberId, FirstName: firstName, LastName: lastName}
 	return &e, nil
 }
 

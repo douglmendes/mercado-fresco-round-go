@@ -17,7 +17,7 @@ type OrdersByBuyers struct {
 	PurchaseOrdersCount int    `json:"purchase_orders_count"`
 }
 
-//go:generate mockgen -source=./domain.go -destination=./mock/domain_mock.go
+//go:generate mockgen -source=./buyers.go -destination=./mock/buyers_mock.go
 type Repository interface {
 	GetById(id int) (*Buyer, error)
 	GetAll() ([]Buyer, error)
