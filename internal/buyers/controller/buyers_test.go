@@ -157,6 +157,20 @@ func TestBuyerController_Create_Conflict(t *testing.T) {
 	assert.Equal(t, http.StatusConflict, resp.Code)
 }
 
+func TestBuyerController_Create_WithoutCardNumberID(t *testing.T) {
+	_, handler, api := callBuyersMock(t)
+	api.POST(relativeBuyerPath, handler.Create())
+
+	payload := `{"first_name": "Mickey", "last_name": "Mouse"}`
+
+	req := httptest.NewRequest(http.MethodPost, relativeBuyerPath, bytes.NewBuffer([]byte(payload)))
+	resp := httptest.NewRecorder()
+	api.ServeHTTP(resp, req)
+
+	assert.Equal(t, http.StatusUnprocessableEntity, resp.Code)
+
+}
+
 func TestWarehousesController_Delete_OK(t *testing.T) {
 	service, handler, api := callBuyersMock(t)
 	api.DELETE(relativePathBuyersId, handler.Delete())
