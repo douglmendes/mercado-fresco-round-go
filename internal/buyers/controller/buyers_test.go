@@ -196,6 +196,33 @@ func TestBuyerController_Create_WithoutLastName(t *testing.T) {
 	assert.Equal(t, http.StatusUnprocessableEntity, resp.Code)
 }
 
+func TestBuyerController_Update_OK(t *testing.T) {
+	buyer := domain.Buyer{
+		Id:           1,
+		CardNumberId: "1234",
+		FirstName:    "Mickey",
+		LastName:     "Mouse",
+	}
+
+	service, handler, api := callBuyersMock(t)
+	api.PATCH(relativePathBuyersId, handler.Update())
+
+	service.EXPECT().Update(
+		1,
+		"1234",
+		"Silvio",
+		"Santos",
+	).Return(&buyer, nil)
+
+	payload := `{"card_number_id": "1234", "first_name": "Silvio", "last_name": "Santos"}`
+
+	req := httptest.NewRequest(http.MethodPatch, fmt.Sprintf("/api/v1/buyers/%s", "1"), bytes.NewBuffer([]byte(payload)))
+	resp := httptest.NewRecorder()
+	api.ServeHTTP(resp, req)
+
+	assert.Equal(t, http.StatusOK, resp.Code)
+}
+
 func TestBuyersController_Delete_OK(t *testing.T) {
 	service, handler, api := callBuyersMock(t)
 	api.DELETE(relativePathBuyersId, handler.Delete())
