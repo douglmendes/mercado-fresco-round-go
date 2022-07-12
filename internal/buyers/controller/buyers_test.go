@@ -120,3 +120,29 @@ func TestWarehousesController_GetById_BadRequest(t *testing.T) {
 
 	assert.Equal(t, http.StatusNotFound, resp.Code)
 }
+
+func TestWarehousesController_Delete_OK(t *testing.T) {
+	service, handler, api := callBuyersMock(t)
+	api.DELETE(relativePathBuyersId, handler.Delete())
+
+	service.EXPECT().Delete(1).Return(nil)
+
+	req := httptest.NewRequest(http.MethodDelete, fmt.Sprintf("/api/v1/buyers/%s", "1"), nil)
+	resp := httptest.NewRecorder()
+	api.ServeHTTP(resp, req)
+
+	assert.Equal(t, http.StatusNoContent, resp.Code)
+}
+
+func TestWarehousesController_Delete_NOK(t *testing.T) {
+	service, handler, api := callBuyersMock(t)
+	api.DELETE(relativePathBuyersId, handler.Delete())
+
+	service.EXPECT().Delete(1).Return(errors.New("erro 404"))
+
+	req := httptest.NewRequest(http.MethodDelete, fmt.Sprintf("/api/v1/buyers/%s", "1"), nil)
+	resp := httptest.NewRecorder()
+	api.ServeHTTP(resp, req)
+
+	assert.Equal(t, http.StatusNotFound, resp.Code)
+}
