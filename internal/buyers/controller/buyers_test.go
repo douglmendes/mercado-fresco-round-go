@@ -109,3 +109,14 @@ func TestBuyersController_GetById_NOK(t *testing.T) {
 
 	assert.Equal(t, http.StatusNotFound, resp.Code)
 }
+
+func TestWarehousesController_GetById_BadRequest(t *testing.T) {
+	_, handler, api := callBuyersMock(t)
+	api.GET(relativePathBuyersId, handler.GetById())
+
+	req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/buyers/%s", "hadouken"), nil)
+	resp := httptest.NewRecorder()
+	api.ServeHTTP(resp, req)
+
+	assert.Equal(t, http.StatusNotFound, resp.Code)
+}
