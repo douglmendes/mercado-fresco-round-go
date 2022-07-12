@@ -50,12 +50,11 @@ func (mr *MockRepositoryMockRecorder) Create(sectionNumber, currentTemperature, 
 }
 
 // Delete mocks base method.
-func (m *MockRepository) Delete(id int) (*domain.Section, error) {
+func (m *MockRepository) Delete(id int) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Delete", id)
-	ret0, _ := ret[0].(*domain.Section)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
 // Delete indicates an expected call of Delete.
@@ -106,21 +105,6 @@ func (m *MockRepository) GetById(id int) (*domain.Section, error) {
 func (mr *MockRepositoryMockRecorder) GetById(id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetById", reflect.TypeOf((*MockRepository)(nil).GetById), id)
-}
-
-// LastID mocks base method.
-func (m *MockRepository) LastID() (int, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "LastID")
-	ret0, _ := ret[0].(int)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// LastID indicates an expected call of LastID.
-func (mr *MockRepositoryMockRecorder) LastID() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LastID", reflect.TypeOf((*MockRepository)(nil).LastID))
 }
 
 // Update mocks base method.
@@ -177,12 +161,11 @@ func (mr *MockServiceMockRecorder) Create(sectionNumber, currentTemperature, min
 }
 
 // Delete mocks base method.
-func (m *MockService) Delete(id int) (*domain.Section, error) {
+func (m *MockService) Delete(id int) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Delete", id)
-	ret0, _ := ret[0].(*domain.Section)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
 // Delete indicates an expected call of Delete.

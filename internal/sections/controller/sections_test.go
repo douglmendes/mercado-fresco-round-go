@@ -300,7 +300,7 @@ func TestSections_Delete_Non_Existent(t *testing.T) {
 	service, handler, api := mockSections(t)
 	api.DELETE(pathIdSections, handler.Delete)
 
-	service.EXPECT().Delete(1).Return(nil, &domain.ErrorNotFound{Id: 1})
+	service.EXPECT().Delete(1).Return(&domain.ErrorNotFound{Id: 1})
 
 	req := httptest.NewRequest(http.MethodDelete, pathSections+idSections, nil)
 	resp := httptest.NewRecorder()
@@ -313,7 +313,7 @@ func TestSections_Delete_OK(t *testing.T) {
 	service, handler, api := mockSections(t)
 	api.DELETE(pathIdSections, handler.Delete)
 
-	service.EXPECT().Delete(1).Return(nil, nil)
+	service.EXPECT().Delete(1).Return(nil)
 
 	req := httptest.NewRequest(http.MethodDelete, pathSections+idSections, nil)
 	resp := httptest.NewRecorder()
