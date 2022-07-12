@@ -17,8 +17,9 @@ import (
 )
 
 const (
-	localityRelativePath = "/api/v1/localities/"
+	localityRelativePath       = "/api/v1/localities/"
 	localityRelativePathReport = "/api/v1/localities/reportSellers"
+	localityPathCarrierReport  = "/api/v1/localities/reportCarriers"
 )
 
 func callMockLocality(t *testing.T) (*mock_domain.MockLocalityService, *LocalityController, *gin.Engine) {
@@ -79,11 +80,11 @@ func TestLocalitiesController_GetBySellers_NOk(t *testing.T) {
 func TestLocalitiesController_Create_Ok(t *testing.T) {
 
 	lc := domain.Locality{
-		Id:   1,
-		ZipCode: "54365212",
+		Id:           1,
+		ZipCode:      "54365212",
 		LocalityName: "Lux",
 		ProvinceName: "Aracaju",
-		CountryName: "Brasil",
+		CountryName:  "Brasil",
 	}
 
 	service, handler, api := callMockLocality(t)
@@ -150,4 +151,56 @@ func TestLocalitiesController_GetBySellers_InvalidId(t *testing.T) {
 	_ = json.Unmarshal(resp.Body.Bytes(), &respExpect)
 
 	assert.Equal(t, http.StatusBadRequest, resp.Code)
+}
+
+func TestLocalityController_GetByCarriers_OK(t *testing.T) {
+	carriersLocal := []domain.CarriersByLocality{
+		{
+			LocalityId:    2,
+			LocalityName:  "Rohan",
+			CarriersCount: 10,
+		},
+	}
+
+	service, handler, api := callMockLocality(t)
+
+	api.GET(localityPathCarrierReport, handler.GetByCarriers())
+
+	service.EXPECT().GetByCarriers(gomock.Any(), gomock.Eq(2)).Return(carriersLocal, nil)
+
+	req := httptest.NewRequest(http.MethodGet, fmt.Sprint("/api/v1/localities/reportCarriers?id=2"), nil)
+	resp := httptest.NewRecorder()
+	api.ServeHTTP(resp, req)
+
+	respExpect := struct{ Data []domain.CarriersByLocality }{}
+	_ = json.Unmarshal(resp.Body.Bytes(), &respExpect)
+
+	assert.Equal(t, http.StatusOK, resp.Code)
+	assert.Equal(t, respExpect.Data[0].CarriersCount, carriersLocal[0].CarriersCount)
+}
+
+func TestLocalityController_GetByCarriers_BadRequest(t *testing.T) {
+	_, handler, api := callMockLocality(t)
+
+	api.GET(localityPathCarrierReport, handler.GetByCarriers())
+
+	req := httptest.NewRequest(http.MethodGet, fmt.Sprint("/api/v1/localities/reportCarriers?id=vaifilhaum"), nil)
+	resp := httptest.NewRecorder()
+	api.ServeHTTP(resp, req)
+
+	assert.Equal(t, http.StatusBadRequest, resp.Code)
+}
+
+func TestLocalityController_GetByCarriers_StatusNotFound(t *testing.T) {
+	service, handler, api := callMockLocality(t)
+
+	api.GET(localityPathCarrierReport, handler.GetByCarriers())
+	service.EXPECT().GetByCarriers(gomock.Any(), gomock.Eq(1)).Return([]domain.CarriersByLocality{}, errors.New("error"))
+
+	req := httptest.NewRequest(http.MethodGet, fmt.Sprint("/api/v1/localities/reportCarriers?id=1"), nil)
+	resp := httptest.NewRecorder()
+	api.ServeHTTP(resp, req)
+
+	assert.Equal(t, http.StatusNotFound, resp.Code)
+
 }

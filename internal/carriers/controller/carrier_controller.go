@@ -23,8 +23,8 @@ func NewCarries(c domain.CarrierService) *CarrierController {
 // @Description create one carrie
 // @Accept  json
 // @Produce  json
-// @Param warehouses body whRequest true "Warehouse to create"
-// @Success 201 {object} warehouses.Warehouse
+// @Param warehouses body carriesCreateRequest true "Carrier to create"
+// @Success 201 {object} domain.Carrier
 // @Failure 422 {object} response.Response
 // @Router /api/v1/carriers [post]
 func (c *CarrierController) Create() gin.HandlerFunc {
@@ -54,9 +54,9 @@ func (c *CarrierController) Create() gin.HandlerFunc {
 }
 
 type carriesCreateRequest struct {
-	Cid         string `json:"cid"`
-	CompanyName string `json:"company_name"`
-	Address     string `json:"address"`
-	Telephone   string `json:"telephone"`
-	LocalityId  int    `json:"locality_id"`
+	Cid         string `json:"cid" binding:"required"`
+	CompanyName string `json:"company_name" binding:"required"`
+	Address     string `json:"address" binding:"required"`
+	Telephone   string `json:"telephone" binding:"required"`
+	LocalityId  int    `json:"locality_id" binding:"required"`
 }
