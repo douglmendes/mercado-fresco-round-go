@@ -97,3 +97,15 @@ func TestBuyersController_GetById(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.Code)
 	assert.Equal(t, buyer.FirstName, respExpect.Data.FirstName)
 }
+
+func TestBuyersController_GetById_NOK(t *testing.T) {
+	service, handler, api := callBuyersMock(t)
+	api.GET(relativePathBuyersId, handler.GetById())
+	service.EXPECT().GetById(1).Return(&domain.Buyer{}, errors.New("buyer 1 not found"))
+
+	req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/buyers/%s", "1"), nil)
+	resp := httptest.NewRecorder()
+	api.ServeHTTP(resp, req)
+
+	assert.Equal(t, http.StatusNotFound, resp.Code)
+}
