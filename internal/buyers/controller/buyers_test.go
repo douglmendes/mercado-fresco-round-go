@@ -223,6 +223,19 @@ func TestBuyerController_Update_OK(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.Code)
 }
 
+func TestBuyerController_Update_BadRequest(t *testing.T) {
+	_, handler, api := callBuyersMock(t)
+	api.PATCH(relativePathBuyersId, handler.Update())
+
+	payload := `{"card_number_id": "1234", "first_name": "Silvio", "last_name": "Santos"}`
+
+	req := httptest.NewRequest(http.MethodPatch, fmt.Sprintf("/api/v1/buyers/%s", "máoi!"), bytes.NewBuffer([]byte(payload)))
+	resp := httptest.NewRecorder()
+	api.ServeHTTP(resp, req)
+
+	assert.Equal(t, http.StatusBadRequest, resp.Code)
+}
+
 func TestBuyersController_Delete_OK(t *testing.T) {
 	service, handler, api := callBuyersMock(t)
 	api.DELETE(relativePathBuyersId, handler.Delete())
