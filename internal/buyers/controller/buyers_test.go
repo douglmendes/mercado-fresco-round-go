@@ -168,7 +168,19 @@ func TestBuyerController_Create_WithoutCardNumberID(t *testing.T) {
 	api.ServeHTTP(resp, req)
 
 	assert.Equal(t, http.StatusUnprocessableEntity, resp.Code)
+}
 
+func TestBuyerController_Create_WithoutFirstName(t *testing.T) {
+	_, handler, api := callBuyersMock(t)
+	api.POST(relativeBuyerPath, handler.Create())
+
+	payload := `{"card_number_id": "1234", "last_name": "Mouse"}`
+
+	req := httptest.NewRequest(http.MethodPost, relativeBuyerPath, bytes.NewBuffer([]byte(payload)))
+	resp := httptest.NewRecorder()
+	api.ServeHTTP(resp, req)
+
+	assert.Equal(t, http.StatusUnprocessableEntity, resp.Code)
 }
 
 func TestBuyersController_Delete_OK(t *testing.T) {
