@@ -38,7 +38,7 @@ var (
 	someError       = errors.New("some error")
 )
 
-func TestMariaDB_GetAll(t *testing.T) {
+func TestRepository_GetAll(t *testing.T) {
 	db, mock, err := sqlmock.New()
 	assert.NoError(t, err)
 	defer db.Close()
