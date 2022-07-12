@@ -16,7 +16,7 @@ func NewService(r domain.Repository) domain.Service {
 	}
 }
 
-func (s service) Create(ctx context.Context, orderNumber string, orderDate string, trackingCode string, buyerId int, carrierId int, productRecordId int, orderStatusId int) (*domain.PurchaseOrder, error) {
+func (s service) Create(ctx context.Context, orderNumber string, orderDate string, trackingCode string, buyerId int, productRecordId int, orderStatusId int) (*domain.PurchaseOrder, error) {
 	po, err := s.repository.GetAll(ctx)
 	if err != nil {
 		return nil, err
@@ -26,7 +26,7 @@ func (s service) Create(ctx context.Context, orderNumber string, orderDate strin
 			return nil, fmt.Errorf("order number already exists")
 		}
 	}
-	por, err := s.repository.Create(ctx, orderNumber, orderDate, trackingCode, buyerId, carrierId, productRecordId, orderStatusId)
+	por, err := s.repository.Create(ctx, orderNumber, orderDate, trackingCode, buyerId, productRecordId, orderStatusId)
 	if err != nil {
 		return nil, err
 	}
