@@ -19,15 +19,18 @@ const (
 	ONCE = 1
 )
 
-var purchaseOrder = domain.PurchaseOrder{
-	Id:              1,
-	OrderNumber:     "xpto",
-	OrderDate:       "2020-02-02",
-	TrackingCode:    "ew23143543jn",
-	BuyerId:         1,
-	ProductRecordId: 1,
-	OrderStatusId:   1,
-}
+var (
+	purchaseOrder = domain.PurchaseOrder{
+		Id:              1,
+		OrderNumber:     "xpto",
+		OrderDate:       "2020-02-02",
+		TrackingCode:    "ew23143543jn",
+		BuyerId:         1,
+		ProductRecordId: 1,
+		OrderStatusId:   1,
+	}
+	noPurchaseOrder domain.PurchaseOrder
+)
 
 type purchaseOrderResponseBody struct {
 	Data  domain.PurchaseOrder `json:"data"`
@@ -53,6 +56,8 @@ func callMock(t *testing.T) (
 func TestPurchaseOrderController_Create(t *testing.T) {
 	newPurchaseOrder := purchaseOrder
 	newPurchaseOrder.Id = 0
+
+	unprocessablePurchaseOrder := struct{}{}
 
 	testCases := []struct {
 		name        string
@@ -86,6 +91,20 @@ func TestPurchaseOrderController_Create(t *testing.T) {
 
 				assert.Equal(t, purchaseOrder, body.Data)
 				assert.Empty(t, body.Error)
+			},
+		},
+		{
+			name:       "Fail",
+			payload:    unprocessablePurchaseOrder,
+			buildStubs: func(service *mock_domain.MockService, ctx gomock.Matcher) {},
+			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
+				assert.Equal(t, http.StatusUnprocessableEntity, res.Code)
+
+				body := purchaseOrderResponseBody{}
+				json.Unmarshal(res.Body.Bytes(), &body)
+
+				assert.Equal(t, noPurchaseOrder, body.Data)
+				assert.NotEmpty(t, body.Error)
 			},
 		},
 	}

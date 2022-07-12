@@ -1,11 +1,12 @@
 package controller
 
 import (
+	"log"
+	"net/http"
+
 	"github.com/douglmendes/mercado-fresco-round-go/internal/purchase-orders/domain"
 	"github.com/douglmendes/mercado-fresco-round-go/pkg/response"
 	"github.com/gin-gonic/gin"
-	"log"
-	"net/http"
 )
 
 type PurchaseOrder struct {
@@ -13,7 +14,7 @@ type PurchaseOrder struct {
 }
 
 type requestPurchaseOrders struct {
-	OrderNumber     string `json:"order_number"`
+	OrderNumber     string `json:"order_number" binding:"required"`
 	OrderDate       string `json:"order_date"`
 	TrackingCode    string `json:"tracking_code"`
 	BuyerId         int    `json:"buyer_id"`
@@ -34,8 +35,8 @@ func (por *PurchaseOrder) Create() gin.HandlerFunc {
 			log.Println(req)
 			ctx.AbortWithStatusJSON(http.StatusUnprocessableEntity,
 				gin.H{
-					"error":  "VALIDATEERR-1",
-					"messge": "Invalid inputs. Please check your inputs",
+					"error":   "VALIDATEERR-1",
+					"message": "Invalid inputs. Please check your inputs",
 				})
 			return
 		}
