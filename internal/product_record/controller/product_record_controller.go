@@ -41,7 +41,7 @@ func (c *ProductRecordController) GetByProductId() gin.HandlerFunc {
 			}
 		}
 
-		productRecords, err := c.service.GetByProductId(int(id))
+		productRecords, err := c.service.GetByProductId(ctx, int(id))
 		if err != nil {
 			ctx.JSON(http.StatusNotFound, response.DecodeError(err.Error()))
 			return
@@ -85,7 +85,7 @@ func (c *ProductRecordController) Create() gin.HandlerFunc {
 			ProductId:      req.ProductId,
 		}
 
-		product, err := c.service.Create(arg)
+		product, err := c.service.Create(ctx, arg)
 		if err != nil {
 			ctx.JSON(http.StatusConflict, response.DecodeError(err.Error()))
 			return
