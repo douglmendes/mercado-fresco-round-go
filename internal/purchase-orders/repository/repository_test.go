@@ -129,3 +129,58 @@ func TestRepository_GetAll(t *testing.T) {
 		})
 	}
 }
+
+func TestRepository_Create(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	assert.NoError(t, err)
+	defer db.Close()
+
+	testsCases := []struct {
+		name          string
+		buildStubs    func()
+		purchaseOrder domain.PurchaseOrder
+		checkResult   func(t *testing.T, result *domain.PurchaseOrder, err error)
+	}{
+		{
+			name: "OK",
+			buildStubs: func() {
+				mock.
+					ExpectExec(regexp.QuoteMeta(queryCreate)).
+					WithArgs(
+						firstPurchaseOrder.OrderNumber,
+						firstPurchaseOrder.OrderDate,
+						firstPurchaseOrder.TrackingCode,
+						firstPurchaseOrder.BuyerId,
+						firstPurchaseOrder.ProductRecordId,
+						firstPurchaseOrder.OrderStatusId,
+					).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+			},
+			purchaseOrder: firstPurchaseOrder,
+			checkResult: func(t *testing.T, result *domain.PurchaseOrder, err error) {
+				assert.NoError(t, err)
+				assert.Equal(t, &firstPurchaseOrder, result)
+			},
+		},
+	}
+
+	for _, testCase := range testsCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			testCase.buildStubs()
+
+			repository := NewRepository(db)
+
+			result, err := repository.Create(
+				context.Background(),
+				testCase.purchaseOrder.OrderNumber,
+				testCase.purchaseOrder.OrderDate,
+				testCase.purchaseOrder.TrackingCode,
+				testCase.purchaseOrder.BuyerId,
+				testCase.purchaseOrder.ProductRecordId,
+				testCase.purchaseOrder.OrderStatusId,
+			)
+
+			testCase.checkResult(t, result, err)
+		})
+	}
+}
