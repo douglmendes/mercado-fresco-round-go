@@ -56,3 +56,15 @@ func TestCarrierController_Create_OK(t *testing.T) {
 
 	assert.Equal(t, http.StatusCreated, resp.Code)
 }
+
+func TestCarrierController_Create_StatusUnprocessableEntity(t *testing.T) {
+	_, handler, api := callCarriersMock(t)
+	api.POST(carriersRelativePath, handler.Create())
+
+	payload := `{"cid": "DUDE", "telephone": "24313243", "locality_id": 1}`
+	req := httptest.NewRequest(http.MethodPost, carriersRelativePath, bytes.NewBuffer([]byte(payload)))
+	resp := httptest.NewRecorder()
+	api.ServeHTTP(resp, req)
+
+	assert.Equal(t, http.StatusUnprocessableEntity, resp.Code)
+}
