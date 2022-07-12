@@ -18,11 +18,10 @@ type Section struct {
 type Repository interface {
 	GetAll() ([]Section, error)
 	GetById(id int) (*Section, error)
-	LastID() (int, error)
 	Create(sectionNumber, currentTemperature, minimumTemperature, currentCapacity, minimumCapacity, maximumCapacity, warehouseId, productTypeId int) (*Section, error)
 	Exists(id int) error
 	Update(id int, args map[string]int) (*Section, error)
-	Delete(id int) (*Section, error)
+	Delete(id int) error
 }
 
 type Service interface {
@@ -30,7 +29,7 @@ type Service interface {
 	GetById(id int) (*Section, error)
 	Create(sectionNumber, currentTemperature, minimumTemperature, currentCapacity, minimumCapacity, maximumCapacity, warehouseId, productTypeId int) (*Section, error)
 	Update(id int, args map[string]int) (*Section, error)
-	Delete(id int) (*Section, error)
+	Delete(id int) error
 }
 
 type ErrorNotFound struct {

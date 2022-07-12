@@ -1,66 +1,61 @@
 package repository
 
 import (
+	"database/sql"
+
 	"github.com/douglmendes/mercado-fresco-round-go/internal/sections/domain"
-	"github.com/douglmendes/mercado-fresco-round-go/pkg/store"
 )
 
 type repository struct {
-	database store.Store
+	database *sql.DB
 }
 
 func (r *repository) GetAll() ([]domain.Section, error) {
 	var data []domain.Section
 
-	if err := r.database.Read(&data); err != nil {
-		return []domain.Section{}, err
+	rows, err := r.database.Query(GetAllQuery)
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		var section domain.Section
+
+		if err := rows.Scan(&section.Id, &section.SectionNumber, &section.CurrentTemperature, &section.MinimumTemperature, &section.CurrentCapacity, &section.MinimumCapacity, &section.MaximumCapacity, &section.WarehouseId, &section.ProductTypeId); err != nil {
+			return nil, err
+		}
+
+		data = append(data, section)
 	}
 
 	return data, nil
 }
 
 func (r *repository) GetById(id int) (*domain.Section, error) {
-	data, err := r.GetAll()
-	if err != nil {
+	row := r.database.QueryRow(GetByIdQuery, id)
+
+	var section domain.Section
+
+	if err := row.Scan(&section.Id, &section.SectionNumber, &section.CurrentTemperature, &section.MinimumTemperature, &section.CurrentCapacity, &section.MinimumCapacity, &section.MaximumCapacity, &section.WarehouseId, &section.ProductTypeId); err != nil {
 		return nil, err
 	}
 
-	for _, section := range data {
-		if section.Id == id {
-			return &section, nil
-		}
-	}
-
-	return nil, &domain.ErrorNotFound{Id: id}
-}
-
-func (r *repository) LastID() (int, error) {
-	data, err := r.GetAll()
-	if err != nil {
-		return 0, err
-	}
-
-	count := len(data)
-	if count == 0 {
-		return 0, nil
-	}
-
-	return data[count-1].Id, nil
+	return &section, nil
 }
 
 func (r *repository) Create(sectionNumber, currentTemperature, minimumTemperature, currentCapacity, minimumCapacity, maximumCapacity, warehouseId, productTypeId int) (*domain.Section, error) {
-	lastID, err := r.LastID()
+	result, err := r.database.Exec(CreateQuery, sectionNumber, currentTemperature, minimumTemperature, currentCapacity, minimumCapacity, maximumCapacity, warehouseId, productTypeId)
 	if err != nil {
 		return nil, err
 	}
 
-	data, err := r.GetAll()
+	id, err := result.LastInsertId()
 	if err != nil {
 		return nil, err
 	}
 
 	section := domain.Section{
-		Id:                 lastID + 1,
+		Id:                 int(id),
 		SectionNumber:      sectionNumber,
 		CurrentTemperature: currentTemperature,
 		MinimumTemperature: minimumTemperature,
@@ -71,33 +66,12 @@ func (r *repository) Create(sectionNumber, currentTemperature, minimumTemperatur
 		ProductTypeId:      productTypeId,
 	}
 
-	data = append(data, section)
-
-	if err := r.database.Write(data); err != nil {
-		return nil, err
-	}
-
 	return &section, nil
 }
 
-func (r *repository) Delete(id int) (*domain.Section, error) {
-	data, err := r.GetAll()
-	if err != nil {
-		return nil, err
-	}
-
-	for i, section := range data {
-		if section.Id == id {
-			data = append(data[:i], data[i+1:]...)
-			err := r.database.Write(data)
-			if err != nil {
-				return nil, err
-			}
-			return &section, nil
-		}
-	}
-
-	return nil, &domain.ErrorNotFound{Id: id}
+func (r *repository) Delete(id int) error {
+	_, err := r.database.Exec(DeleteQuery, id)
+	return err
 }
 
 func (r *repository) Exists(id int) error {
@@ -106,47 +80,40 @@ func (r *repository) Exists(id int) error {
 }
 
 func (r *repository) Update(id int, args map[string]int) (*domain.Section, error) {
-	data, err := r.GetAll()
+	section, err := r.GetById(id)
 	if err != nil {
 		return nil, err
-	}
-
-	var selectedSection *domain.Section
-	for i, section := range data {
-		if section.Id == id {
-			selectedSection = &data[i]
-			break
-		}
 	}
 
 	for key, value := range args {
 		switch key {
 		case "section_number":
-			selectedSection.SectionNumber = value
+			section.SectionNumber = value
 		case "current_temperature":
-			selectedSection.CurrentTemperature = value
+			section.CurrentTemperature = value
 		case "minimum_temperature":
-			selectedSection.MinimumTemperature = value
+			section.MinimumTemperature = value
 		case "current_capacity":
-			selectedSection.CurrentCapacity = value
+			section.CurrentCapacity = value
 		case "minimum_capacity":
-			selectedSection.MinimumCapacity = value
+			section.MinimumCapacity = value
 		case "maximum_capacity":
-			selectedSection.MaximumCapacity = value
+			section.MaximumCapacity = value
 		case "warehouse_id":
-			selectedSection.WarehouseId = value
+			section.WarehouseId = value
 		case "product_type_id":
-			selectedSection.ProductTypeId = value
+			section.ProductTypeId = value
 		}
 	}
 
-	if err := r.database.Write(data); err != nil {
+	_, err = r.database.Exec(UpdateQuery, section.SectionNumber, section.CurrentTemperature, section.MinimumTemperature, section.CurrentCapacity, section.MinimumCapacity, section.MaximumCapacity, section.WarehouseId, section.ProductTypeId, id)
+	if err != nil {
 		return nil, err
 	}
 
-	return selectedSection, nil
+	return section, nil
 }
 
-func NewRepository(s store.Store) domain.Repository {
-	return &repository{s}
+func NewRepository(db *sql.DB) domain.Repository {
+	return &repository{db}
 }

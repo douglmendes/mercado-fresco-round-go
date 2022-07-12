@@ -200,10 +200,9 @@ func TestService_Delete_Non_Existent(t *testing.T) {
 
 	expectedError := domain.ErrorNotFound{Id: 3}
 
-	api.EXPECT().Delete(3).Return(nil, &expectedError)
+	api.EXPECT().Delete(3).Return(&expectedError)
 
-	res, err := service.Delete(3)
-	assert.Nil(t, res)
+	err := service.Delete(3)
 	assert.NotNil(t, err)
 	assert.EqualError(t, err, expectedError.Error())
 }
@@ -211,28 +210,10 @@ func TestService_Delete_Non_Existent(t *testing.T) {
 func TestService_Delete_OK(t *testing.T) {
 	api, service := callMock(t)
 
-	db := []domain.Section{
-		{
-			Id:                 1,
-			SectionNumber:      1,
-			CurrentTemperature: 14,
-			MinimumTemperature: 10,
-			CurrentCapacity:    50,
-			MinimumCapacity:    5,
-			MaximumCapacity:    100,
-			WarehouseId:        1,
-			ProductTypeId:      1,
-		},
-	}
+	api.EXPECT().Delete(1).Return(nil)
 
-	api.EXPECT().Delete(1).Return(&db[0], nil)
-
-	res, err := service.Delete(1)
-	assert.Equal(t, res, &db[0])
+	err := service.Delete(1)
 	assert.Nil(t, err)
 
 	api.EXPECT().GetAll().Return([]domain.Section{}, nil)
-
-	resDB, _ := service.GetAll()
-	assert.NotContains(t, resDB, db[0])
 }
