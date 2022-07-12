@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/douglmendes/mercado-fresco-round-go/internal/product_record/domain"
 	productRecordMockDomain "github.com/douglmendes/mercado-fresco-round-go/internal/product_record/domain/mock"
@@ -23,7 +24,7 @@ var (
 	emptyProductRecord = domain.ProductRecord{}
 	productRecord      = domain.ProductRecord{
 		Id:             1,
-		LastUpdateDate: "2022-07-09",
+		LastUpdateDate: getCurrentDate(),
 		PurchasePrice:  23.89,
 		SalePrice:      43.99,
 		ProductId:      1,
@@ -57,6 +58,12 @@ var (
 	emptyProduct             = productDomain.Product{}
 	someError                = errors.New("some error")
 )
+
+func getCurrentDate() string {
+	currentDate := time.Now()
+
+	return currentDate.String()[:10]
+}
 
 func callMock(t *testing.T) (
 	*productRecordMockDomain.MockProductRecordRepository,
