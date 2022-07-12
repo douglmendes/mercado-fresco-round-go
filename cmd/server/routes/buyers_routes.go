@@ -1,9 +1,10 @@
 package routes
 
 import (
-	"github.com/douglmendes/mercado-fresco-round-go/cmd/server/controllers"
-	"github.com/douglmendes/mercado-fresco-round-go/internal/buyers"
-	"github.com/douglmendes/mercado-fresco-round-go/pkg/store"
+	"github.com/douglmendes/mercado-fresco-round-go/connections"
+	buyersController "github.com/douglmendes/mercado-fresco-round-go/internal/buyers/controller"
+	buyersRepository "github.com/douglmendes/mercado-fresco-round-go/internal/buyers/repository"
+	buyersService "github.com/douglmendes/mercado-fresco-round-go/internal/buyers/service"
 	"github.com/gin-gonic/gin"
 )
 
@@ -11,16 +12,15 @@ func BuyersRoutes(group *gin.RouterGroup) {
 
 	buyerRouterGroup := group.Group("/buyers")
 	{
-		buyersDb := store.New(store.FileType, store.PathBuilder("/buyers.json"))
-		buyersDbRepo := buyers.NewRepository(buyersDb)
-		buyersService := buyers.NewService(buyersDbRepo)
-		b := controllers.NewBuyer(buyersService)
+		buyersDbRepo := buyersRepository.NewRepository(connections.NewConnection())
+		buyersService := buyersService.NewService(buyersDbRepo)
+		b := buyersController.NewBuyer(buyersService)
 
 		buyerRouterGroup.POST("/", b.Create())
 		buyerRouterGroup.GET("/", b.GetAll())
 		buyerRouterGroup.GET("/:id", b.GetById())
+		buyerRouterGroup.GET("/reportPurchaseOrders", b.GetOrdersByBuyers())
 		buyerRouterGroup.PATCH("/:id", b.Update())
 		buyerRouterGroup.DELETE("/:id", b.Delete())
-
 	}
 }

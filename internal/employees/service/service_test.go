@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"errors"
 	"github.com/douglmendes/mercado-fresco-round-go/internal/employees/domain"
 	"github.com/douglmendes/mercado-fresco-round-go/internal/employees/domain/mock"
@@ -45,10 +46,10 @@ func TestService_Create_Ok(t *testing.T) {
 	}
 	apiMock, service := callMock(t)
 	//repository
-	apiMock.EXPECT().GetAll().Return(empList, nil)
-	apiMock.EXPECT().Create("5050", "Renata", "Leal", 3).Return(emp, nil)
+	apiMock.EXPECT().GetAll(context.TODO()).Return(empList, nil)
+	apiMock.EXPECT().Create(context.TODO(), "5050", "Renata", "Leal", 3).Return(emp, nil)
 	//service
-	result, err := service.Create("5050", "Renata", "Leal", 3)
+	result, err := service.Create(context.TODO(), "5050", "Renata", "Leal", 3)
 	assert.Equal(t, result, emp)
 	assert.Nil(t, err)
 
@@ -76,10 +77,10 @@ func TestService_Create_Nok(t *testing.T) {
 	apiMock, service := callMock(t)
 	//repository
 	//apiMock.EXPECT().LastID().Return(2, nil)
-	apiMock.EXPECT().GetAll().Return(empList, nil)
-	apiMock.EXPECT().Create("3030", "Renata", "Leal", 3).Return(nil, errors.New("this card number id already exists"))
+	apiMock.EXPECT().GetAll(context.TODO()).Return(empList, nil)
+	apiMock.EXPECT().Create(context.TODO(), "3030", "Renata", "Leal", 3).Return(nil, errors.New("this card number id already exists"))
 	//service
-	_, err := service.Create("3030", "Renata", "Leal", 3)
+	_, err := service.Create(context.TODO(), "3030", "Renata", "Leal", 3)
 	assert.NotNil(t, err)
 
 }
@@ -104,9 +105,9 @@ func TestService_GetAll(t *testing.T) {
 	}
 	//repository
 	apiMock, service := callMock(t)
-	apiMock.EXPECT().GetAll().Return(emp, nil)
+	apiMock.EXPECT().GetAll(context.TODO()).Return(emp, nil)
 	//service
-	result, err := service.GetAll()
+	result, err := service.GetAll(context.TODO())
 	assert.Equal(t, len(result), len(emp))
 	assert.Nil(t, err)
 }
@@ -115,9 +116,9 @@ func TestService_GetAll(t *testing.T) {
 func TestService_GetById_Nok(t *testing.T) {
 
 	apiMock, service := callMock(t)
-	apiMock.EXPECT().GetById(int64(1)).Return(nil, errors.New("Employee 1 not found id"))
+	apiMock.EXPECT().GetById(context.TODO(), int64(1)).Return(nil, errors.New("Employee 1 not found id"))
 
-	_, err := service.GetById(1)
+	_, err := service.GetById(context.TODO(), 1)
 	assert.NotNil(t, err)
 }
 
@@ -132,9 +133,9 @@ func TestService_GetById_Ok(t *testing.T) {
 	}
 
 	apiMock, service := callMock(t)
-	apiMock.EXPECT().GetById(int64(1)).Return(emp, nil)
+	apiMock.EXPECT().GetById(context.TODO(), int64(1)).Return(emp, nil)
 
-	result, err := service.GetById(int64(1))
+	result, err := service.GetById(context.TODO(), int64(1))
 	assert.Equal(t, result.Id, int64(1))
 	assert.Nil(t, err)
 }
@@ -142,16 +143,16 @@ func TestService_GetById_Ok(t *testing.T) {
 //DELETE - delete_non_existent - Quando o funcionário não existir, será retornado null.
 func TestService_Delete_Ok(t *testing.T) {
 	apiMock, service := callMock(t)
-	apiMock.EXPECT().Delete(int64(1)).Return(nil)
-	err := service.Delete(int64(1))
+	apiMock.EXPECT().Delete(context.TODO(), int64(1)).Return(nil)
+	err := service.Delete(context.TODO(), int64(1))
 	assert.Nil(t, err)
 }
 
 //DELETE delete_ok Se a exclusão for bem-sucedida, o item não aparecerá na lista.
 func TestService_Delete_Nok(t *testing.T) {
 	apiMock, service := callMock(t)
-	apiMock.EXPECT().Delete(int64(1)).Return(errors.New("employee 1 not found"))
-	err := service.Delete(int64(1))
+	apiMock.EXPECT().Delete(context.TODO(), int64(1)).Return(errors.New("employee 1 not found"))
+	err := service.Delete(context.TODO(), int64(1))
 	assert.NotNil(t, err)
 }
 
@@ -184,10 +185,10 @@ func TestService_Update_Ok(t *testing.T) {
 	}
 	apiMock, service := callMock(t)
 	//repository
-	apiMock.EXPECT().GetAll().Return(empList, nil)
-	apiMock.EXPECT().Update(int64(1), "5050", "Douglas", "Mendes", 3).Return(emp, nil)
+	apiMock.EXPECT().GetAll(context.TODO()).Return(empList, nil)
+	apiMock.EXPECT().Update(context.TODO(), int64(1), "5050", "Douglas", "Mendes", 3).Return(emp, nil)
 	//service
-	result, err := service.Update(1, "5050", "Douglas", "Mendes", 3)
+	result, err := service.Update(context.TODO(), 1, "5050", "Douglas", "Mendes", 3)
 	assert.Nil(t, err)
 	assert.Equal(t, result, emp)
 
@@ -215,10 +216,10 @@ func TestService_Update_Nok(t *testing.T) {
 	}
 	apiMock, service := callMock(t)
 	//repository
-	apiMock.EXPECT().GetAll().Return(empList, nil)
-	apiMock.EXPECT().Update(int64(50), "5050", "Douglas", "Mendes", 3).Return(nil, errors.New("employee 60 not found"))
+	apiMock.EXPECT().GetAll(context.TODO()).Return(empList, nil)
+	apiMock.EXPECT().Update(context.TODO(), int64(50), "5050", "Douglas", "Mendes", 3).Return(nil, errors.New("employee 60 not found"))
 	//service
-	_, err := service.Update(int64(50), "5050", "Douglas", "Mendes", 3)
+	_, err := service.Update(context.TODO(), int64(50), "5050", "Douglas", "Mendes", 3)
 	assert.NotNil(t, err)
 	//assert.Equal(t, result, emp)
 

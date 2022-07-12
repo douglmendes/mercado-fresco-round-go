@@ -1,135 +1,175 @@
-package sellers
+package repository
 
 import (
+	"context"
+	"database/sql"
+	"errors"
 	"fmt"
+	"log"
 
 	"github.com/douglmendes/mercado-fresco-round-go/internal/sellers/domain"
-	"github.com/douglmendes/mercado-fresco-round-go/pkg/store"
 )
 
 type repository struct {
-	db store.Store
+	db *sql.DB
 }
 
-func (r *repository) GetAll() ([]domain.Seller, error) {
-	var sl []domain.Seller
-	if err := r.db.Read(&sl); err != nil {
-		return []domain.Seller{}, nil
-	}
-	return sl, nil
-}
-
-func (r *repository) GetById(id int) (domain.Seller, error) {
-	var sl []domain.Seller
-	if err := r.db.Read(&sl); err != nil {
-		return domain.Seller{}, nil
+func (r *repository) GetAll(ctx context.Context) ([]domain.Seller, error) {
+	var sellers []domain.Seller
+	rows, err := r.db.QueryContext(ctx, queryGetAll)
+	if err != nil {
+		return []domain.Seller{}, err
 	}
 
-	for i := range sl {
-		if sl[i].ID == id {
-			return sl[i], nil
+	defer rows.Close()
+
+	for rows.Next() {
+		var seller domain.Seller
+
+		if err := rows.Scan(
+			&seller.ID,
+			&seller.Cid,
+			&seller.CompanyName,
+			&seller.Address,
+			&seller.Telephone,
+			&seller.LocalityId,
+		); err != nil {
+			return sellers, err
 		}
-	}
 
-	return domain.Seller{}, fmt.Errorf("seller %d not found", id)
+		sellers = append(sellers, seller)
+	}
+	return sellers, nil
 }
 
-func (r *repository) LastID() (int, error) {
-	var sl []domain.Seller
-	if err := r.db.Read(&sl); err != nil {
-		return 0, err
+func (r *repository) GetById(ctx context.Context, id int) (domain.Seller, error) {
+
+	row := r.db.QueryRowContext(ctx, queryGetById, id)
+
+	seller := domain.Seller{}
+
+	err := row.Scan(
+		&seller.ID,
+		&seller.Cid,
+		&seller.CompanyName,
+		&seller.Address,
+		&seller.Telephone,
+		&seller.LocalityId,
+	)
+
+	if errors.Is(err, sql.ErrNoRows) {
+		return seller, fmt.Errorf("seller %d not found", id)
 	}
 
-	if len(sl) == 0 {
-		return 0, nil
+	if err != nil {
+		return seller, err
 	}
 
-	return sl[len(sl)-1].ID, nil
+	return seller, nil
 }
 
-func (r *repository) Create(id, cid int, commpanyName, address, telephone string) (domain.Seller, error) {
-	var sl []domain.Seller
-	if err := r.db.Read(&sl); err != nil {
+func (r *repository) Create(ctx context.Context, cid int, commpanyName, address, telephone string, localityId int) (domain.Seller, error) {
+
+	seller := domain.Seller{
+		Cid:         cid,
+		CompanyName: commpanyName,
+		Address:     address,
+		Telephone:   telephone,
+		LocalityId:  localityId,
+	}
+
+	result, err := r.db.ExecContext(
+		ctx,
+		queryCreate,
+		cid,
+		commpanyName,
+		address,
+		telephone,
+		localityId,
+	)
+
+	if err != nil {
 		return domain.Seller{}, err
 	}
-	s := domain.Seller{id, cid, commpanyName, address, telephone}
-	sl = append(sl, s)
-	if err := r.db.Write(sl); err != nil {
+
+	lastID, err := result.LastInsertId()
+	if err != nil {
 		return domain.Seller{}, err
 	}
-	return s, nil
+
+	seller.ID = int(lastID)
+
+	return seller, nil
 }
 
-func (r *repository) Update(id, cid int, commpanyName, address, telephone string) (domain.Seller, error) {
-	var sl []domain.Seller
-	if err := r.db.Read(&sl); err != nil {
-		return domain.Seller{}, err
-	}
+func (r *repository) Update(ctx context.Context, id, cid int, commpanyName, address, telephone string, localityId int) (domain.Seller, error) {
 
-	s := domain.Seller{}
-
-	updated := false
-	for i := range sl {
-		if sl[i].ID == id {
-			s = sl[i]
-			if cid != 0 {
-				s.Cid = cid
-			}
-			if commpanyName != "" {
-				s.CompanyName = commpanyName
-			}
-			if address != "" {
-				s.Address = address
-			}
-			if telephone != "" {
-				s.Telephone = telephone
-			}
-
-			sl[i] = s
-			updated = true
-			if err := r.db.Write(sl); err != nil {
-				return domain.Seller{}, err
-			}
-		}
-	}
-
-	if !updated {
+	seller, err := r.GetById(ctx, id)
+	if err != nil {
 		return domain.Seller{}, fmt.Errorf("seller %d not found", id)
 	}
-	return s, nil
 
+	if cid != 0 {
+		seller.Cid = cid
+	}
+	if commpanyName != "" {
+		seller.CompanyName = commpanyName
+	}
+	if address != "" {
+		seller.Address = address
+	}
+	if telephone != "" {
+		seller.Telephone = telephone
+	}
+	if localityId != 0 {
+		seller.LocalityId = localityId
+	}
+
+	result, err := r.db.ExecContext(
+		ctx,
+		queryUpdate,
+		seller.Cid,
+		seller.CompanyName,
+		seller.Address,
+		seller.Telephone,
+		seller.LocalityId,
+		id,
+	)
+	if err != nil {
+		return domain.Seller{}, err
+	}
+
+	affectedRows, err := result.RowsAffected()
+	if err != nil {
+		return domain.Seller{}, err
+	}
+	log.Println(affectedRows)
+
+	return seller, nil
 }
 
-func (r *repository) Delete(id int) error {
-	var sl []domain.Seller
-	if err := r.db.Read(&sl); err != nil {
+func (r *repository) Delete(ctx context.Context, id int) error {
+
+	result, err := r.db.ExecContext(ctx, queryDelete, id)
+	if err != nil {
 		return err
 	}
 
-	deleted := false
-	var index int
-	for i := range sl {
-		if sl[i].ID == id {
-			index = i
-			deleted = true
-		}
-	}
+	affectedRows, err := result.RowsAffected()
 
-	if !deleted {
+	if affectedRows == 0 {
 		return fmt.Errorf("seller %d not found", id)
 	}
 
-	sl = append(sl[:index], sl[index+1:]...)
-	if err := r.db.Write(sl); err != nil {
+	if err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func NewRepository(db store.Store) domain.Repository {
+func NewRepository(db *sql.DB) domain.Repository {
 	return &repository{
 		db: db,
 	}
-
 }

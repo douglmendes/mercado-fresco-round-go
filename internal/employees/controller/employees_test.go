@@ -18,7 +18,7 @@ const (
 	target                = "/api/v1/employees/:id"
 )
 
-func callMockEmployees(t *testing.T) (*mock_domain.MockService, *EmployeesController) {
+func callMock(t *testing.T) (*mock_domain.MockService, *EmployeesController) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -47,11 +47,11 @@ func TestController_GetAll(t *testing.T) {
 		},
 	}
 
-	service, handler := callMockEmployees(t)
+	service, handler := callMock(t)
 	api := gin.New()
 	api.GET(relativePathEmployees, handler.GetAll())
 
-	service.EXPECT().GetAll().Return(empList, nil)
+	service.EXPECT().GetAll(gomock.Any()).Return(empList, nil)
 	req := httptest.NewRequest(http.MethodGet, relativePathEmployees, nil)
 	resp := httptest.NewRecorder()
 	api.ServeHTTP(resp, req)
@@ -62,7 +62,7 @@ func TestController_GetAll(t *testing.T) {
 
 func TestController_ById_BadRequest(t *testing.T) {
 
-	_, handler := callMockEmployees(t)
+	_, handler := callMock(t)
 
 	api := gin.New()
 	api.GET(relativePathEmployees, handler.GetById())
@@ -77,10 +77,10 @@ func TestController_ById_BadRequest(t *testing.T) {
 //READ find_by_id_non_existent Se o elemento procurado por id não existir, retorna null
 func TestController_ById_Nok(t *testing.T) {
 
-	service, handler := callMockEmployees(t)
+	service, handler := callMock(t)
 	api := gin.New()
 	api.GET(target, handler.GetById())
-	service.EXPECT().GetById(gomock.Eq(1)).Return(domain.Employee{}, errors.New("employee 1 not found id"))
+	service.EXPECT().GetById(gomock.Any(), int64(1)).Return(nil, errors.New("employee 1 not found id"))
 	req := httptest.NewRequest(http.MethodGet, "/api/v1/employees/1", nil)
 	resp := httptest.NewRecorder()
 	api.ServeHTTP(resp, req)
@@ -92,19 +92,19 @@ func TestController_ById_Nok(t *testing.T) {
 //READ find_by_id_existent Se o elemento procurado por id existir, ele retornará as informações do elemento solicitado
 func TestController_ById_Ok(t *testing.T) {
 
-	emp := domain.Employee{
+	emp := &domain.Employee{
 		Id:           1,
 		CardNumberId: "3030",
 		FirstName:    "Douglas",
 		LastName:     "Mendes",
 		WarehouseId:  3,
 	}
-	service, handler := callMockEmployees(t)
+	service, handler := callMock(t)
 
 	//id := "1"
 	api := gin.New()
 	api.GET(target, handler.GetById())
-	service.EXPECT().GetById(gomock.Eq(1)).Return(emp, nil)
+	service.EXPECT().GetById(gomock.Any(), int64(1)).Return(emp, nil)
 	req := httptest.NewRequest(http.MethodGet, "/api/v1/employees/1", nil)
 	resp := httptest.NewRecorder()
 	api.ServeHTTP(resp, req)
@@ -119,17 +119,17 @@ func TestController_ById_Ok(t *testing.T) {
 
 //CREATE create_ok Se contiver os campos necessários, será criado
 func TestController_Create_Ok(t *testing.T) {
-	emp := domain.Employee{
+	emp := &domain.Employee{
 		Id:           1,
 		CardNumberId: "3030",
 		FirstName:    "Douglas",
 		LastName:     "Mendes",
 		WarehouseId:  3,
 	}
-	service, handler := callMockEmployees(t)
+	service, handler := callMock(t)
 	api := gin.New()
 	api.POST(relativePathEmployees, handler.Create())
-	service.EXPECT().Create("3030", "Douglas", "Mendes", 3).Return(emp, nil)
+	service.EXPECT().Create(gomock.Any(), "3030", "Douglas", "Mendes", 3).Return(emp, nil)
 	body := `{"card_number_id": "3030","first_name": "Douglas","last_name": "Mendes","warehouse_id": 3}`
 	req := httptest.NewRequest(http.MethodPost, relativePathEmployees, bytes.NewBuffer([]byte(body)))
 	resp := httptest.NewRecorder()
@@ -142,16 +142,16 @@ func TestController_Create_Ok(t *testing.T) {
 //CREATE create_conflict Se o card_number_id já existir, ele não pode ser criado
 func TestController_Create_Nok(t *testing.T) {
 
-	service, handler := callMockEmployees(t)
+	service, handler := callMock(t)
 	api := gin.New()
 	api.POST(relativePathEmployees, handler.Create())
 
-	service.EXPECT().Create(
+	service.EXPECT().Create(gomock.Any(),
 		"3030",
 		"Douglas",
 		"Mendes",
 		3,
-	).Return(domain.Employee{}, errors.New("this card number id already exists"))
+	).Return(nil, errors.New("this card number id already exists"))
 
 	body := `{"card_number_id": "3030","first_name": "Douglas","last_name": "Mendes","warehouse_id": 3}`
 	req := httptest.NewRequest(http.MethodPost, relativePathEmployees, bytes.NewBuffer([]byte(body)))
@@ -167,7 +167,7 @@ func TestController_Create_Nok(t *testing.T) {
 //com as informações atualizadas
 //juntamente com um código 200
 func TestController_Update_Ok(t *testing.T) {
-	emp := domain.Employee{
+	emp := &domain.Employee{
 		Id:           1,
 		CardNumberId: "3030",
 		FirstName:    "Douglas",
@@ -175,11 +175,11 @@ func TestController_Update_Ok(t *testing.T) {
 		WarehouseId:  3,
 	}
 
-	service, handler := callMockEmployees(t)
+	service, handler := callMock(t)
 	api := gin.New()
 	api.PATCH(target, handler.Update())
-	service.EXPECT().Update(
-		gomock.Eq(1),
+	service.EXPECT().Update(gomock.Any(),
+		int64(1),
 		"3030",
 		"Douglas",
 		"Mendes",
@@ -204,16 +204,16 @@ func TestController_Update_Ok(t *testing.T) {
 //existir, um código 404 será retornado.
 func TestController_Update_Nok(t *testing.T) {
 
-	service, handler := callMockEmployees(t)
+	service, handler := callMock(t)
 	api := gin.New()
 	api.PATCH(target, handler.Update())
-	service.EXPECT().Update(
-		gomock.Eq(1),
+	service.EXPECT().Update(gomock.Any(),
+		int64(1),
 		"3030",
 		"Douglas",
 		"Mendes",
 		3,
-	).Return(domain.Employee{}, errors.New("this employee already exists"))
+	).Return(nil, errors.New("this employee already exists"))
 
 	body := `{"card_number_id": "3030","first_name": "Douglas","last_name": "Mendes","warehouse_id": 3}`
 	req := httptest.NewRequest(
@@ -229,11 +229,11 @@ func TestController_Update_Nok(t *testing.T) {
 
 }
 func TestController_Delete_Ok(t *testing.T) {
-	service, handler := callMockEmployees(t)
+	service, handler := callMock(t)
 	api := gin.New()
 	api.DELETE(target, handler.Delete())
 
-	service.EXPECT().Delete(1).Return(nil)
+	service.EXPECT().Delete(gomock.Any(), int64(1)).Return(nil)
 	req := httptest.NewRequest(
 		http.MethodDelete,
 		"/api/v1/employees/1",
@@ -245,11 +245,11 @@ func TestController_Delete_Ok(t *testing.T) {
 }
 
 func TestController_Delete_Nok(t *testing.T) {
-	service, handler := callMockEmployees(t)
+	service, handler := callMock(t)
 	api := gin.New()
 	api.DELETE(target, handler.Delete())
 
-	service.EXPECT().Delete(1).Return(errors.New("this employee already exists"))
+	service.EXPECT().Delete(gomock.Any(), int64(1)).Return(errors.New("this employee already exists"))
 	req := httptest.NewRequest(
 		http.MethodDelete,
 		"/api/v1/employees/1",
@@ -260,7 +260,7 @@ func TestController_Delete_Nok(t *testing.T) {
 	assert.Equal(t, http.StatusNotFound, resp.Code)
 }
 func TestController_Delete_BadRequest(t *testing.T) {
-	_, handler := callMockEmployees(t)
+	_, handler := callMock(t)
 	api := gin.New()
 	api.DELETE(target, handler.Delete())
 
