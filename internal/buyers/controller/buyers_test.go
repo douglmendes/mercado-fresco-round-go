@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -119,6 +120,27 @@ func TestWarehousesController_GetById_BadRequest(t *testing.T) {
 	api.ServeHTTP(resp, req)
 
 	assert.Equal(t, http.StatusNotFound, resp.Code)
+}
+
+func TestBuyerController_Create_OK(t *testing.T) {
+	buyer := domain.Buyer{
+		Id:           1,
+		CardNumberId: "1234",
+		FirstName:    "Mickey",
+		LastName:     "Mouse",
+	}
+
+	service, handler, api := callBuyersMock(t)
+	api.POST(relativeBuyerPath, handler.Create())
+
+	service.EXPECT().Create("1234", "Mickey", "Mouse").Return(&buyer, nil)
+	payload := `{"card_number_id": "1234", "first_name": "Mickey", "last_name": "Mouse"}`
+
+	req := httptest.NewRequest(http.MethodPost, relativeBuyerPath, bytes.NewBuffer([]byte(payload)))
+	resp := httptest.NewRecorder()
+	api.ServeHTTP(resp, req)
+
+	assert.Equal(t, http.StatusCreated, resp.Code)
 }
 
 func TestWarehousesController_Delete_OK(t *testing.T) {
