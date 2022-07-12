@@ -2,6 +2,7 @@ package controller
 
 import (
 	"encoding/json"
+	"errors"
 	"github.com/douglmendes/mercado-fresco-round-go/internal/buyers/domain"
 	mockbuyers "github.com/douglmendes/mercado-fresco-round-go/internal/buyers/domain/mock"
 	"github.com/gin-gonic/gin"
@@ -56,4 +57,15 @@ func TestBuyerController_GetAll_OK(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.Code)
 	assert.Equal(t, buyersList[1].CardNumberId, respExpect.Data[1].CardNumberId)
 
+}
+
+func TestBuyerController_GetAll_NotFound(t *testing.T) {
+	service, handler, api := callBuyersMock(t)
+	api.GET(relativeBuyerPath, handler.GetAll())
+	service.EXPECT().GetAll().Return([]domain.Buyer{}, errors.New("error"))
+	req := httptest.NewRequest(http.MethodGet, relativeBuyerPath, nil)
+	resp := httptest.NewRecorder()
+	api.ServeHTTP(resp, req)
+
+	assert.Equal(t, http.StatusNotFound, resp.Code)
 }
