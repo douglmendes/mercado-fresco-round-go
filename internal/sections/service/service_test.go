@@ -43,13 +43,24 @@ func TestService_Create_OK(t *testing.T) {
 
 func TestService_Create_Conflict(t *testing.T) {
 	api, service := callMock(t)
-	api.EXPECT().GetAll().Return([]domain.Section{}, nil)
+	api.EXPECT().GetAll().Return([]domain.Section{{
+		Id:                 1,
+		SectionNumber:      1,
+		CurrentTemperature: 15,
+		MinimumTemperature: 5,
+		CurrentCapacity:    150,
+		MinimumCapacity:    15,
+		MaximumCapacity:    250,
+		WarehouseId:        3,
+		ProductTypeId:      3,
+	}}, nil)
 
 	expectedError := domain.ErrorConflict{SectionNumber: 1}
 
 	api.EXPECT().Create(1, 15, 5, 150, 15, 250, 1, 1).Return(nil, &expectedError)
 
-	_, err := service.Create(1, 15, 5, 150, 15, 250, 1, 1)
+	resp, err := service.Create(1, 15, 5, 150, 15, 250, 1, 1)
+	assert.Nil(t, resp)
 	assert.NotNil(t, err)
 	assert.EqualError(t, err, expectedError.Error())
 }
@@ -153,6 +164,43 @@ func TestService_Update_Existent(t *testing.T) {
 	api.EXPECT().Update(1, map[string]int{"current_temperature": 15, "minimum_capacity": 15}).Return(&updatedSection, nil)
 
 	res, err := service.Update(1, map[string]int{"current_temperature": 15, "minimum_capacity": 15})
+	assert.Equal(t, res, &updatedSection)
+	assert.Nil(t, err)
+}
+
+func TestService_Update_Section_Change(t *testing.T) {
+	api, service := callMock(t)
+
+	api.EXPECT().GetAll().Return([]domain.Section{
+		{
+			Id:                 1,
+			SectionNumber:      1,
+			MinimumTemperature: 10,
+			CurrentCapacity:    50,
+			MaximumCapacity:    100,
+			WarehouseId:        1,
+			ProductTypeId:      1,
+			CurrentTemperature: 15,
+			MinimumCapacity:    15,
+		}}, nil)
+
+	api.EXPECT().Exists(1).Return(nil)
+
+	updatedSection := domain.Section{
+		Id:                 1,
+		SectionNumber:      15,
+		MinimumTemperature: 10,
+		CurrentCapacity:    50,
+		MaximumCapacity:    100,
+		WarehouseId:        1,
+		ProductTypeId:      1,
+		CurrentTemperature: 15,
+		MinimumCapacity:    15,
+	}
+
+	api.EXPECT().Update(1, map[string]int{"section_number": 15}).Return(&updatedSection, nil)
+
+	res, err := service.Update(1, map[string]int{"section_number": 15})
 	assert.Equal(t, res, &updatedSection)
 	assert.Nil(t, err)
 }
