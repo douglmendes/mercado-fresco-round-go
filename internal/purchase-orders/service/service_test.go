@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 	"testing"
 
 	"github.com/douglmendes/mercado-fresco-round-go/internal/purchase-orders/domain"
@@ -24,7 +25,9 @@ var (
 		ProductRecordId: 1,
 		OrderStatusId:   1,
 	}
-	noPurchaseOrders = []domain.PurchaseOrder{}
+	emptyPurchaseOrder *domain.PurchaseOrder
+	noPurchaseOrders   = []domain.PurchaseOrder{}
+	someError          = errors.New("some error")
 )
 
 func callMock(t *testing.T) (
@@ -76,6 +79,36 @@ func TestCreate(t *testing.T) {
 				assert.NoError(t, err)
 
 				assert.Equal(t, &purchaseOrder, result)
+			},
+		},
+		{
+			name: "Fail",
+			buildStubs: func(repository *mock_domain.MockRepository, ctx context.Context) {
+				repository.
+					EXPECT().
+					GetAll(ctx).
+					Times(ONCE).
+					Return(noPurchaseOrders, nil)
+
+				repository.
+					EXPECT().
+					Create(
+						ctx,
+						purchaseOrder.OrderNumber,
+						purchaseOrder.OrderDate,
+						purchaseOrder.TrackingCode,
+						purchaseOrder.BuyerId,
+						purchaseOrder.ProductRecordId,
+						purchaseOrder.OrderStatusId,
+					).
+					Times(ONCE).
+					Return(emptyPurchaseOrder, someError)
+			},
+			purchaseOrder: purchaseOrder,
+			checkResult: func(t *testing.T, result *domain.PurchaseOrder, err error) {
+				assert.Error(t, err)
+
+				assert.Equal(t, emptyPurchaseOrder, result)
 			},
 		},
 	}
