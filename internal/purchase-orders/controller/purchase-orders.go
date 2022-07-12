@@ -17,7 +17,6 @@ type requestPurchaseOrders struct {
 	OrderDate       string `json:"order_date"`
 	TrackingCode    string `json:"tracking_code"`
 	BuyerId         int    `json:"buyer_id"`
-	CarrierId       int    `jsons:"carrier_id"`
 	ProductRecordId int    `json:"product_record_id"`
 	OrderStatusId   int    `json:"order_status_id"`
 }
@@ -40,7 +39,7 @@ func (por *PurchaseOrder) Create() gin.HandlerFunc {
 				})
 			return
 		}
-		po, err := por.service.Create(ctx, req.OrderNumber, req.OrderDate, req.TrackingCode, req.BuyerId, req.CarrierId, req.ProductRecordId, req.OrderStatusId)
+		po, err := por.service.Create(ctx, req.OrderNumber, req.OrderDate, req.TrackingCode, req.BuyerId, req.ProductRecordId, req.OrderStatusId)
 		if err != nil {
 			ctx.JSON(http.StatusConflict, gin.H{"error": err.Error()})
 			return

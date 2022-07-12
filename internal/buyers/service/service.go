@@ -1,7 +1,9 @@
 package service
 
 import (
+	"context"
 	"fmt"
+
 	"github.com/douglmendes/mercado-fresco-round-go/internal/buyers/domain"
 )
 
@@ -31,6 +33,14 @@ func (s service) GetById(id int) (*domain.Buyer, error) {
 	}
 	return buy, nil
 
+}
+
+func (s service) GetOrdersByBuyers(ctx context.Context, id int) ([]domain.OrdersByBuyers, error) {
+	lc, err := s.repository.GetOrdersByBuyers(ctx, id)
+	if err != nil {
+		return []domain.OrdersByBuyers{}, err
+	}
+	return lc, nil
 }
 
 func (s service) Create(cardNumberId, firstName, lastName string) (*domain.Buyer, error) {

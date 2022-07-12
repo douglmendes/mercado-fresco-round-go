@@ -25,7 +25,6 @@ func (r *repository) GetAll(ctx context.Context) ([]domain.PurchaseOrder, error)
 			&p.OrderDate,
 			&p.TrackingCode,
 			&p.BuyerId,
-			&p.CarrierId,
 			&p.ProductRecordId,
 			&p.OrderStatusId,
 		)
@@ -37,8 +36,8 @@ func (r *repository) GetAll(ctx context.Context) ([]domain.PurchaseOrder, error)
 	return po, nil
 }
 
-func (r *repository) Create(ctx context.Context, OrderNumber string, OrderDate string, TrackingCode string, BuyerId int, CarrierId int, ProductRecordId int, OrderStatusId int) (*domain.PurchaseOrder, error) {
-	result, err := r.db.ExecContext(ctx, queryCreate, OrderNumber, OrderDate, TrackingCode, BuyerId, CarrierId, ProductRecordId, OrderStatusId)
+func (r *repository) Create(ctx context.Context, OrderNumber string, OrderDate string, TrackingCode string, BuyerId int, ProductRecordId int, OrderStatusId int) (*domain.PurchaseOrder, error) {
+	result, err := r.db.ExecContext(ctx, queryCreate, OrderNumber, OrderDate, TrackingCode, BuyerId, ProductRecordId, OrderStatusId)
 	if err != nil {
 		return nil, err
 	}
@@ -52,7 +51,6 @@ func (r *repository) Create(ctx context.Context, OrderNumber string, OrderDate s
 		OrderDate:       OrderDate,
 		TrackingCode:    TrackingCode,
 		BuyerId:         BuyerId,
-		CarrierId:       CarrierId,
 		ProductRecordId: ProductRecordId,
 		OrderStatusId:   OrderStatusId,
 	}
