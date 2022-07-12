@@ -1,6 +1,7 @@
 package mariadb
 
 import (
+	"context"
 	"database/sql"
 
 	"github.com/douglmendes/mercado-fresco-round-go/internal/product_record/domain"
@@ -14,11 +15,11 @@ func NewRepository(db *sql.DB) domain.ProductRecordRepository {
 	return &repository{db}
 }
 
-func (r repository) GetByProductId(productId int) ([]domain.ProductRecordCount, error) {
+func (r repository) GetByProductId(ctx context.Context, productId int) ([]domain.ProductRecordCount, error) {
 	productRecords := []domain.ProductRecordCount{}
 
 	if productId != 0 {
-		row := r.db.QueryRow(GetAllGroupByProductIdWhereIdQuery, productId)
+		row := r.db.QueryRowContext(ctx, GetAllGroupByProductIdWhereIdQuery, productId)
 
 		productRecordCount := domain.ProductRecordCount{}
 
@@ -57,8 +58,9 @@ func (r repository) GetByProductId(productId int) ([]domain.ProductRecordCount, 
 	return productRecords, nil
 }
 
-func (r repository) Create(arg domain.ProductRecord) (domain.ProductRecord, error) {
-	result, err := r.db.Exec(
+func (r repository) Create(ctx context.Context, arg domain.ProductRecord) (domain.ProductRecord, error) {
+	result, err := r.db.ExecContext(
+		ctx,
 		CreateQuery,
 		arg.LastUpdateDate,
 		arg.PurchasePrice,

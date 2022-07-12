@@ -1,6 +1,7 @@
 package mariadb
 
 import (
+	"context"
 	"database/sql"
 	"database/sql/driver"
 	"regexp"
@@ -46,6 +47,7 @@ var (
 		secondProduct,
 	}
 	noProducts = []domain.Product{}
+	ctx        = context.Background()
 )
 
 func TestMariaDB_GetAll(t *testing.T) {
@@ -148,7 +150,7 @@ func TestMariaDB_GetAll(t *testing.T) {
 
 			repository := NewRepository(db)
 
-			result, err := repository.GetAll()
+			result, err := repository.GetAll(ctx)
 
 			testCase.checkResult(t, result, err)
 		})
@@ -232,7 +234,7 @@ func TestMariaDB_GetById(t *testing.T) {
 
 			repository := NewRepository(db)
 
-			result, err := repository.GetById(testCase.id)
+			result, err := repository.GetById(ctx, testCase.id)
 
 			testCase.checkResult(t, result, err)
 		})
@@ -336,7 +338,7 @@ func TestMariaDB_Create(t *testing.T) {
 
 			repository := NewRepository(db)
 
-			result, err := repository.Create(testCase.product)
+			result, err := repository.Create(ctx, testCase.product)
 
 			testCase.checkResult(t, result, err)
 		})
@@ -416,7 +418,7 @@ func TestMariaDB_Update(t *testing.T) {
 
 			repository := NewRepository(db)
 
-			result, err := repository.Update(testCase.product)
+			result, err := repository.Update(ctx, testCase.product)
 
 			testCase.checkResult(t, result, err)
 		})
@@ -468,7 +470,7 @@ func TestMariaDB_Delete(t *testing.T) {
 
 			repository := NewRepository(db)
 
-			err := repository.Delete(testCase.id)
+			err := repository.Delete(ctx, testCase.id)
 
 			testCase.checkResult(t, err)
 		})

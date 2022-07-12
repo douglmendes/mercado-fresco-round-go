@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"testing"
@@ -11,14 +12,18 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func callMock(t *testing.T) (*mock_domain.MockProductRepository, domain.ProductService) {
+func callMock(t *testing.T) (
+	*mock_domain.MockProductRepository,
+	domain.ProductService,
+	context.Context,
+) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
 	repository := mock_domain.NewMockProductRepository(ctrl)
 	service := NewService(repository)
 
-	return repository, service
+	return repository, service, context.Background()
 }
 
 func TestCreate(t *testing.T) {
@@ -39,21 +44,21 @@ func TestCreate(t *testing.T) {
 
 	testCases := []struct {
 		name        string
-		buildStubs  func(repository *mock_domain.MockProductRepository)
+		buildStubs  func(repository *mock_domain.MockProductRepository, ctx context.Context)
 		checkResult func(t *testing.T, result domain.Product, err error)
 	}{
 		{
 			name: "OK",
-			buildStubs: func(repository *mock_domain.MockProductRepository) {
+			buildStubs: func(repository *mock_domain.MockProductRepository, ctx context.Context) {
 				repository.
 					EXPECT().
-					GetAll().
+					GetAll(ctx).
 					Times(1).
 					Return([]domain.Product{}, nil)
 
 				repository.
 					EXPECT().
-					Create(expected).
+					Create(ctx, expected).
 					Times(1).
 					Return(expected, nil)
 			},
@@ -65,10 +70,10 @@ func TestCreate(t *testing.T) {
 		},
 		{
 			name: "GetAllError",
-			buildStubs: func(repository *mock_domain.MockProductRepository) {
+			buildStubs: func(repository *mock_domain.MockProductRepository, ctx context.Context) {
 				repository.
 					EXPECT().
-					GetAll().
+					GetAll(ctx).
 					Times(1).
 					Return([]domain.Product{}, os.ErrPermission)
 			},
@@ -80,10 +85,10 @@ func TestCreate(t *testing.T) {
 		},
 		{
 			name: "ConflictError",
-			buildStubs: func(repository *mock_domain.MockProductRepository) {
+			buildStubs: func(repository *mock_domain.MockProductRepository, ctx context.Context) {
 				repository.
 					EXPECT().
-					GetAll().
+					GetAll(ctx).
 					Times(1).
 					Return([]domain.Product{expected}, nil)
 			},
@@ -96,16 +101,16 @@ func TestCreate(t *testing.T) {
 		},
 		{
 			name: "CreateError",
-			buildStubs: func(repository *mock_domain.MockProductRepository) {
+			buildStubs: func(repository *mock_domain.MockProductRepository, ctx context.Context) {
 				repository.
 					EXPECT().
-					GetAll().
+					GetAll(ctx).
 					Times(1).
 					Return([]domain.Product{}, nil)
 
 				repository.
 					EXPECT().
-					Create(expected).
+					Create(ctx, expected).
 					Times(1).
 					Return(domain.Product{}, os.ErrPermission)
 			},
@@ -119,11 +124,11 @@ func TestCreate(t *testing.T) {
 
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
-			repository, service := callMock(t)
+			repository, service, ctx := callMock(t)
 
-			testCase.buildStubs(repository)
+			testCase.buildStubs(repository, ctx)
 
-			result, err := service.Create(expected)
+			result, err := service.Create(ctx, expected)
 			testCase.checkResult(t, result, err)
 		})
 	}
@@ -163,15 +168,15 @@ func TestGetAll(t *testing.T) {
 
 	testCases := []struct {
 		name        string
-		buildStubs  func(repository *mock_domain.MockProductRepository)
+		buildStubs  func(repository *mock_domain.MockProductRepository, ctx context.Context)
 		checkResult func(t *testing.T, result []domain.Product, err error)
 	}{
 		{
 			name: "OK",
-			buildStubs: func(repository *mock_domain.MockProductRepository) {
+			buildStubs: func(repository *mock_domain.MockProductRepository, ctx context.Context) {
 				repository.
 					EXPECT().
-					GetAll().
+					GetAll(ctx).
 					Times(1).
 					Return(expected, nil)
 			},
@@ -183,10 +188,10 @@ func TestGetAll(t *testing.T) {
 		},
 		{
 			name: "Fail",
-			buildStubs: func(repository *mock_domain.MockProductRepository) {
+			buildStubs: func(repository *mock_domain.MockProductRepository, ctx context.Context) {
 				repository.
 					EXPECT().
-					GetAll().
+					GetAll(ctx).
 					Times(1).
 					Return([]domain.Product{}, os.ErrPermission)
 			},
@@ -200,11 +205,11 @@ func TestGetAll(t *testing.T) {
 
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
-			repository, service := callMock(t)
+			repository, service, ctx := callMock(t)
 
-			testCase.buildStubs(repository)
+			testCase.buildStubs(repository, ctx)
 
-			result, err := service.GetAll()
+			result, err := service.GetAll(ctx)
 			testCase.checkResult(t, result, err)
 		})
 	}
@@ -231,16 +236,16 @@ func TestGetById(t *testing.T) {
 	testCases := []struct {
 		name        string
 		productId   int
-		buildStubs  func(repository *mock_domain.MockProductRepository)
+		buildStubs  func(repository *mock_domain.MockProductRepository, ctx context.Context)
 		checkResult func(t *testing.T, result domain.Product, err error)
 	}{
 		{
 			name:      "OK",
 			productId: expected.Id,
-			buildStubs: func(repository *mock_domain.MockProductRepository) {
+			buildStubs: func(repository *mock_domain.MockProductRepository, ctx context.Context) {
 				repository.
 					EXPECT().
-					GetById(expected.Id).
+					GetById(ctx, expected.Id).
 					Times(1).
 					Return(expected, nil)
 			},
@@ -253,10 +258,10 @@ func TestGetById(t *testing.T) {
 		{
 			name:      "NotFound",
 			productId: nonExistentId,
-			buildStubs: func(repository *mock_domain.MockProductRepository) {
+			buildStubs: func(repository *mock_domain.MockProductRepository, ctx context.Context) {
 				repository.
 					EXPECT().
-					GetById(nonExistentId).
+					GetById(ctx, nonExistentId).
 					Times(1).
 					Return(domain.Product{}, fmt.Errorf("product (%d) not found", nonExistentId))
 			},
@@ -271,11 +276,11 @@ func TestGetById(t *testing.T) {
 
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
-			repository, service := callMock(t)
+			repository, service, ctx := callMock(t)
 
-			testCase.buildStubs(repository)
+			testCase.buildStubs(repository, ctx)
 
-			result, err := service.GetById(testCase.productId)
+			result, err := service.GetById(ctx, testCase.productId)
 			testCase.checkResult(t, result, err)
 		})
 	}
@@ -347,28 +352,28 @@ func TestUpdate(t *testing.T) {
 	testCases := []struct {
 		name           string
 		updatedProduct domain.Product
-		buildStubs     func(repository *mock_domain.MockProductRepository)
+		buildStubs     func(repository *mock_domain.MockProductRepository, ctx context.Context)
 		checkResult    func(t *testing.T, result domain.Product, err error)
 	}{
 		{
 			name:           "OK",
 			updatedProduct: updatedProduct,
-			buildStubs: func(repository *mock_domain.MockProductRepository) {
+			buildStubs: func(repository *mock_domain.MockProductRepository, ctx context.Context) {
 				repository.
 					EXPECT().
-					GetById(updatedProduct.Id).
+					GetById(ctx, updatedProduct.Id).
 					Times(1).
 					Return(firstProduct, nil)
 
 				repository.
 					EXPECT().
-					GetAll().
+					GetAll(ctx).
 					Times(1).
 					Return(allProducts, nil)
 
 				repository.
 					EXPECT().
-					Update(updatedProduct).
+					Update(ctx, updatedProduct).
 					Times(1).
 					Return(updatedProduct, nil)
 			},
@@ -381,10 +386,10 @@ func TestUpdate(t *testing.T) {
 		{
 			name:           "NotFound",
 			updatedProduct: updatedProduct,
-			buildStubs: func(repository *mock_domain.MockProductRepository) {
+			buildStubs: func(repository *mock_domain.MockProductRepository, ctx context.Context) {
 				repository.
 					EXPECT().
-					GetById(updatedProduct.Id).
+					GetById(ctx, updatedProduct.Id).
 					Times(1).
 					Return(domain.Product{}, fmt.Errorf("firstProduct (%d) not found", updatedProduct.Id))
 			},
@@ -398,22 +403,22 @@ func TestUpdate(t *testing.T) {
 		{
 			name:           "Fail",
 			updatedProduct: updatedProduct,
-			buildStubs: func(repository *mock_domain.MockProductRepository) {
+			buildStubs: func(repository *mock_domain.MockProductRepository, ctx context.Context) {
 				repository.
 					EXPECT().
-					GetById(updatedProduct.Id).
+					GetById(ctx, updatedProduct.Id).
 					Times(1).
 					Return(firstProduct, nil)
 
 				repository.
 					EXPECT().
-					GetAll().
+					GetAll(ctx).
 					Times(1).
 					Return(allProducts, nil)
 
 				repository.
 					EXPECT().
-					Update(updatedProduct).
+					Update(ctx, updatedProduct).
 					Times(1).
 					Return(domain.Product{}, os.ErrClosed)
 			},
@@ -426,16 +431,16 @@ func TestUpdate(t *testing.T) {
 		{
 			name:           "Conflict",
 			updatedProduct: conflictingUpdatedProduct,
-			buildStubs: func(repository *mock_domain.MockProductRepository) {
+			buildStubs: func(repository *mock_domain.MockProductRepository, ctx context.Context) {
 				repository.
 					EXPECT().
-					GetById(conflictingUpdatedProduct.Id).
+					GetById(ctx, conflictingUpdatedProduct.Id).
 					Times(1).
 					Return(firstProduct, nil)
 
 				repository.
 					EXPECT().
-					GetAll().
+					GetAll(ctx).
 					Times(1).
 					Return(allProducts, nil)
 			},
@@ -455,16 +460,16 @@ func TestUpdate(t *testing.T) {
 		{
 			name:           "Fail2",
 			updatedProduct: conflictingUpdatedProduct,
-			buildStubs: func(repository *mock_domain.MockProductRepository) {
+			buildStubs: func(repository *mock_domain.MockProductRepository, ctx context.Context) {
 				repository.
 					EXPECT().
-					GetById(conflictingUpdatedProduct.Id).
+					GetById(ctx, conflictingUpdatedProduct.Id).
 					Times(1).
 					Return(firstProduct, nil)
 
 				repository.
 					EXPECT().
-					GetAll().
+					GetAll(ctx).
 					Times(1).
 					Return([]domain.Product{}, os.ErrClosed)
 			},
@@ -478,11 +483,11 @@ func TestUpdate(t *testing.T) {
 
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
-			repository, service := callMock(t)
+			repository, service, ctx := callMock(t)
 
-			testCase.buildStubs(repository)
+			testCase.buildStubs(repository, ctx)
 
-			result, err := service.Update(testCase.updatedProduct)
+			result, err := service.Update(ctx, testCase.updatedProduct)
 			testCase.checkResult(t, result, err)
 		})
 	}
@@ -495,16 +500,16 @@ func TestDelete(t *testing.T) {
 	testCases := []struct {
 		name        string
 		productId   int
-		buildStubs  func(repository *mock_domain.MockProductRepository)
+		buildStubs  func(repository *mock_domain.MockProductRepository, ctx context.Context)
 		checkResult func(t *testing.T, err error)
 	}{
 		{
 			name:      "OK",
 			productId: existentId,
-			buildStubs: func(repository *mock_domain.MockProductRepository) {
+			buildStubs: func(repository *mock_domain.MockProductRepository, ctx context.Context) {
 				repository.
 					EXPECT().
-					Delete(existentId).
+					Delete(ctx, existentId).
 					Times(1).
 					Return(nil)
 			},
@@ -515,10 +520,10 @@ func TestDelete(t *testing.T) {
 		{
 			name:      "NotFound",
 			productId: nonExistentId,
-			buildStubs: func(repository *mock_domain.MockProductRepository) {
+			buildStubs: func(repository *mock_domain.MockProductRepository, ctx context.Context) {
 				repository.
 					EXPECT().
-					Delete(nonExistentId).
+					Delete(ctx, nonExistentId).
 					Times(1).
 					Return(fmt.Errorf("product (%d) not found", nonExistentId))
 			},
@@ -531,11 +536,11 @@ func TestDelete(t *testing.T) {
 
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
-			repository, service := callMock(t)
+			repository, service, ctx := callMock(t)
 
-			testCase.buildStubs(repository)
+			testCase.buildStubs(repository, ctx)
 
-			err := service.Delete(testCase.productId)
+			err := service.Delete(ctx, testCase.productId)
 			testCase.checkResult(t, err)
 		})
 	}

@@ -74,6 +74,7 @@ func callProductsMock(t *testing.T) (
 	*mock_domain.MockProductService,
 	*ProductController,
 	*gin.Engine,
+	gomock.Matcher,
 ) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -82,21 +83,21 @@ func callProductsMock(t *testing.T) (
 	handler := NewProductController(service)
 	api := gin.New()
 
-	return service, handler, api
+	return service, handler, api, gomock.Any()
 }
 
 func TestProductController_GetAll(t *testing.T) {
 	testCases := []struct {
 		name        string
-		buildStubs  func(service *mock_domain.MockProductService)
+		buildStubs  func(service *mock_domain.MockProductService, ctx gomock.Matcher)
 		checkResult func(t *testing.T, res *httptest.ResponseRecorder)
 	}{
 		{
 			name: "OK",
-			buildStubs: func(service *mock_domain.MockProductService) {
+			buildStubs: func(service *mock_domain.MockProductService, ctx gomock.Matcher) {
 				service.
 					EXPECT().
-					GetAll().
+					GetAll(ctx).
 					Times(1).
 					Return(allProducts, nil)
 			},
@@ -106,10 +107,10 @@ func TestProductController_GetAll(t *testing.T) {
 		},
 		{
 			name: "Fail",
-			buildStubs: func(service *mock_domain.MockProductService) {
+			buildStubs: func(service *mock_domain.MockProductService, ctx gomock.Matcher) {
 				service.
 					EXPECT().
-					GetAll().
+					GetAll(ctx).
 					Times(1).
 					Return([]domain.Product{}, os.ErrClosed)
 			},
@@ -125,10 +126,10 @@ func TestProductController_GetAll(t *testing.T) {
 		},
 		{
 			name: "Empty",
-			buildStubs: func(service *mock_domain.MockProductService) {
+			buildStubs: func(service *mock_domain.MockProductService, ctx gomock.Matcher) {
 				service.
 					EXPECT().
-					GetAll().
+					GetAll(ctx).
 					Times(1).
 					Return([]domain.Product{}, nil)
 			},
@@ -146,11 +147,11 @@ func TestProductController_GetAll(t *testing.T) {
 
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
-			service, handler, api := callProductsMock(t)
+			service, handler, api, ctx := callProductsMock(t)
 
 			api.GET(RELATIVE_PATH, handler.GetAll())
 
-			testCase.buildStubs(service)
+			testCase.buildStubs(service, ctx)
 
 			req := httptest.NewRequest(http.MethodGet, RELATIVE_PATH, nil)
 			res := httptest.NewRecorder()
@@ -166,16 +167,16 @@ func TestProductController_GetById(t *testing.T) {
 		name               string
 		productId          int
 		wrongTypeProductId string
-		buildStubs         func(service *mock_domain.MockProductService)
+		buildStubs         func(service *mock_domain.MockProductService, ctx gomock.Matcher)
 		checkResult        func(t *testing.T, res *httptest.ResponseRecorder)
 	}{
 		{
 			name:      "OK",
 			productId: firstProduct.Id,
-			buildStubs: func(service *mock_domain.MockProductService) {
+			buildStubs: func(service *mock_domain.MockProductService, ctx gomock.Matcher) {
 				service.
 					EXPECT().
-					GetById(firstProduct.Id).
+					GetById(ctx, firstProduct.Id).
 					Times(1).
 					Return(firstProduct, nil)
 			},
@@ -192,10 +193,10 @@ func TestProductController_GetById(t *testing.T) {
 		{
 			name:      "NotFound",
 			productId: INVALID_ID,
-			buildStubs: func(service *mock_domain.MockProductService) {
+			buildStubs: func(service *mock_domain.MockProductService, ctx gomock.Matcher) {
 				service.
 					EXPECT().
-					GetById(INVALID_ID).
+					GetById(ctx, INVALID_ID).
 					Times(1).
 					Return(domain.Product{}, fmt.Errorf("product (%d) not found", INVALID_ID))
 			},
@@ -212,7 +213,7 @@ func TestProductController_GetById(t *testing.T) {
 		{
 			name:               "InvalidId",
 			wrongTypeProductId: WRONG_TYPE_ID,
-			buildStubs:         func(service *mock_domain.MockProductService) {},
+			buildStubs:         func(service *mock_domain.MockProductService, ctx gomock.Matcher) {},
 			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
 				assert.Equal(t, http.StatusBadRequest, res.Code)
 
@@ -227,11 +228,11 @@ func TestProductController_GetById(t *testing.T) {
 
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
-			service, handler, api := callProductsMock(t)
+			service, handler, api, ctx := callProductsMock(t)
 
 			api.GET(RELATIVE_PATH_WITH_ID, handler.GetById())
 
-			testCase.buildStubs(service)
+			testCase.buildStubs(service, ctx)
 
 			var req *http.Request
 			if testCase.wrongTypeProductId != "" {
@@ -273,16 +274,16 @@ func TestProductController_Create(t *testing.T) {
 	testCases := []struct {
 		name        string
 		payload     interface{}
-		buildStubs  func(service *mock_domain.MockProductService)
+		buildStubs  func(service *mock_domain.MockProductService, ctx gomock.Matcher)
 		checkResult func(t *testing.T, res *httptest.ResponseRecorder)
 	}{
 		{
 			name:    "OK",
 			payload: newProduct,
-			buildStubs: func(service *mock_domain.MockProductService) {
+			buildStubs: func(service *mock_domain.MockProductService, ctx gomock.Matcher) {
 				service.
 					EXPECT().
-					Create(newProduct).
+					Create(ctx, newProduct).
 					Times(1).
 					Return(firstProduct, nil)
 			},
@@ -299,7 +300,7 @@ func TestProductController_Create(t *testing.T) {
 		{
 			name:       "Fail",
 			payload:    productWithMissingFields,
-			buildStubs: func(service *mock_domain.MockProductService) {},
+			buildStubs: func(service *mock_domain.MockProductService, ctx gomock.Matcher) {},
 			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
 				assert.Equal(t, http.StatusUnprocessableEntity, res.Code)
 
@@ -313,10 +314,10 @@ func TestProductController_Create(t *testing.T) {
 		{
 			name:    "Conflict",
 			payload: newProduct,
-			buildStubs: func(service *mock_domain.MockProductService) {
+			buildStubs: func(service *mock_domain.MockProductService, ctx gomock.Matcher) {
 				service.
 					EXPECT().
-					Create(newProduct).
+					Create(ctx, newProduct).
 					Times(1).
 					Return(
 						emptyProduct,
@@ -347,11 +348,11 @@ func TestProductController_Create(t *testing.T) {
 
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
-			service, handler, api := callProductsMock(t)
+			service, handler, api, ctx := callProductsMock(t)
 
 			api.POST(RELATIVE_PATH, handler.Create())
 
-			testCase.buildStubs(service)
+			testCase.buildStubs(service, ctx)
 
 			payload, _ := json.Marshal(testCase.payload)
 			req := httptest.NewRequest(http.MethodPost, RELATIVE_PATH, bytes.NewBuffer(payload))
@@ -379,17 +380,17 @@ func TestProductController_Update(t *testing.T) {
 		payload            interface{}
 		wrongTypeProductId string
 		productId          int
-		buildStubs         func(service *mock_domain.MockProductService)
+		buildStubs         func(service *mock_domain.MockProductService, ctx gomock.Matcher)
 		checkResult        func(t *testing.T, res *httptest.ResponseRecorder)
 	}{
 		{
 			name:      "OK",
 			payload:   updatedProduct,
 			productId: updatedProduct.Id,
-			buildStubs: func(service *mock_domain.MockProductService) {
+			buildStubs: func(service *mock_domain.MockProductService, ctx gomock.Matcher) {
 				service.
 					EXPECT().
-					Update(updatedProduct).
+					Update(ctx, updatedProduct).
 					Times(1).
 					Return(updatedProduct, nil)
 			},
@@ -407,7 +408,7 @@ func TestProductController_Update(t *testing.T) {
 			name:       "Fail",
 			payload:    invalidProduct,
 			productId:  firstProduct.Id,
-			buildStubs: func(service *mock_domain.MockProductService) {},
+			buildStubs: func(service *mock_domain.MockProductService, ctx gomock.Matcher) {},
 			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
 				assert.Equal(t, http.StatusUnprocessableEntity, res.Code)
 
@@ -422,7 +423,7 @@ func TestProductController_Update(t *testing.T) {
 			name:               "BadRequest",
 			payload:            updatedProduct,
 			wrongTypeProductId: WRONG_TYPE_ID,
-			buildStubs:         func(service *mock_domain.MockProductService) {},
+			buildStubs:         func(service *mock_domain.MockProductService, ctx gomock.Matcher) {},
 			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
 				assert.Equal(t, http.StatusBadRequest, res.Code)
 
@@ -437,10 +438,10 @@ func TestProductController_Update(t *testing.T) {
 			name:      "NotFound",
 			payload:   updatedProduct,
 			productId: INVALID_ID,
-			buildStubs: func(service *mock_domain.MockProductService) {
+			buildStubs: func(service *mock_domain.MockProductService, ctx gomock.Matcher) {
 				service.
 					EXPECT().
-					Update(updatedProductWithInvalidId).
+					Update(ctx, updatedProductWithInvalidId).
 					Times(1).
 					Return(emptyProduct, fmt.Errorf("product (%d) not found", INVALID_ID))
 			},
@@ -458,10 +459,10 @@ func TestProductController_Update(t *testing.T) {
 			name:      "InternalServerError",
 			payload:   updatedProduct,
 			productId: updatedProduct.Id,
-			buildStubs: func(service *mock_domain.MockProductService) {
+			buildStubs: func(service *mock_domain.MockProductService, ctx gomock.Matcher) {
 				service.
 					EXPECT().
-					Update(updatedProduct).
+					Update(ctx, updatedProduct).
 					Times(1).
 					Return(emptyProduct, os.ErrClosed)
 			},
@@ -479,11 +480,11 @@ func TestProductController_Update(t *testing.T) {
 
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
-			service, handler, api := callProductsMock(t)
+			service, handler, api, ctx := callProductsMock(t)
 
 			api.PATCH(RELATIVE_PATH_WITH_ID, handler.Update())
 
-			testCase.buildStubs(service)
+			testCase.buildStubs(service, ctx)
 
 			payload, _ := json.Marshal(testCase.payload)
 			var req *http.Request
@@ -513,16 +514,16 @@ func TestProductController_Delete(t *testing.T) {
 		name               string
 		wrongTypeProductId string
 		productId          int
-		buildStubs         func(service *mock_domain.MockProductService)
+		buildStubs         func(service *mock_domain.MockProductService, ctx gomock.Matcher)
 		checkResult        func(t *testing.T, res *httptest.ResponseRecorder)
 	}{
 		{
 			name:      "OK",
 			productId: firstProduct.Id,
-			buildStubs: func(service *mock_domain.MockProductService) {
+			buildStubs: func(service *mock_domain.MockProductService, ctx gomock.Matcher) {
 				service.
 					EXPECT().
-					Delete(firstProduct.Id).
+					Delete(ctx, firstProduct.Id).
 					Times(1).
 					Return(nil)
 			},
@@ -539,7 +540,7 @@ func TestProductController_Delete(t *testing.T) {
 		{
 			name:               "Fail",
 			wrongTypeProductId: WRONG_TYPE_ID,
-			buildStubs:         func(service *mock_domain.MockProductService) {},
+			buildStubs:         func(service *mock_domain.MockProductService, ctx gomock.Matcher) {},
 			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
 				assert.Equal(t, http.StatusBadRequest, res.Code)
 
@@ -553,10 +554,10 @@ func TestProductController_Delete(t *testing.T) {
 		{
 			name:      "NotFound",
 			productId: INVALID_ID,
-			buildStubs: func(service *mock_domain.MockProductService) {
+			buildStubs: func(service *mock_domain.MockProductService, ctx gomock.Matcher) {
 				service.
 					EXPECT().
-					Delete(INVALID_ID).
+					Delete(ctx, INVALID_ID).
 					Times(1).
 					Return(fmt.Errorf("product (%d) not found", INVALID_ID))
 			},
@@ -574,11 +575,11 @@ func TestProductController_Delete(t *testing.T) {
 
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
-			service, handler, api := callProductsMock(t)
+			service, handler, api, ctx := callProductsMock(t)
 
 			api.DELETE(RELATIVE_PATH_WITH_ID, handler.Delete())
 
-			testCase.buildStubs(service)
+			testCase.buildStubs(service, ctx)
 
 			var req *http.Request
 			if testCase.wrongTypeProductId != "" {

@@ -5,6 +5,7 @@
 package mock_domain
 
 import (
+	context "context"
 	reflect "reflect"
 
 	domain "github.com/douglmendes/mercado-fresco-round-go/internal/product_record/domain"
@@ -35,33 +36,33 @@ func (m *MockProductRecordRepository) EXPECT() *MockProductRecordRepositoryMockR
 }
 
 // Create mocks base method.
-func (m *MockProductRecordRepository) Create(arg0 domain.ProductRecord) (domain.ProductRecord, error) {
+func (m *MockProductRecordRepository) Create(arg0 context.Context, arg1 domain.ProductRecord) (domain.ProductRecord, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Create", arg0)
+	ret := m.ctrl.Call(m, "Create", arg0, arg1)
 	ret0, _ := ret[0].(domain.ProductRecord)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Create indicates an expected call of Create.
-func (mr *MockProductRecordRepositoryMockRecorder) Create(arg0 interface{}) *gomock.Call {
+func (mr *MockProductRecordRepositoryMockRecorder) Create(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockProductRecordRepository)(nil).Create), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockProductRecordRepository)(nil).Create), arg0, arg1)
 }
 
 // GetByProductId mocks base method.
-func (m *MockProductRecordRepository) GetByProductId(arg0 int) ([]domain.ProductRecordCount, error) {
+func (m *MockProductRecordRepository) GetByProductId(arg0 context.Context, arg1 int) ([]domain.ProductRecordCount, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetByProductId", arg0)
+	ret := m.ctrl.Call(m, "GetByProductId", arg0, arg1)
 	ret0, _ := ret[0].([]domain.ProductRecordCount)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetByProductId indicates an expected call of GetByProductId.
-func (mr *MockProductRecordRepositoryMockRecorder) GetByProductId(arg0 interface{}) *gomock.Call {
+func (mr *MockProductRecordRepositoryMockRecorder) GetByProductId(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByProductId", reflect.TypeOf((*MockProductRecordRepository)(nil).GetByProductId), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByProductId", reflect.TypeOf((*MockProductRecordRepository)(nil).GetByProductId), arg0, arg1)
 }
 
 // MockProductRecordService is a mock of ProductRecordService interface.
@@ -88,31 +89,31 @@ func (m *MockProductRecordService) EXPECT() *MockProductRecordServiceMockRecorde
 }
 
 // Create mocks base method.
-func (m *MockProductRecordService) Create(arg0 domain.ProductRecord) (domain.ProductRecord, error) {
+func (m *MockProductRecordService) Create(arg0 context.Context, arg1 domain.ProductRecord) (domain.ProductRecord, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Create", arg0)
+	ret := m.ctrl.Call(m, "Create", arg0, arg1)
 	ret0, _ := ret[0].(domain.ProductRecord)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Create indicates an expected call of Create.
-func (mr *MockProductRecordServiceMockRecorder) Create(arg0 interface{}) *gomock.Call {
+func (mr *MockProductRecordServiceMockRecorder) Create(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockProductRecordService)(nil).Create), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockProductRecordService)(nil).Create), arg0, arg1)
 }
 
 // GetByProductId mocks base method.
-func (m *MockProductRecordService) GetByProductId(arg0 int) ([]domain.ProductRecordCount, error) {
+func (m *MockProductRecordService) GetByProductId(arg0 context.Context, arg1 int) ([]domain.ProductRecordCount, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetByProductId", arg0)
+	ret := m.ctrl.Call(m, "GetByProductId", arg0, arg1)
 	ret0, _ := ret[0].([]domain.ProductRecordCount)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetByProductId indicates an expected call of GetByProductId.
-func (mr *MockProductRecordServiceMockRecorder) GetByProductId(arg0 interface{}) *gomock.Call {
+func (mr *MockProductRecordServiceMockRecorder) GetByProductId(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByProductId", reflect.TypeOf((*MockProductRecordService)(nil).GetByProductId), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByProductId", reflect.TypeOf((*MockProductRecordService)(nil).GetByProductId), arg0, arg1)
 }
