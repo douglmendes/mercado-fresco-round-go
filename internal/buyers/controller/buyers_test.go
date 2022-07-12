@@ -143,6 +143,20 @@ func TestBuyerController_Create_OK(t *testing.T) {
 	assert.Equal(t, http.StatusCreated, resp.Code)
 }
 
+func TestBuyerController_Create_Conflict(t *testing.T) {
+	service, handler, api := callBuyersMock(t)
+	api.POST(relativeBuyerPath, handler.Create())
+
+	service.EXPECT().Create("1234", "Mickey", "Mouse").Return(&domain.Buyer{}, errors.New("this card number id already exists"))
+	payload := `{"card_number_id": "1234", "first_name": "Mickey", "last_name": "Mouse"}`
+
+	req := httptest.NewRequest(http.MethodPost, relativeBuyerPath, bytes.NewBuffer([]byte(payload)))
+	resp := httptest.NewRecorder()
+	api.ServeHTTP(resp, req)
+
+	assert.Equal(t, http.StatusConflict, resp.Code)
+}
+
 func TestWarehousesController_Delete_OK(t *testing.T) {
 	service, handler, api := callBuyersMock(t)
 	api.DELETE(relativePathBuyersId, handler.Delete())
