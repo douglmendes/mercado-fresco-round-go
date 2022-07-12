@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"time"
@@ -24,15 +25,15 @@ func NewProductRecordService(
 	}
 }
 
-func (s service) GetByProductId(productId int) ([]domain.ProductRecordCount, error) {
+func (s service) GetByProductId(ctx context.Context, productId int) ([]domain.ProductRecordCount, error) {
 	if productId != 0 {
-		_, err := s.productRepository.GetById(productId)
+		_, err := s.productRepository.GetById(ctx, productId)
 		if err != nil {
 			return []domain.ProductRecordCount{}, err
 		}
 	}
 
-	productRecords, err := s.productRecordRepository.GetByProductId(productId)
+	productRecords, err := s.productRecordRepository.GetByProductId(ctx, productId)
 	if err != nil {
 		return []domain.ProductRecordCount{}, err
 	}
@@ -57,7 +58,7 @@ func isValidDate(dateString string) bool {
 	return diff >= 0
 }
 
-func (s service) Create(arg domain.ProductRecord) (
+func (s service) Create(ctx context.Context, arg domain.ProductRecord) (
 	domain.ProductRecord,
 	error,
 ) {
@@ -68,13 +69,13 @@ func (s service) Create(arg domain.ProductRecord) (
 			errors.New("last update date must be valid date (ex.: 2020-02-20) and greater than or equal current date")
 	}
 
-	_, err := s.productRepository.GetById(arg.ProductId)
+	_, err := s.productRepository.GetById(ctx, arg.ProductId)
 	if err != nil {
 		return productRecord,
 			fmt.Errorf("product with id (%v) not found", arg.ProductId)
 	}
 
-	productRecord, err = s.productRecordRepository.Create(arg)
+	productRecord, err = s.productRecordRepository.Create(ctx, arg)
 	if err != nil {
 		return productRecord,
 			fmt.Errorf("failed to create product record")
