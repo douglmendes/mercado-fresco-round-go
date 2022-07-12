@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -69,6 +70,7 @@ func callMock(t *testing.T) (
 	*productRecordMockDomain.MockProductRecordRepository,
 	*productMockDomain.MockProductRepository,
 	domain.ProductRecordService,
+	context.Context,
 ) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -77,7 +79,7 @@ func callMock(t *testing.T) (
 	productRepository := productMockDomain.NewMockProductRepository(ctrl)
 	service := NewProductRecordService(productRecordRepository, productRepository)
 
-	return productRecordRepository, productRepository, service
+	return productRecordRepository, productRepository, service, context.Background()
 }
 
 func TestCreate(t *testing.T) {
@@ -86,6 +88,7 @@ func TestCreate(t *testing.T) {
 		buildStubs func(
 			productRecordRepository *productRecordMockDomain.MockProductRecordRepository,
 			productRepository *productMockDomain.MockProductRepository,
+			ctx context.Context,
 		)
 		productRecord domain.ProductRecord
 		checkResult   func(t *testing.T, result domain.ProductRecord, err error)
@@ -95,16 +98,17 @@ func TestCreate(t *testing.T) {
 			buildStubs: func(
 				productRecordRepository *productRecordMockDomain.MockProductRecordRepository,
 				productRepository *productMockDomain.MockProductRepository,
+				ctx context.Context,
 			) {
 				productRepository.
 					EXPECT().
-					GetById(productRecord.ProductId).
+					GetById(ctx, productRecord.ProductId).
 					Times(ONCE).
 					Return(emptyProduct, nil)
 
 				productRecordRepository.
 					EXPECT().
-					Create(productRecord).
+					Create(ctx, productRecord).
 					Times(ONCE).
 					Return(productRecord, nil)
 			},
@@ -120,16 +124,17 @@ func TestCreate(t *testing.T) {
 			buildStubs: func(
 				productRecordRepository *productRecordMockDomain.MockProductRecordRepository,
 				productRepository *productMockDomain.MockProductRepository,
+				ctx context.Context,
 			) {
 				productRepository.
 					EXPECT().
-					GetById(productRecord.ProductId).
+					GetById(ctx, productRecord.ProductId).
 					Times(ONCE).
 					Return(emptyProduct, nil)
 
 				productRecordRepository.
 					EXPECT().
-					Create(productRecord).
+					Create(ctx, productRecord).
 					Times(ONCE).
 					Return(emptyProductRecord, sql.ErrConnDone)
 			},
@@ -145,10 +150,11 @@ func TestCreate(t *testing.T) {
 			buildStubs: func(
 				productRecordRepository *productRecordMockDomain.MockProductRecordRepository,
 				productRepository *productMockDomain.MockProductRepository,
+				ctx context.Context,
 			) {
 				productRepository.
 					EXPECT().
-					GetById(productRecord.ProductId).
+					GetById(ctx, productRecord.ProductId).
 					Times(ONCE).
 					Return(emptyProduct, someError)
 			},
@@ -168,6 +174,7 @@ func TestCreate(t *testing.T) {
 			buildStubs: func(
 				productRecordRepository *productRecordMockDomain.MockProductRecordRepository,
 				productRepository *productMockDomain.MockProductRepository,
+				ctx context.Context,
 			) {
 			},
 			productRecord: productRecordWithInvalidUpdateDate,
@@ -187,11 +194,11 @@ func TestCreate(t *testing.T) {
 
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
-			productRecordRepository, productRepository, service := callMock(t)
+			productRecordRepository, productRepository, service, ctx := callMock(t)
 
-			testCase.buildStubs(productRecordRepository, productRepository)
+			testCase.buildStubs(productRecordRepository, productRepository, ctx)
 
-			result, err := service.Create(testCase.productRecord)
+			result, err := service.Create(ctx, testCase.productRecord)
 			testCase.checkResult(t, result, err)
 		})
 	}
@@ -204,6 +211,7 @@ func TestGetByProductId(t *testing.T) {
 		buildStubs func(
 			productRecordRepository *productRecordMockDomain.MockProductRecordRepository,
 			productRepository *productMockDomain.MockProductRepository,
+			ctx context.Context,
 		)
 		checkResult func(t *testing.T, result []domain.ProductRecordCount, err error)
 	}{
@@ -213,10 +221,11 @@ func TestGetByProductId(t *testing.T) {
 			buildStubs: func(
 				productRecordRepository *productRecordMockDomain.MockProductRecordRepository,
 				productRepository *productMockDomain.MockProductRepository,
+				ctx context.Context,
 			) {
 				productRecordRepository.
 					EXPECT().
-					GetByProductId(GET_ALL_ID).
+					GetByProductId(ctx, GET_ALL_ID).
 					Times(ONCE).
 					Return(allProductRecordsCount, nil)
 			},
@@ -232,16 +241,17 @@ func TestGetByProductId(t *testing.T) {
 			buildStubs: func(
 				productRecordRepository *productRecordMockDomain.MockProductRecordRepository,
 				productRepository *productMockDomain.MockProductRepository,
+				ctx context.Context,
 			) {
 				productRepository.
 					EXPECT().
-					GetById(productRecord.ProductId).
+					GetById(ctx, productRecord.ProductId).
 					Times(ONCE).
 					Return(emptyProduct, nil)
 
 				productRecordRepository.
 					EXPECT().
-					GetByProductId(productRecord.ProductId).
+					GetByProductId(ctx, productRecord.ProductId).
 					Times(ONCE).
 					Return(someProductRecordsCount, nil)
 			},
@@ -257,10 +267,11 @@ func TestGetByProductId(t *testing.T) {
 			buildStubs: func(
 				productRecordRepository *productRecordMockDomain.MockProductRecordRepository,
 				productRepository *productMockDomain.MockProductRepository,
+				ctx context.Context,
 			) {
 				productRepository.
 					EXPECT().
-					GetById(productRecord.ProductId).
+					GetById(ctx, productRecord.ProductId).
 					Times(ONCE).
 					Return(emptyProduct, someError)
 			},
@@ -276,16 +287,17 @@ func TestGetByProductId(t *testing.T) {
 			buildStubs: func(
 				productRecordRepository *productRecordMockDomain.MockProductRecordRepository,
 				productRepository *productMockDomain.MockProductRepository,
+				ctx context.Context,
 			) {
 				productRepository.
 					EXPECT().
-					GetById(productRecord.ProductId).
+					GetById(ctx, productRecord.ProductId).
 					Times(ONCE).
 					Return(emptyProduct, nil)
 
 				productRecordRepository.
 					EXPECT().
-					GetByProductId(productRecord.ProductId).
+					GetByProductId(ctx, productRecord.ProductId).
 					Times(ONCE).
 					Return(emptyProductRecordsCount, someError)
 			},
@@ -299,11 +311,11 @@ func TestGetByProductId(t *testing.T) {
 
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
-			productRecordRepository, productRepository, service := callMock(t)
+			productRecordRepository, productRepository, service, ctx := callMock(t)
 
-			testCase.buildStubs(productRecordRepository, productRepository)
+			testCase.buildStubs(productRecordRepository, productRepository, ctx)
 
-			result, err := service.GetByProductId(testCase.productId)
+			result, err := service.GetByProductId(ctx, testCase.productId)
 			testCase.checkResult(t, result, err)
 		})
 	}
