@@ -55,7 +55,7 @@ func (s *service) Update(id int, args map[string]int) (*domain.Section, error) {
 	return s.repository.Update(id, args)
 }
 
-func (s *service) Delete(id int) (*domain.Section, error) {
+func (s *service) Delete(id int) error {
 	return s.repository.Delete(id)
 }
 
