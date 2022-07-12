@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"errors"
 
 	"github.com/douglmendes/mercado-fresco-round-go/internal/buyers/domain"
@@ -24,16 +25,16 @@ func callBuyersMock(t *testing.T) (*mock_domain.MockRepository, domain.Service) 
 func TestService_Create_Ok(t *testing.T) {
 	buyList := []domain.Buyer{
 		{
-			1,
-			"2",
-			"Fernando",
-			"Souza",
+			Id: 1,
+			CardNumberId: "2",
+			FirstName: "Fernando",
+			LastName: "Souza",
 		},
 		{
-			2,
-			"3",
-			"Marcela",
-			"Vieira",
+			Id: 2,
+			CardNumberId: "3",
+			FirstName: "Marcela",
+			LastName: "Vieira",
 		},
 	}
 
@@ -62,16 +63,16 @@ func TestService_Create_Ok(t *testing.T) {
 func TestService_Create_Nok(t *testing.T) {
 	buyList := []domain.Buyer{
 		{
-			1,
-			"2",
-			"Fernando",
-			"Souza",
+			Id: 1,
+			CardNumberId: "2",
+			FirstName: "Fernando",
+			LastName: "Souza",
 		},
 		{
-			2,
-			"3",
-			"Marcela",
-			"Vieira",
+			Id: 2,
+			CardNumberId: "3",
+			FirstName: "Marcela",
+			LastName: "Vieira",
 		},
 	}
 
@@ -88,16 +89,16 @@ func TestService_Create_Nok(t *testing.T) {
 func TestService_GetAll(t *testing.T) {
 	buyList := []domain.Buyer{
 		{
-			1,
-			"2",
-			"Fernando",
-			"Souza",
+			Id: 1,
+			CardNumberId: "2",
+			FirstName: "Fernando",
+			LastName: "Souza",
 		},
 		{
-			2,
-			"3",
-			"Marcela",
-			"Vieira",
+			Id: 2,
+			CardNumberId: "3",
+			FirstName: "Marcela",
+			LastName: "Vieira",
 		},
 	}
 
@@ -107,6 +108,17 @@ func TestService_GetAll(t *testing.T) {
 	result, err := service.GetAll()
 	assert.Equal(t, len(result), len(buyList))
 	assert.Nil(t, err)
+}
+
+func TestService_GetAll_NOk(t *testing.T) {
+	bList := make([]domain.Buyer, 0)
+
+	apiMock, service := callBuyersMock(t)
+
+	apiMock.EXPECT().GetAll().Return(bList, errors.New("erro"))
+
+	_, err := service.GetAll()
+	assert.NotNil(t, err)
 }
 
 //READ find_by_id_non_existent Se o elemento procurado por id não existir, retorna null
@@ -135,6 +147,37 @@ func TestService_GetById_ok(t *testing.T) {
 	assert.Nil(t, err)
 }
 
+func TestService_GetOrdersByBuyers_Ok(t *testing.T) {
+
+	by := []domain.OrdersByBuyers{
+		{
+			Id: 1,
+			CardNumberId: "44dm",
+			FirstName: "Will",
+			LastName: "Spencer",
+			PurchaseOrdersCount: 8,
+		},
+	}
+
+	apiMock, service := callBuyersMock(t)
+
+	apiMock.EXPECT().GetOrdersByBuyers(context.TODO(), 1).Return(by, nil)
+
+	result, err := service.GetOrdersByBuyers(context.TODO(), 1)
+	assert.Equal(t, 8, result[len(result)-1].PurchaseOrdersCount)
+	assert.Nil(t, err)
+}
+
+func TestService_GetOrdersByBuyers_NOk(t *testing.T) {
+
+	apiMock, service := callBuyersMock(t)
+
+	apiMock.EXPECT().GetOrdersByBuyers(context.TODO(), 1).Return([]domain.OrdersByBuyers{}, errors.New("seller not found"))
+
+	_, err := service.GetOrdersByBuyers(context.TODO(), 1)
+	assert.NotNil(t, err)
+}
+
 //DELETE - delete_non_existent - Quando o funcionário não existir, será retornado null.
 func TestService_Delete_Ok(t *testing.T) {
 	apiMock, service := callBuyersMock(t)
@@ -153,16 +196,16 @@ func TestService_Delete_Nok(t *testing.T) {
 func TestService_Update_Ok(t *testing.T) {
 	buyList := []domain.Buyer{
 		{
-			1,
-			"2",
-			"Fernando",
-			"Souza",
+			Id: 1,
+			CardNumberId: "2",
+			FirstName: "Fernando",
+			LastName: "Souza",
 		},
 		{
-			2,
-			"3",
-			"Marcela",
-			"Vieira",
+			Id: 2,
+			CardNumberId: "3",
+			FirstName: "Marcela",
+			LastName: "Vieira",
 		},
 	}
 
