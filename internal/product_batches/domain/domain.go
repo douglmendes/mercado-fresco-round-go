@@ -24,7 +24,7 @@ type SectionRecords struct {
 	ProductsCount int `json:"products_count,omitempty"`
 }
 
-//go:generate mockgen -source=./carrier.go -destination=./mock/carrier_mock.go
+//go:generate mockgen -source=./domain.go -destination=./mock/domain.go
 type ProductBatchesRepository interface {
 	GetAll(ctx context.Context) ([]ProductBatch, error)
 	Create(ctx context.Context, batchNumber, currentQuantity, currentTemperature int, dueDate string, initialQuantity int, manufacturingDate string, manufacturingHour, minimumTemperature, productId, sectionId int) (*ProductBatch, error)
