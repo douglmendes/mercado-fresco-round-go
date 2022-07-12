@@ -82,7 +82,29 @@ func TestRepository_Get_All(t *testing.T) {
 }
 
 func TestRepository_Get_ById(t *testing.T) {
-	t.Skip("Not implemented")
+	db, mock, err := sqlmock.New()
+	assert.NoError(t, err)
+	defer db.Close()
+
+	result := sqlmock.NewRows([]string{"id", "section_number", "current_temperature", "minimum_temperature", "current_capacity", "minimum_capacity", "maximum_capacity", "warehouse_id", "product_type_id"}).AddRow(
+		sampleSection.Id,
+		sampleSection.SectionNumber,
+		sampleSection.CurrentTemperature,
+		sampleSection.MinimumTemperature,
+		sampleSection.CurrentCapacity,
+		sampleSection.MinimumCapacity,
+		sampleSection.MaximumCapacity,
+		sampleSection.WarehouseId,
+		sampleSection.ProductTypeId,
+	)
+
+	mock.ExpectQuery(regexp.QuoteMeta(GetByIdQuery)).WithArgs(sampleSection.Id).WillReturnRows(result)
+
+	repository := NewRepository(db)
+	section, err := repository.GetById(sampleSection.Id)
+
+	assert.NoError(t, err)
+	assert.Equal(t, sampleSection, *section)
 }
 
 func TestRepository_Update(t *testing.T) {
