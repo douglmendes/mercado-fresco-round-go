@@ -126,29 +126,46 @@ func TestRepository_Update(t *testing.T) {
 
 	mock.ExpectQuery(regexp.QuoteMeta(GetByIdQuery)).WithArgs(sampleSection.Id).WillReturnRows(result)
 
+	updatedSection := domain.Section{
+		Id:                 sampleSection.Id,
+		SectionNumber:      6,
+		CurrentTemperature: 15,
+		MinimumTemperature: 16,
+		CurrentCapacity:    26,
+		MinimumCapacity:    6,
+		MaximumCapacity:    51,
+		WarehouseId:        3,
+		ProductTypeId:      5,
+	}
+
 	mock.ExpectExec(regexp.QuoteMeta(UpdateQuery)).WithArgs(
-		sampleSection.SectionNumber,
-		sampleSection.CurrentTemperature,
-		sampleSection.MinimumTemperature,
-		88,
-		sampleSection.MinimumCapacity,
-		sampleSection.MaximumCapacity,
-		sampleSection.WarehouseId,
-		sampleSection.ProductTypeId,
-		sampleSection.Id,
+		updatedSection.SectionNumber,
+		updatedSection.CurrentTemperature,
+		updatedSection.MinimumTemperature,
+		updatedSection.CurrentCapacity,
+		updatedSection.MinimumCapacity,
+		updatedSection.MaximumCapacity,
+		updatedSection.WarehouseId,
+		updatedSection.ProductTypeId,
+		updatedSection.Id,
 	).WillReturnResult(sqlmock.NewResult(0, 1))
 
 	repository := NewRepository(db)
 	section, err := repository.Update(
 		sampleSection.Id,
 		map[string]int{
-			"current_capacity": 88,
+			"section_number":      6,
+			"current_temperature": 15,
+			"minimum_temperature": 16,
+			"current_capacity":    26,
+			"minimum_capacity":    6,
+			"maximum_capacity":    51,
+			"warehouse_id":        3,
+			"product_type_id":     5,
 		},
 	)
 
 	assert.NoError(t, err)
-	updatedSection := sampleSection
-	updatedSection.CurrentCapacity = 88
 	assert.Equal(t, updatedSection, *section)
 }
 
