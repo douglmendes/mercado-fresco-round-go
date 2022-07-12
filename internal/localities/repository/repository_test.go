@@ -19,18 +19,18 @@ func TestRepository_GetAll_Ok(t *testing.T) {
 
 	localityMock := []domain.Locality{
 		{
-			Id:          1,
-			ZipCode:         "12342123",
+			Id:           1,
+			ZipCode:      "12342123",
 			LocalityName: "Gasp",
-			ProvinceName:     "Maceió",
-			CountryName:   "Brasil",
+			ProvinceName: "Maceió",
+			CountryName:  "Brasil",
 		},
 		{
-			Id:          2,
-			ZipCode:         "12342134",
+			Id:           2,
+			ZipCode:      "12342134",
 			LocalityName: "Livreiro",
-			ProvinceName:     "Olinda",
-			CountryName:   "Brasil",
+			ProvinceName: "Olinda",
+			CountryName:  "Brasil",
 		},
 	}
 
@@ -84,11 +84,11 @@ func TestRepository_GetById_Ok(t *testing.T) {
 	defer db.Close()
 
 	localityMock := domain.Locality{
-		Id: 1,
-		ZipCode: "54334212",
+		Id:           1,
+		ZipCode:      "54334212",
 		LocalityName: "Lux",
 		ProvinceName: "Aracaju",
-		CountryName: "Brasil",
+		CountryName:  "Brasil",
 	}
 
 	row := sqlmock.NewRows([]string{
@@ -118,7 +118,7 @@ func TestRepository_GetById_NOk(t *testing.T) {
 
 	mock.ExpectQuery(queryGetById).WillReturnError(errors.New("error"))
 
-	lcRepo:= NewRepository(db)
+	lcRepo := NewRepository(db)
 
 	result, err := lcRepo.GetById(context.TODO(), 1)
 	assert.Error(t, err)
@@ -147,7 +147,7 @@ func TestRepository_GetBySellers_Ok(t *testing.T) {
 	defer db.Close()
 
 	localityMock := domain.SellersByLocality{
-		LocalityId: 1,
+		LocalityId:   1,
 		LocalityName: "Lux",
 		SellersCount: 2,
 	}
@@ -166,7 +166,7 @@ func TestRepository_GetBySellers_Ok(t *testing.T) {
 
 	result, err := lcRepo.GetBySellers(context.TODO(), 1)
 	assert.NoError(t, err)
-	assert.Equal(t, "Lux", result[len(result)-1].LocalityName)	
+	assert.Equal(t, "Lux", result[len(result)-1].LocalityName)
 }
 
 func TestRepository_GetBySellers_NOk(t *testing.T) {
@@ -205,7 +205,7 @@ func TestRepository_GetBySellers_NoId_Ok(t *testing.T) {
 	defer db.Close()
 
 	localityMock := domain.SellersByLocality{
-		LocalityId: 1,
+		LocalityId:   1,
 		LocalityName: "Lux",
 		SellersCount: 2,
 	}
@@ -224,7 +224,7 @@ func TestRepository_GetBySellers_NoId_Ok(t *testing.T) {
 
 	result, err := lcRepo.GetBySellers(context.TODO(), 0)
 	assert.NoError(t, err)
-	assert.Equal(t, "Lux", result[len(result)-1].LocalityName)	
+	assert.Equal(t, "Lux", result[len(result)-1].LocalityName)
 }
 
 func TestRepository_GetBySellers_NoId_NOk(t *testing.T) {
@@ -247,10 +247,10 @@ func TestRepository_Create_Ok(t *testing.T) {
 	defer db.Close()
 
 	localityMock := domain.Locality{
-		ZipCode: "54365212",
+		ZipCode:      "54365212",
 		LocalityName: "Lux",
 		ProvinceName: "Aracaju",
-		CountryName: "Brasil",
+		CountryName:  "Brasil",
 	}
 
 	mock.ExpectExec(regexp.QuoteMeta(queryCreate)).WithArgs(
@@ -283,5 +283,61 @@ func TestRepository_Create_NOk(t *testing.T) {
 	_, err = lcRepo.Create(context.TODO(), "54365212", "Lux", "Aracaju", "Brasil")
 
 	assert.Error(t, err)
-	
+
+}
+
+func TestRepository_GetByCarriers_OK(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	assert.NoError(t, err)
+	defer db.Close()
+
+	localityMock := domain.CarriersByLocality{
+		LocalityId:    1,
+		LocalityName:  "NEXUS",
+		CarriersCount: 10,
+	}
+
+	row := sqlmock.NewRows([]string{
+		"id", "locality_name", "carriers_count",
+	}).AddRow(
+		localityMock.LocalityId,
+		localityMock.LocalityName,
+		localityMock.CarriersCount,
+	)
+
+	mock.ExpectQuery(regexp.QuoteMeta(queryGetByCarrier)).WillReturnRows(row)
+
+	lcRepo := NewRepository(db)
+
+	result, err := lcRepo.GetByCarriers(context.TODO(), 1)
+	assert.NoError(t, err)
+	assert.Equal(t, "NEXUS", result[0].LocalityName)
+}
+
+func TestRepository_GetByCarriers_WithoutID(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	assert.NoError(t, err)
+	defer db.Close()
+
+	localityMock := domain.CarriersByLocality{
+		LocalityId:    1,
+		LocalityName:  "Lux",
+		CarriersCount: 12,
+	}
+
+	row := sqlmock.NewRows([]string{
+		"id", "locality_name", "carriers_count",
+	}).AddRow(
+		localityMock.LocalityId,
+		localityMock.LocalityName,
+		localityMock.CarriersCount,
+	)
+
+	mock.ExpectQuery(regexp.QuoteMeta(queryGetByCarriers)).WillReturnRows(row)
+
+	lcRepo := NewRepository(db)
+
+	result, err := lcRepo.GetByCarriers(context.TODO(), 0)
+	assert.NoError(t, err)
+	assert.Equal(t, localityMock.CarriersCount, result[len(result)-1].CarriersCount)
 }
