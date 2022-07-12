@@ -1,5 +1,7 @@
 package domain
 
+import "context"
+
 type ProductRecord struct {
 	Id             int     `json:"id"`
 	LastUpdateDate string  `json:"last_update_date"`
@@ -15,11 +17,11 @@ type ProductRecordCount struct {
 }
 
 type ProductRecordRepository interface {
-	GetByProductId(productId int) ([]ProductRecordCount, error)
-	Create(arg ProductRecord) (ProductRecord, error)
+	GetByProductId(ctx context.Context, productId int) ([]ProductRecordCount, error)
+	Create(ctx context.Context, arg ProductRecord) (ProductRecord, error)
 }
 
 type ProductRecordService interface {
-	GetByProductId(productId int) ([]ProductRecordCount, error)
-	Create(arg ProductRecord) (ProductRecord, error)
+	GetByProductId(ctx context.Context, productId int) ([]ProductRecordCount, error)
+	Create(ctx context.Context, arg ProductRecord) (ProductRecord, error)
 }
