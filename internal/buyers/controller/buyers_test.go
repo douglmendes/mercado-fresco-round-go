@@ -3,6 +3,7 @@ package controller
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/douglmendes/mercado-fresco-round-go/internal/buyers/domain"
 	mockbuyers "github.com/douglmendes/mercado-fresco-round-go/internal/buyers/domain/mock"
 	"github.com/gin-gonic/gin"
@@ -14,7 +15,8 @@ import (
 )
 
 const (
-	relativeBuyerPath = "/api/v1/buyers/"
+	relativeBuyerPath    = "/api/v1/buyers/"
+	relativePathBuyersId = "/api/v1/buyers/:id"
 )
 
 func callBuyersMock(t *testing.T) (*mockbuyers.MockService, *BuyerController, *gin.Engine) {
@@ -68,4 +70,30 @@ func TestBuyerController_GetAll_NotFound(t *testing.T) {
 	api.ServeHTTP(resp, req)
 
 	assert.Equal(t, http.StatusNotFound, resp.Code)
+}
+
+func TestBuyersController_GetById(t *testing.T) {
+
+	buyer := domain.Buyer{
+		Id:           1,
+		CardNumberId: "1234",
+		FirstName:    "Mickey",
+		LastName:     "Mouse",
+	}
+
+	service, handler, api := callBuyersMock(t)
+
+	api.GET(relativePathBuyersId, handler.GetById())
+
+	service.EXPECT().GetById(1).Return(&buyer, nil)
+
+	req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/buyers/%s", "1"), nil)
+	resp := httptest.NewRecorder()
+	api.ServeHTTP(resp, req)
+
+	respExpect := struct{ Data domain.Buyer }{}
+	_ = json.Unmarshal(resp.Body.Bytes(), &respExpect)
+
+	assert.Equal(t, http.StatusOK, resp.Code)
+	assert.Equal(t, buyer.FirstName, respExpect.Data.FirstName)
 }
