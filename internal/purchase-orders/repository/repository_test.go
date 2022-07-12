@@ -2,7 +2,9 @@ package repository
 
 import (
 	"context"
+	"database/sql/driver"
 	"errors"
+	"fmt"
 	"regexp"
 	"testing"
 
@@ -181,6 +183,28 @@ func TestRepository_Create(t *testing.T) {
 			purchaseOrder: firstPurchaseOrder,
 			checkResult: func(t *testing.T, result *domain.PurchaseOrder, err error) {
 				assert.Error(t, err)
+				assert.Equal(t, emptyPurchaseOrder, result)
+			},
+		},
+		{
+			name: "Last Id Error",
+			buildStubs: func() {
+				mock.
+					ExpectExec(regexp.QuoteMeta(queryCreate)).
+					WithArgs(
+						firstPurchaseOrder.OrderNumber,
+						firstPurchaseOrder.OrderDate,
+						firstPurchaseOrder.TrackingCode,
+						firstPurchaseOrder.BuyerId,
+						firstPurchaseOrder.ProductRecordId,
+						firstPurchaseOrder.OrderStatusId,
+					).
+					WillReturnResult(driver.ResultNoRows)
+			},
+			purchaseOrder: firstPurchaseOrder,
+			checkResult: func(t *testing.T, result *domain.PurchaseOrder, err error) {
+				assert.Error(t, err)
+				assert.Equal(t, fmt.Errorf("error retrieving id %d", 0), err)
 				assert.Equal(t, emptyPurchaseOrder, result)
 			},
 		},
