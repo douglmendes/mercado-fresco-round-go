@@ -153,5 +153,14 @@ func TestRepository_Update(t *testing.T) {
 }
 
 func TestRepository_Delete(t *testing.T) {
-	t.Skip("Not implemented")
+	db, mock, err := sqlmock.New()
+	assert.NoError(t, err)
+	defer db.Close()
+
+	mock.ExpectExec(regexp.QuoteMeta(DeleteQuery)).WithArgs(sampleSection.Id).WillReturnResult(sqlmock.NewResult(0, 1))
+
+	repository := NewRepository(db)
+	err = repository.Delete(sampleSection.Id)
+
+	assert.NoError(t, err)
 }
