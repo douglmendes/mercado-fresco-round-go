@@ -16,8 +16,9 @@ import (
 )
 
 const (
-	relativeBuyerPath    = "/api/v1/buyers/"
-	relativePathBuyersId = "/api/v1/buyers/:id"
+	relativeBuyerPath       = "/api/v1/buyers/"
+	relativePathBuyersId    = "/api/v1/buyers/:id"
+	relativeOrdersBuyerPath = "/api/v1/buyers/reportPurchaseOrders"
 )
 
 func callBuyersMock(t *testing.T) (*mockbuyers.MockService, *BuyerController, *gin.Engine) {
@@ -304,4 +305,33 @@ func TestBuyersController_Delete_BadRequest(t *testing.T) {
 	api.ServeHTTP(resp, req)
 
 	assert.Equal(t, http.StatusNotFound, resp.Code)
+}
+
+func TestBuyerController_GetOrdersByBuyers_OK(t *testing.T) {
+	ordersBuyer := []domain.OrdersByBuyers{
+		{
+			Id:                  1,
+			CardNumberId:        "1234",
+			FirstName:           "Silvio",
+			LastName:            "Santos",
+			PurchaseOrdersCount: 2,
+		},
+	}
+
+	service, handler, api := callBuyersMock(t)
+
+	api.GET(relativeOrdersBuyerPath, handler.GetOrdersByBuyers())
+
+	service.EXPECT().GetOrdersByBuyers(gomock.Any(), 1).Return(ordersBuyer, nil)
+
+	req := httptest.NewRequest(http.MethodGet, fmt.Sprint("/api/v1/buyers/reportPurchaseOrders?id=1"), nil)
+	resp := httptest.NewRecorder()
+	api.ServeHTTP(resp, req)
+
+	respExpect := struct{ Data []domain.OrdersByBuyers }{}
+	_ = json.Unmarshal(resp.Body.Bytes(), &respExpect)
+
+	assert.Equal(t, http.StatusOK, resp.Code)
+	assert.Equal(t, respExpect.Data[0].PurchaseOrdersCount, ordersBuyer[0].PurchaseOrdersCount)
+
 }
