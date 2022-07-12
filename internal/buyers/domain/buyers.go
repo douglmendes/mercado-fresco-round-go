@@ -19,19 +19,19 @@ type OrdersByBuyers struct {
 
 //go:generate mockgen -source=./buyers.go -destination=./mock/buyers_mock.go
 type Repository interface {
-	GetById(id int) (*Buyer, error)
-	GetAll() ([]Buyer, error)
+	GetById(ctx context.Context, id int) (*Buyer, error)
+	GetAll(ctx context.Context,) ([]Buyer, error)
 	GetOrdersByBuyers(ctx context.Context, id int) ([]OrdersByBuyers, error)
-	Create(cardNumberId, firstName, lastName string) (*Buyer, error)
-	Update(id int, cardNumberId, firstName, lastName string) (*Buyer, error)
-	Delete(id int) error
+	Create(ctx context.Context, cardNumberId, firstName, lastName string) (*Buyer, error)
+	Update(ctx context.Context, id int, cardNumberId, firstName, lastName string) (*Buyer, error)
+	Delete(ctx context.Context, id int) error
 }
 
 type Service interface {
-	GetById(id int) (*Buyer, error)
-	GetAll() ([]Buyer, error)
+	GetById(ctx context.Context, id int) (*Buyer, error)
+	GetAll(ctx context.Context) ([]Buyer, error)
 	GetOrdersByBuyers(ctx context.Context, id int) ([]OrdersByBuyers, error)
-	Create(cardNumberId, firstName, lastName string) (*Buyer, error)
-	Update(id int, cardNumberId, firstName, lastName string) (*Buyer, error)
-	Delete(id int) error
+	Create(ctx context.Context, cardNumberId, firstName, lastName string) (*Buyer, error)
+	Update(ctx context.Context, id int, cardNumberId, firstName, lastName string) (*Buyer, error)
+	Delete(ctx context.Context, id int) error
 }

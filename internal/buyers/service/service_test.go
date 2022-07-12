@@ -46,14 +46,15 @@ func TestService_Create_Ok(t *testing.T) {
 	}
 
 	apiMock, service := callBuyersMock(t)
-	apiMock.EXPECT().GetAll().Return(buyList, nil)
+	apiMock.EXPECT().GetAll(context.TODO()).Return(buyList, nil)
 	apiMock.EXPECT().Create(
+		context.TODO(),
 		"5",
 		"Douglas",
 		"Mendes",
 	).Return(&buy, nil)
 
-	result, err := service.Create("5", "Douglas", "Mendes")
+	result, err := service.Create(context.TODO(), "5", "Douglas", "Mendes")
 	assert.Equal(t, result, &buy)
 	assert.Nil(t, err)
 
@@ -77,10 +78,10 @@ func TestService_Create_Nok(t *testing.T) {
 	}
 
 	apiMock, service := callBuyersMock(t)
-	apiMock.EXPECT().GetAll().Return(buyList, nil)
-	apiMock.EXPECT().Create("3", "Douglas", "Mendes").Return(&domain.Buyer{}, errors.New("this card number id already exists"))
+	apiMock.EXPECT().GetAll(context.TODO()).Return(buyList, nil)
+	apiMock.EXPECT().Create(context.TODO(), "3", "Douglas", "Mendes").Return(&domain.Buyer{}, errors.New("this card number id already exists"))
 
-	_, err := service.Create("3", "Douglas", "Mendes")
+	_, err := service.Create(context.TODO(), "3", "Douglas", "Mendes")
 	assert.Equal(t, assert.NotNil(t, err), true)
 	assert.EqualError(t, err, "this card number id already exists")
 }
@@ -103,9 +104,9 @@ func TestService_GetAll(t *testing.T) {
 	}
 
 	apiMock, service := callBuyersMock(t)
-	apiMock.EXPECT().GetAll().Return(buyList, nil)
+	apiMock.EXPECT().GetAll(context.TODO()).Return(buyList, nil)
 
-	result, err := service.GetAll()
+	result, err := service.GetAll(context.TODO())
 	assert.Equal(t, len(result), len(buyList))
 	assert.Nil(t, err)
 }
@@ -115,18 +116,18 @@ func TestService_GetAll_NOk(t *testing.T) {
 
 	apiMock, service := callBuyersMock(t)
 
-	apiMock.EXPECT().GetAll().Return(bList, errors.New("erro"))
+	apiMock.EXPECT().GetAll(context.TODO()).Return(bList, errors.New("erro"))
 
-	_, err := service.GetAll()
+	_, err := service.GetAll(context.TODO())
 	assert.NotNil(t, err)
 }
 
 //READ find_by_id_non_existent Se o elemento procurado por id não existir, retorna null
 func TestService_GetById_Nok(t *testing.T) {
 	apiMock, service := callBuyersMock(t)
-	apiMock.EXPECT().GetById(gomock.Eq(1)).Return(&domain.Buyer{}, errors.New("Buyer 1 not found"))
+	apiMock.EXPECT().GetById(context.TODO(), gomock.Eq(1)).Return(&domain.Buyer{}, errors.New("Buyer 1 not found"))
 
-	_, err := service.GetById(1)
+	_, err := service.GetById(context.TODO(), 1)
 	assert.NotNil(t, err)
 }
 
@@ -140,9 +141,9 @@ func TestService_GetById_ok(t *testing.T) {
 	}
 
 	apiMock, service := callBuyersMock(t)
-	apiMock.EXPECT().GetById(gomock.Eq(1)).Return(&buy, nil)
+	apiMock.EXPECT().GetById(context.TODO(), gomock.Eq(1)).Return(&buy, nil)
 
-	result, err := service.GetById(1)
+	result, err := service.GetById(context.TODO(), 1)
 	assert.Equal(t, result.Id, 1)
 	assert.Nil(t, err)
 }
@@ -181,15 +182,15 @@ func TestService_GetOrdersByBuyers_NOk(t *testing.T) {
 //DELETE - delete_non_existent - Quando o funcionário não existir, será retornado null.
 func TestService_Delete_Ok(t *testing.T) {
 	apiMock, service := callBuyersMock(t)
-	apiMock.EXPECT().Delete(1).Return(nil)
-	err := service.Delete(1)
+	apiMock.EXPECT().Delete(context.TODO(), 1).Return(nil)
+	err := service.Delete(context.TODO(), 1)
 	assert.Nil(t, err)
 }
 
 func TestService_Delete_Nok(t *testing.T) {
 	apiMock, service := callBuyersMock(t)
-	apiMock.EXPECT().Delete(1).Return(errors.New("buyer 1 not found"))
-	err := service.Delete(1)
+	apiMock.EXPECT().Delete(context.TODO(), 1).Return(errors.New("buyer 1 not found"))
+	err := service.Delete(context.TODO(), 1)
 	assert.NotNil(t, err)
 }
 
@@ -217,10 +218,10 @@ func TestService_Update_Ok(t *testing.T) {
 	}
 	apiMock, service := callBuyersMock(t)
 
-	apiMock.EXPECT().GetAll().Return(buyList, nil)
-	apiMock.EXPECT().Update(3, "5", "Douglas", "Mendes").Return(&buy, nil)
+	apiMock.EXPECT().GetAll(context.TODO()).Return(buyList, nil)
+	apiMock.EXPECT().Update(context.TODO(), 3, "5", "Douglas", "Mendes").Return(&buy, nil)
 
-	result, err := service.Update(3, "5", "Douglas", "Mendes")
+	result, err := service.Update(context.TODO(), 3, "5", "Douglas", "Mendes")
 	assert.Nil(t, err)
 	assert.Equal(t, result, &buy)
 }
@@ -242,9 +243,9 @@ func TestService_Update_Nok(t *testing.T) {
 	}
 
 	apiMock, service := callBuyersMock(t)
-	apiMock.EXPECT().GetAll().Return(buyList, nil)
+	apiMock.EXPECT().GetAll(context.TODO()).Return(buyList, nil)
 
-	_, err := service.Update(1, "3", "Joao", "Zinho")
+	_, err := service.Update(context.TODO(), 1, "3", "Joao", "Zinho")
 	assert.NotNil(t, err)
 	assert.EqualError(t, err, "this Buyer already exists")
 

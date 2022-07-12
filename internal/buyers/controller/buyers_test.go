@@ -52,7 +52,7 @@ func TestBuyerController_GetAll_OK(t *testing.T) {
 
 	api.GET(relativeBuyerPath, handler.GetAll())
 
-	service.EXPECT().GetAll().Return(buyersList, nil)
+	service.EXPECT().GetAll(gomock.Any()).Return(buyersList, nil)
 
 	api.ServeHTTP(resp, req)
 	respExpect := struct{ Data []domain.Buyer }{}
@@ -66,7 +66,7 @@ func TestBuyerController_GetAll_OK(t *testing.T) {
 func TestBuyerController_GetAll_NotFound(t *testing.T) {
 	service, handler, api := callBuyersMock(t)
 	api.GET(relativeBuyerPath, handler.GetAll())
-	service.EXPECT().GetAll().Return([]domain.Buyer{}, errors.New("error"))
+	service.EXPECT().GetAll(gomock.Any()).Return([]domain.Buyer{}, errors.New("error"))
 	req := httptest.NewRequest(http.MethodGet, relativeBuyerPath, nil)
 	resp := httptest.NewRecorder()
 	api.ServeHTTP(resp, req)
@@ -87,7 +87,7 @@ func TestBuyersController_GetById(t *testing.T) {
 
 	api.GET(relativePathBuyersId, handler.GetById())
 
-	service.EXPECT().GetById(1).Return(&buyer, nil)
+	service.EXPECT().GetById(gomock.Any(), 1).Return(&buyer, nil)
 
 	req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/buyers/%s", "1"), nil)
 	resp := httptest.NewRecorder()
@@ -103,7 +103,7 @@ func TestBuyersController_GetById(t *testing.T) {
 func TestBuyersController_GetById_NOK(t *testing.T) {
 	service, handler, api := callBuyersMock(t)
 	api.GET(relativePathBuyersId, handler.GetById())
-	service.EXPECT().GetById(1).Return(&domain.Buyer{}, errors.New("buyer 1 not found"))
+	service.EXPECT().GetById(gomock.Any(), 1).Return(&domain.Buyer{}, errors.New("buyer 1 not found"))
 
 	req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/buyers/%s", "1"), nil)
 	resp := httptest.NewRecorder()
@@ -134,7 +134,7 @@ func TestBuyerController_Create_OK(t *testing.T) {
 	service, handler, api := callBuyersMock(t)
 	api.POST(relativeBuyerPath, handler.Create())
 
-	service.EXPECT().Create("1234", "Mickey", "Mouse").Return(&buyer, nil)
+	service.EXPECT().Create(gomock.Any(), "1234", "Mickey", "Mouse").Return(&buyer, nil)
 	payload := `{"card_number_id": "1234", "first_name": "Mickey", "last_name": "Mouse"}`
 
 	req := httptest.NewRequest(http.MethodPost, relativeBuyerPath, bytes.NewBuffer([]byte(payload)))
@@ -148,7 +148,7 @@ func TestBuyerController_Create_Conflict(t *testing.T) {
 	service, handler, api := callBuyersMock(t)
 	api.POST(relativeBuyerPath, handler.Create())
 
-	service.EXPECT().Create("1234", "Mickey", "Mouse").Return(&domain.Buyer{}, errors.New("this card number id already exists"))
+	service.EXPECT().Create(gomock.Any(), "1234", "Mickey", "Mouse").Return(&domain.Buyer{}, errors.New("this card number id already exists"))
 	payload := `{"card_number_id": "1234", "first_name": "Mickey", "last_name": "Mouse"}`
 
 	req := httptest.NewRequest(http.MethodPost, relativeBuyerPath, bytes.NewBuffer([]byte(payload)))
@@ -209,6 +209,7 @@ func TestBuyerController_Update_OK(t *testing.T) {
 	api.PATCH(relativePathBuyersId, handler.Update())
 
 	service.EXPECT().Update(
+		gomock.Any(),
 		1,
 		"1234",
 		"Silvio",
@@ -255,6 +256,7 @@ func TestBuyerController_Update_NotFound(t *testing.T) {
 	api.PATCH(relativePathBuyersId, handler.Update())
 
 	service.EXPECT().Update(
+		gomock.Any(),
 		1,
 		"1234",
 		"Silvio",
@@ -274,7 +276,7 @@ func TestBuyersController_Delete_OK(t *testing.T) {
 	service, handler, api := callBuyersMock(t)
 	api.DELETE(relativePathBuyersId, handler.Delete())
 
-	service.EXPECT().Delete(1).Return(nil)
+	service.EXPECT().Delete(gomock.Any(), 1).Return(nil)
 
 	req := httptest.NewRequest(http.MethodDelete, fmt.Sprintf("/api/v1/buyers/%s", "1"), nil)
 	resp := httptest.NewRecorder()
@@ -287,7 +289,7 @@ func TestBuyersController_Delete_NOK(t *testing.T) {
 	service, handler, api := callBuyersMock(t)
 	api.DELETE(relativePathBuyersId, handler.Delete())
 
-	service.EXPECT().Delete(1).Return(errors.New("erro 404"))
+	service.EXPECT().Delete(gomock.Any(), 1).Return(errors.New("erro 404"))
 
 	req := httptest.NewRequest(http.MethodDelete, fmt.Sprintf("/api/v1/buyers/%s", "1"), nil)
 	resp := httptest.NewRecorder()
@@ -358,5 +360,4 @@ func TestBuyersController_GetOrdersByBuyers_StatusNotFound(t *testing.T) {
 	api.ServeHTTP(resp, req)
 
 	assert.Equal(t, http.StatusNotFound, resp.Code)
-
 }

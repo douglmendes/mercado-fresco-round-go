@@ -14,8 +14,8 @@ type repository struct {
 	db *sql.DB
 }
 
-func (r *repository) GetAll() ([]domain.Buyer, error) {
-	rows, err := r.db.Query(queryGetAll)
+func (r *repository) GetAll(ctx context.Context) ([]domain.Buyer, error) {
+	rows, err := r.db.QueryContext(ctx, queryGetAll)
 	if err != nil {
 		log.Println("Error while quering buyers table" + err.Error())
 		return nil, err
@@ -33,8 +33,8 @@ func (r *repository) GetAll() ([]domain.Buyer, error) {
 	return buyers, nil
 }
 
-func (r *repository) GetById(id int) (*domain.Buyer, error) {
-	row := r.db.QueryRow(queryGetById, id)
+func (r *repository) GetById(ctx context.Context, id int) (*domain.Buyer, error) {
+	row := r.db.QueryRowContext(ctx, queryGetById, id)
 	var b domain.Buyer
 	err := row.Scan(&b.Id, &b.CardNumberId, &b.FirstName, &b.LastName)
 	if err != nil {
@@ -100,8 +100,8 @@ func (r *repository) GetOrdersByBuyers(ctx context.Context, id int) ([]domain.Or
 	return ordersBySellers, nil
 }
 
-func (r *repository) Create(cardNumberId, firstName, lastName string) (*domain.Buyer, error) {
-	result, err := r.db.Exec(queryCreate, cardNumberId, firstName, lastName)
+func (r *repository) Create(ctx context.Context, cardNumberId, firstName, lastName string) (*domain.Buyer, error) {
+	result, err := r.db.ExecContext(ctx, queryCreate, cardNumberId, firstName, lastName)
 	if err != nil {
 		return nil, err
 	}
@@ -113,9 +113,9 @@ func (r *repository) Create(cardNumberId, firstName, lastName string) (*domain.B
 	return &e, nil
 }
 
-func (r *repository) Update(id int, cardNumberId, firstName, lastName string) (*domain.Buyer, error) {
+func (r *repository) Update(ctx context.Context, id int, cardNumberId, firstName, lastName string) (*domain.Buyer, error) {
 
-	buy, err := r.GetById(id)
+	buy, err := r.GetById(ctx, id)
 	if err != nil {
 		return nil, fmt.Errorf("employee %d not found", id)
 	}
@@ -128,15 +128,15 @@ func (r *repository) Update(id int, cardNumberId, firstName, lastName string) (*
 	if lastName != "" {
 		buy.LastName = lastName
 	}
-	result, err := r.db.Exec(queryUpdate, buy.CardNumberId, buy.FirstName, buy.LastName, id)
+	result, err := r.db.ExecContext(ctx, queryUpdate, buy.CardNumberId, buy.FirstName, buy.LastName, id)
 	log.Println(result.RowsAffected())
 
 	return buy, nil
 
 }
 
-func (r *repository) Delete(id int) error {
-	_, err := r.db.Exec(queryDelete, id)
+func (r *repository) Delete(ctx context.Context, id int) error {
+	_, err := r.db.ExecContext(ctx, queryDelete, id)
 	if err != nil {
 		return fmt.Errorf("error when deleting buyer %d", id)
 	}
