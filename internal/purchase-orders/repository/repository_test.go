@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"regexp"
 	"testing"
 
@@ -33,7 +34,8 @@ var (
 		firstPurchaseOrder,
 		secondPurchaseOrder,
 	}
-	noPurchaseOrder = []domain.PurchaseOrder{}
+	noPurchaseOrder []domain.PurchaseOrder
+	someError       = errors.New("some error")
 )
 
 func TestMariaDB_GetAll(t *testing.T) {
@@ -80,6 +82,16 @@ func TestMariaDB_GetAll(t *testing.T) {
 			checkResult: func(t *testing.T, result []domain.PurchaseOrder, err error) {
 				assert.NoError(t, err)
 				assert.Equal(t, allPurchaseOrders, result)
+			},
+		},
+		{
+			name: "Fail",
+			buildStubs: func() {
+				mock.ExpectQuery(regexp.QuoteMeta(queryGetAll)).WillReturnError(someError)
+			},
+			checkResult: func(t *testing.T, result []domain.PurchaseOrder, err error) {
+				assert.Error(t, err)
+				assert.Equal(t, noPurchaseOrder, result)
 			},
 		},
 	}
