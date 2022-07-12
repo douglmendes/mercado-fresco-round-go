@@ -30,7 +30,8 @@ var (
 		ProductRecordId: 2,
 		OrderStatusId:   2,
 	}
-	allPurchaseOrders = []domain.PurchaseOrder{
+	emptyPurchaseOrder *domain.PurchaseOrder
+	allPurchaseOrders  = []domain.PurchaseOrder{
 		firstPurchaseOrder,
 		secondPurchaseOrder,
 	}
@@ -160,6 +161,27 @@ func TestRepository_Create(t *testing.T) {
 			checkResult: func(t *testing.T, result *domain.PurchaseOrder, err error) {
 				assert.NoError(t, err)
 				assert.Equal(t, &firstPurchaseOrder, result)
+			},
+		},
+		{
+			name: "Fail",
+			buildStubs: func() {
+				mock.
+					ExpectExec(regexp.QuoteMeta(queryCreate)).
+					WithArgs(
+						firstPurchaseOrder.OrderNumber,
+						firstPurchaseOrder.OrderDate,
+						firstPurchaseOrder.TrackingCode,
+						firstPurchaseOrder.BuyerId,
+						firstPurchaseOrder.ProductRecordId,
+						firstPurchaseOrder.OrderStatusId,
+					).
+					WillReturnError(someError)
+			},
+			purchaseOrder: firstPurchaseOrder,
+			checkResult: func(t *testing.T, result *domain.PurchaseOrder, err error) {
+				assert.Error(t, err)
+				assert.Equal(t, emptyPurchaseOrder, result)
 			},
 		},
 	}
