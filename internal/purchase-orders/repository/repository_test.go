@@ -94,6 +94,27 @@ func TestMariaDB_GetAll(t *testing.T) {
 				assert.Equal(t, noPurchaseOrder, result)
 			},
 		},
+		{
+			name: "Fail_Scan",
+			buildStubs: func() {
+				rows := sqlmock.NewRows([]string{
+					"id",
+					"order_number",
+				}).AddRow(
+					firstPurchaseOrder.Id,
+					firstPurchaseOrder.OrderNumber,
+				).AddRow(
+					secondPurchaseOrder.Id,
+					secondPurchaseOrder.OrderNumber,
+				)
+
+				mock.ExpectQuery(regexp.QuoteMeta(queryGetAll)).WillReturnRows(rows)
+			},
+			checkResult: func(t *testing.T, result []domain.PurchaseOrder, err error) {
+				assert.Error(t, err)
+				assert.Equal(t, noPurchaseOrder, result)
+			},
+		},
 	}
 
 	for _, testCase := range testsCases {
