@@ -111,6 +111,22 @@ func TestCreate(t *testing.T) {
 				assert.Equal(t, emptyPurchaseOrder, result)
 			},
 		},
+		{
+			name: "Fail_GetAll",
+			buildStubs: func(repository *mock_domain.MockRepository, ctx context.Context) {
+				repository.
+					EXPECT().
+					GetAll(ctx).
+					Times(ONCE).
+					Return(noPurchaseOrders, someError)
+			},
+			purchaseOrder: purchaseOrder,
+			checkResult: func(t *testing.T, result *domain.PurchaseOrder, err error) {
+				assert.Error(t, err)
+
+				assert.Equal(t, emptyPurchaseOrder, result)
+			},
+		},
 	}
 
 	for _, testCase := range testCases {
