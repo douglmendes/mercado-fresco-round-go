@@ -26,6 +26,7 @@ var (
 		OrderStatusId:   1,
 	}
 	emptyPurchaseOrder *domain.PurchaseOrder
+	purchaseOrders     = []domain.PurchaseOrder{purchaseOrder}
 	noPurchaseOrders   = []domain.PurchaseOrder{}
 	someError          = errors.New("some error")
 )
@@ -123,6 +124,23 @@ func TestCreate(t *testing.T) {
 			purchaseOrder: purchaseOrder,
 			checkResult: func(t *testing.T, result *domain.PurchaseOrder, err error) {
 				assert.Error(t, err)
+
+				assert.Equal(t, emptyPurchaseOrder, result)
+			},
+		},
+		{
+			name: "Conflict",
+			buildStubs: func(repository *mock_domain.MockRepository, ctx context.Context) {
+				repository.
+					EXPECT().
+					GetAll(ctx).
+					Times(ONCE).
+					Return(purchaseOrders, nil)
+			},
+			purchaseOrder: purchaseOrder,
+			checkResult: func(t *testing.T, result *domain.PurchaseOrder, err error) {
+				assert.Error(t, err)
+				assert.Equal(t, errors.New("order number already exists"), err)
 
 				assert.Equal(t, emptyPurchaseOrder, result)
 			},
