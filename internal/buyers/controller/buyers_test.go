@@ -146,3 +146,14 @@ func TestWarehousesController_Delete_NOK(t *testing.T) {
 
 	assert.Equal(t, http.StatusNotFound, resp.Code)
 }
+
+func TestWarehousesController_Delete_BadRequest(t *testing.T) {
+	_, handler, api := callBuyersMock(t)
+	api.DELETE(relativePathBuyersId, handler.Delete())
+
+	req := httptest.NewRequest(http.MethodDelete, fmt.Sprintf("/api/v1/buyers/%s", "hello"), nil)
+	resp := httptest.NewRecorder()
+	api.ServeHTTP(resp, req)
+
+	assert.Equal(t, http.StatusNotFound, resp.Code)
+}
