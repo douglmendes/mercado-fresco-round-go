@@ -333,5 +333,30 @@ func TestBuyerController_GetOrdersByBuyers_OK(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, resp.Code)
 	assert.Equal(t, respExpect.Data[0].PurchaseOrdersCount, ordersBuyer[0].PurchaseOrdersCount)
+}
+
+func TestBuyersController_GetOrdersByBuyers_BadRequest(t *testing.T) {
+	_, handler, api := callBuyersMock(t)
+
+	api.GET(relativeOrdersBuyerPath, handler.GetOrdersByBuyers())
+
+	req := httptest.NewRequest(http.MethodGet, fmt.Sprint("/api/v1/buyers/reportPurchaseOrders?id=bom_dia"), nil)
+	resp := httptest.NewRecorder()
+	api.ServeHTTP(resp, req)
+
+	assert.Equal(t, http.StatusBadRequest, resp.Code)
+}
+
+func TestBuyersController_GetOrdersByBuyers_StatusNotFound(t *testing.T) {
+	service, handler, api := callBuyersMock(t)
+
+	api.GET(relativeOrdersBuyerPath, handler.GetOrdersByBuyers())
+	service.EXPECT().GetOrdersByBuyers(gomock.Any(), gomock.Eq(1)).Return([]domain.OrdersByBuyers{}, errors.New("error"))
+
+	req := httptest.NewRequest(http.MethodGet, fmt.Sprint("/api/v1/buyers/reportPurchaseOrders?id=1"), nil)
+	resp := httptest.NewRecorder()
+	api.ServeHTTP(resp, req)
+
+	assert.Equal(t, http.StatusNotFound, resp.Code)
 
 }
