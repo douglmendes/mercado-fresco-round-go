@@ -110,7 +110,7 @@ func TestBuyersController_GetById_NOK(t *testing.T) {
 	assert.Equal(t, http.StatusNotFound, resp.Code)
 }
 
-func TestWarehousesController_GetById_BadRequest(t *testing.T) {
+func TestBuyersController_GetById_BadRequest(t *testing.T) {
 	_, handler, api := callBuyersMock(t)
 	api.GET(relativePathBuyersId, handler.GetById())
 
@@ -121,7 +121,7 @@ func TestWarehousesController_GetById_BadRequest(t *testing.T) {
 	assert.Equal(t, http.StatusNotFound, resp.Code)
 }
 
-func TestWarehousesController_Delete_OK(t *testing.T) {
+func TestBuyersController_Delete_OK(t *testing.T) {
 	service, handler, api := callBuyersMock(t)
 	api.DELETE(relativePathBuyersId, handler.Delete())
 
@@ -134,7 +134,7 @@ func TestWarehousesController_Delete_OK(t *testing.T) {
 	assert.Equal(t, http.StatusNoContent, resp.Code)
 }
 
-func TestWarehousesController_Delete_NOK(t *testing.T) {
+func TestBuyersController_Delete_NOK(t *testing.T) {
 	service, handler, api := callBuyersMock(t)
 	api.DELETE(relativePathBuyersId, handler.Delete())
 
@@ -147,7 +147,7 @@ func TestWarehousesController_Delete_NOK(t *testing.T) {
 	assert.Equal(t, http.StatusNotFound, resp.Code)
 }
 
-func TestWarehousesController_Delete_BadRequest(t *testing.T) {
+func TestBuyersController_Delete_BadRequest(t *testing.T) {
 	_, handler, api := callBuyersMock(t)
 	api.DELETE(relativePathBuyersId, handler.Delete())
 
