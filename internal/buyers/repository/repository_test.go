@@ -51,7 +51,7 @@ func TestRepository_GetAll_Ok(t *testing.T) {
 
 	byRepo := NewRepository(db)
 
-	result, err := byRepo.GetAll()
+	result, err := byRepo.GetAll(context.TODO())
 	assert.NoError(t, err)
 	assert.Equal(t, "44dm", result[0].CardNumberId)
 	assert.Equal(t, len(result), 2)
@@ -67,7 +67,7 @@ func TestRepository_GetAll_NOk(t *testing.T) {
 
 	byRepo := NewRepository(db)
 
-	_, err = byRepo.GetAll()
+	_, err = byRepo.GetAll(context.TODO())
 	assert.Error(t, err)
 }
 
@@ -97,7 +97,7 @@ func TestRepository_GetById_Ok(t *testing.T) {
 
 	byRepo := NewRepository(db)
 
-	result, err := byRepo.GetById(1)
+	result, err := byRepo.GetById(context.TODO(), 1)
 	assert.NoError(t, err)
 	assert.Equal(t, "44dm", result.CardNumberId)
 }
@@ -112,7 +112,7 @@ func TestRepository_GetById_NOk(t *testing.T) {
 
 	byRepo := NewRepository(db)
 
-	_, err = byRepo.GetById(1)
+	_, err = byRepo.GetById(context.TODO(), 1)
 	assert.Error(t, err)
 }
 
@@ -126,7 +126,7 @@ func TestRepository_GetById_NoId(t *testing.T) {
 
 	byRepo := NewRepository(db)
 
-	_, err = byRepo.GetById(1)
+	_, err = byRepo.GetById(context.TODO(), 1)
 	assert.Error(t, err)
 }
 
@@ -259,7 +259,7 @@ func TestRepository_Create_Ok(t *testing.T) {
 
 	byRepo := NewRepository(db)
 
-	result, err := byRepo.Create("44dm", "Will", "Spencer")
+	result, err := byRepo.Create(context.TODO(), "44dm", "Will", "Spencer")
 	assert.NoError(t, err)
 
 	assert.Equal(t, "44dm", result.CardNumberId)
@@ -277,7 +277,7 @@ func TestRepository_Create_NOk(t *testing.T) {
 
 	byRepo := NewRepository(db)
 
-	_, err = byRepo.Create("44dm", "Will", "Spencer")
+	_, err = byRepo.Create(context.TODO(), "44dm", "Will", "Spencer")
 
 	assert.Error(t, err)
 }
@@ -322,7 +322,7 @@ func TestRepository_Update_Ok(t *testing.T) {
 
 	byRepo := NewRepository(db)
 
-	result, err := byRepo.Update(1, "44dm", "Will", "M. Spencer")
+	result, err := byRepo.Update(context.TODO(), 1, "44dm", "Will", "M. Spencer")
 	assert.NoError(t, err)
 	assert.Equal(t, &buyerMockUpdated, result)
 }
@@ -337,7 +337,7 @@ func TestRepository_Update_NOk(t *testing.T) {
 
 	byRepo := NewRepository(db)
 
-	_, err = byRepo.Update(1, "44dm", "Will", "M. Spencer")
+	_, err = byRepo.Update(context.TODO(), 1, "44dm", "Will", "M. Spencer")
 	assert.Error(t, err)
 }
 
@@ -352,7 +352,7 @@ func TestRepository_Delete_Ok(t *testing.T) {
 
 	byRepo := NewRepository(db)
 
-	err = byRepo.Delete(1)
+	err = byRepo.Delete(context.TODO(), 1)
 	assert.NoError(t, err)
 }
 
@@ -365,6 +365,6 @@ func TestRepository_Delete_NOk(t *testing.T) {
 
 	byRepo := NewRepository(db)
 
-	err = byRepo.Delete(1)
+	err = byRepo.Delete(context.TODO(), 1)
 	assert.Error(t, err)
 }

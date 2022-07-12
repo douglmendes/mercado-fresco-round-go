@@ -36,7 +36,7 @@ func NewBuyer(s domain.Service) *BuyerController {
 // @Router /api/v1/buyers [get]
 func (c *BuyerController) GetAll() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		s, err := c.service.GetAll()
+		s, err := c.service.GetAll(ctx)
 		if err != nil {
 			ctx.JSON(http.StatusNotFound, gin.H{
 				"error": err.Error(),
@@ -66,7 +66,7 @@ func (c *BuyerController) GetById() gin.HandlerFunc {
 			return
 		}
 
-		s, err := c.service.GetById(int(id))
+		s, err := c.service.GetById(ctx, int(id))
 		if err != nil {
 			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 			return
@@ -132,7 +132,7 @@ func (c *BuyerController) Create() gin.HandlerFunc {
 			return
 		}
 
-		s, err := c.service.Create(req.CardNumberId, req.FirstName, req.LastName)
+		s, err := c.service.Create(ctx, req.CardNumberId, req.FirstName, req.LastName)
 		if err != nil {
 			ctx.JSON(http.StatusConflict, gin.H{"error": err.Error()})
 			return
@@ -169,7 +169,7 @@ func (s *BuyerController) Update() gin.HandlerFunc {
 			return
 		}
 
-		s, err := s.service.Update(int(id), req.CardNumberId, req.FirstName, req.LastName)
+		s, err := s.service.Update(ctx, int(id), req.CardNumberId, req.FirstName, req.LastName)
 		if err != nil {
 			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 			return
@@ -194,7 +194,7 @@ func (c *BuyerController) Delete() gin.HandlerFunc {
 			return
 		}
 
-		err = c.service.Delete(int(id))
+		err = c.service.Delete(ctx, int(id))
 		if err != nil {
 			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 			return

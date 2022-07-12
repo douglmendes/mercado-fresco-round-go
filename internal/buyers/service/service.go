@@ -17,8 +17,8 @@ func NewService(r domain.Repository) domain.Service {
 	}
 }
 
-func (s service) GetAll() ([]domain.Buyer, error) {
-	buy, err := s.repository.GetAll()
+func (s service) GetAll(ctx context.Context) ([]domain.Buyer, error) {
+	buy, err := s.repository.GetAll(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -26,8 +26,8 @@ func (s service) GetAll() ([]domain.Buyer, error) {
 
 }
 
-func (s service) GetById(id int) (*domain.Buyer, error) {
-	buy, err := s.repository.GetById(id)
+func (s service) GetById(ctx context.Context, id int) (*domain.Buyer, error) {
+	buy, err := s.repository.GetById(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -43,8 +43,8 @@ func (s service) GetOrdersByBuyers(ctx context.Context, id int) ([]domain.Orders
 	return lc, nil
 }
 
-func (s service) Create(cardNumberId, firstName, lastName string) (*domain.Buyer, error) {
-	buy, err := s.repository.GetAll()
+func (s service) Create(ctx context.Context, cardNumberId, firstName, lastName string) (*domain.Buyer, error) {
+	buy, err := s.repository.GetAll(ctx)
 
 	if err != nil {
 		return nil, err
@@ -55,13 +55,13 @@ func (s service) Create(cardNumberId, firstName, lastName string) (*domain.Buyer
 			return nil, fmt.Errorf("this card number id already exists")
 		}
 	}
-	buyer, _ := s.repository.Create(cardNumberId, firstName, lastName)
+	buyer, _ := s.repository.Create(ctx, cardNumberId, firstName, lastName)
 
 	return buyer, nil
 }
 
-func (s service) Update(id int, cardNumberId, firstName, lastName string) (*domain.Buyer, error) {
-	sl, err := s.repository.GetAll()
+func (s service) Update(ctx context.Context, id int, cardNumberId, firstName, lastName string) (*domain.Buyer, error) {
+	sl, err := s.repository.GetAll(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -72,7 +72,7 @@ func (s service) Update(id int, cardNumberId, firstName, lastName string) (*doma
 		}
 	}
 
-	Buyer, err := s.repository.Update(id, cardNumberId, firstName, lastName)
+	Buyer, err := s.repository.Update(ctx, id, cardNumberId, firstName, lastName)
 	if err != nil {
 		return nil, err
 	}
@@ -80,8 +80,8 @@ func (s service) Update(id int, cardNumberId, firstName, lastName string) (*doma
 	return Buyer, err
 }
 
-func (s service) Delete(id int) error {
-	err := s.repository.Delete(id)
+func (s service) Delete(ctx context.Context, id int) error {
+	err := s.repository.Delete(ctx, id)
 	if err != nil {
 		return err
 	}
