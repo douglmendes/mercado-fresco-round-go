@@ -5,6 +5,8 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/douglmendes/mercado-fresco-round-go/internal/employees/domain"
+	"github.com/douglmendes/mercado-fresco-round-go/pkg/logger"
+	"github.com/douglmendes/mercado-fresco-round-go/pkg/store"
 	"log"
 )
 
@@ -39,9 +41,10 @@ func (r *repository) GetById(ctx context.Context, id int64) (*domain.Employee, e
 	err := row.Scan(&e.Id, &e.CardNumberId, &e.FirstName, &e.LastName, &e.WarehouseId)
 	if err != nil {
 		if err == sql.ErrNoRows {
+			logger.Error(ctx, store.GetPathWithLine(), err.Error())
 			return nil, fmt.Errorf("Employee %d not found", id)
 		} else {
-			log.Println("Error while scanning customer " + err.Error())
+			logger.Error(ctx, store.GetPathWithLine(), err.Error())
 			return nil, fmt.Errorf("unexpected database error")
 		}
 	}
