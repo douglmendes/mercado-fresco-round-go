@@ -35,7 +35,7 @@ func (s *service) Create(ctx context.Context, batchNumber, currentQuantity, curr
 		}
 	}
 
-	product, err := s.productRepo.GetById(productId)
+	product, err := s.productRepo.GetById(ctx, productId)
 	if product.Id == 0 || err != nil {
 		return nil, fmt.Errorf("product %d not found", productId)
 	}

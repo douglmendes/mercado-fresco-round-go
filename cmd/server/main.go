@@ -23,7 +23,7 @@ func main() {
 	if err != nil {
 		log.Fatal("failed to load .env")
 	}
-
 	server := config.NewServer()
 	server.Run()
+
 }
