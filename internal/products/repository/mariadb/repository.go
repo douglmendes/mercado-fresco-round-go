@@ -1,6 +1,7 @@
 package mariadb
 
 import (
+	"context"
 	"database/sql"
 
 	"github.com/douglmendes/mercado-fresco-round-go/internal/products/domain"
@@ -14,10 +15,10 @@ func NewRepository(db *sql.DB) domain.ProductRepository {
 	return &repository{db}
 }
 
-func (r *repository) GetAll() ([]domain.Product, error) {
+func (r *repository) GetAll(ctx context.Context) ([]domain.Product, error) {
 	products := []domain.Product{}
 
-	rows, err := r.db.Query(GetAllQuery)
+	rows, err := r.db.QueryContext(ctx, GetAllQuery)
 	if err != nil {
 		return products, err
 	}
@@ -49,8 +50,8 @@ func (r *repository) GetAll() ([]domain.Product, error) {
 	return products, nil
 }
 
-func (r *repository) GetById(id int) (domain.Product, error) {
-	row := r.db.QueryRow(GetByIdQuery, id)
+func (r *repository) GetById(ctx context.Context, id int) (domain.Product, error) {
+	row := r.db.QueryRowContext(ctx, GetByIdQuery, id)
 
 	product := domain.Product{}
 
@@ -75,8 +76,9 @@ func (r *repository) GetById(id int) (domain.Product, error) {
 	return product, nil
 }
 
-func (r *repository) Create(arg domain.Product) (domain.Product, error) {
-	result, err := r.db.Exec(
+func (r *repository) Create(ctx context.Context, arg domain.Product) (domain.Product, error) {
+	result, err := r.db.ExecContext(
+		ctx,
 		CreateQuery,
 		arg.ProductCode,
 		arg.Description,
@@ -105,8 +107,9 @@ func (r *repository) Create(arg domain.Product) (domain.Product, error) {
 	return product, nil
 }
 
-func (r *repository) Update(arg domain.Product) (domain.Product, error) {
-	_, err := r.db.Exec(
+func (r *repository) Update(ctx context.Context, arg domain.Product) (domain.Product, error) {
+	_, err := r.db.ExecContext(
+		ctx,
 		UpdateQuery,
 		arg.ProductCode,
 		arg.Description,
@@ -128,8 +131,8 @@ func (r *repository) Update(arg domain.Product) (domain.Product, error) {
 	return arg, nil
 }
 
-func (r *repository) Delete(id int) error {
-	_, err := r.db.Exec(DeleteQuery, id)
+func (r *repository) Delete(ctx context.Context, id int) error {
+	_, err := r.db.ExecContext(ctx, DeleteQuery, id)
 
 	return err
 }

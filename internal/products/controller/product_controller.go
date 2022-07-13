@@ -32,7 +32,7 @@ func NewProductController(service domain.ProductService) *ProductController {
 // @Router       /api/v1/products [get]
 func (c *ProductController) GetAll() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		products, err := c.service.GetAll()
+		products, err := c.service.GetAll(ctx)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, response.DecodeError(err.Error()))
 			return
@@ -66,7 +66,7 @@ func (c *ProductController) GetById() gin.HandlerFunc {
 			return
 		}
 
-		products, err := c.service.GetById(int(id))
+		products, err := c.service.GetById(ctx, int(id))
 		if err != nil {
 			ctx.JSON(http.StatusNotFound, response.DecodeError(err.Error()))
 			return
@@ -124,7 +124,7 @@ func (c *ProductController) Create() gin.HandlerFunc {
 			SellerId:                       req.SellerId,
 		}
 
-		product, err := c.service.Create(arg)
+		product, err := c.service.Create(ctx, arg)
 		if err != nil {
 			ctx.JSON(http.StatusConflict, response.DecodeError(err.Error()))
 			return
@@ -192,7 +192,7 @@ func (c *ProductController) Update() gin.HandlerFunc {
 			SellerId:                       req.SellerId,
 		}
 
-		product, err := c.service.Update(arg)
+		product, err := c.service.Update(ctx, arg)
 		if err != nil {
 			if strings.Contains(err.Error(), "not found") || errors.Is(err, sql.ErrNoRows) {
 				ctx.JSON(http.StatusNotFound, response.DecodeError(err.Error()))
@@ -226,7 +226,7 @@ func (c *ProductController) Delete() gin.HandlerFunc {
 			return
 		}
 
-		err = c.service.Delete(int(id))
+		err = c.service.Delete(ctx, int(id))
 		if err != nil {
 			ctx.JSON(http.StatusNotFound, response.DecodeError(err.Error()))
 			return

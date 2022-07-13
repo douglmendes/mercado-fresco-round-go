@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/douglmendes/mercado-fresco-round-go/internal/products/domain"
@@ -14,8 +15,8 @@ func NewService(r domain.ProductRepository) domain.ProductService {
 	return &service{repository: r}
 }
 
-func (s service) GetAll() ([]domain.Product, error) {
-	products, err := s.repository.GetAll()
+func (s service) GetAll(ctx context.Context) ([]domain.Product, error) {
+	products, err := s.repository.GetAll(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -23,8 +24,8 @@ func (s service) GetAll() ([]domain.Product, error) {
 	return products, nil
 }
 
-func (s service) GetById(id int) (domain.Product, error) {
-	product, err := s.repository.GetById(id)
+func (s service) GetById(ctx context.Context, id int) (domain.Product, error) {
+	product, err := s.repository.GetById(ctx, id)
 	if err != nil {
 		return domain.Product{}, err
 	}
@@ -32,8 +33,8 @@ func (s service) GetById(id int) (domain.Product, error) {
 	return product, nil
 }
 
-func (s service) Create(arg domain.Product) (domain.Product, error) {
-	products, err := s.repository.GetAll()
+func (s service) Create(ctx context.Context, arg domain.Product) (domain.Product, error) {
+	products, err := s.repository.GetAll(ctx)
 	if err != nil {
 		return domain.Product{}, err
 	}
@@ -44,7 +45,7 @@ func (s service) Create(arg domain.Product) (domain.Product, error) {
 		}
 	}
 
-	product, err := s.repository.Create(arg)
+	product, err := s.repository.Create(ctx, arg)
 	if err != nil {
 		return domain.Product{}, err
 	}
@@ -52,8 +53,8 @@ func (s service) Create(arg domain.Product) (domain.Product, error) {
 	return product, nil
 }
 
-func (s service) productCodeExists(arg domain.Product) (bool, error) {
-	products, err := s.repository.GetAll()
+func (s service) productCodeExists(ctx context.Context, arg domain.Product) (bool, error) {
+	products, err := s.repository.GetAll(ctx)
 	if err != nil {
 		return true, err
 	}
@@ -67,9 +68,12 @@ func (s service) productCodeExists(arg domain.Product) (bool, error) {
 	return false, nil
 }
 
-func (s service) updateProduct(product, arg domain.Product) (domain.Product, error) {
+func (s service) updateProduct(ctx context.Context, product, arg domain.Product) (
+	domain.Product,
+	error,
+) {
 	if arg.ProductCode != "" {
-		validProductCode, err := s.productCodeExists(arg)
+		validProductCode, err := s.productCodeExists(ctx, arg)
 		if err != nil {
 			return domain.Product{}, err
 		}
@@ -124,18 +128,18 @@ func (s service) updateProduct(product, arg domain.Product) (domain.Product, err
 	return product, nil
 }
 
-func (s service) Update(arg domain.Product) (domain.Product, error) {
-	foundProduct, err := s.repository.GetById(arg.Id)
+func (s service) Update(ctx context.Context, arg domain.Product) (domain.Product, error) {
+	foundProduct, err := s.repository.GetById(ctx, arg.Id)
 	if err != nil {
 		return domain.Product{}, err
 	}
 
-	updatedProduct, err := s.updateProduct(foundProduct, arg)
+	updatedProduct, err := s.updateProduct(ctx, foundProduct, arg)
 	if err != nil {
 		return domain.Product{}, err
 	}
 
-	updatedProduct, err = s.repository.Update(updatedProduct)
+	updatedProduct, err = s.repository.Update(ctx, updatedProduct)
 	if err != nil {
 		return domain.Product{}, err
 	}
@@ -143,8 +147,8 @@ func (s service) Update(arg domain.Product) (domain.Product, error) {
 	return updatedProduct, nil
 }
 
-func (s service) Delete(id int) error {
-	err := s.repository.Delete(id)
+func (s service) Delete(ctx context.Context, id int) error {
+	err := s.repository.Delete(ctx, id)
 	if err != nil {
 		return err
 	}

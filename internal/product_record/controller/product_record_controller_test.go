@@ -69,6 +69,7 @@ func callProductsMock(t *testing.T) (
 	*productRecordMockDomain.MockProductRecordService,
 	*ProductRecordController,
 	*gin.Engine,
+	gomock.Matcher,
 ) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -77,7 +78,7 @@ func callProductsMock(t *testing.T) (
 	handler := NewProductRecordController(service)
 	api := gin.New()
 
-	return service, handler, api
+	return service, handler, api, gomock.Any()
 }
 
 func TestProductRecordController_Create(t *testing.T) {
@@ -87,18 +88,24 @@ func TestProductRecordController_Create(t *testing.T) {
 	productRecordWithMissingFields := struct{}{}
 
 	testCases := []struct {
-		name        string
-		payload     interface{}
-		buildStubs  func(service *productRecordMockDomain.MockProductRecordService)
+		name       string
+		payload    interface{}
+		buildStubs func(
+			service *productRecordMockDomain.MockProductRecordService,
+			ctx gomock.Matcher,
+		)
 		checkResult func(t *testing.T, res *httptest.ResponseRecorder)
 	}{
 		{
 			name:    "OK",
 			payload: newProductRecord,
-			buildStubs: func(service *productRecordMockDomain.MockProductRecordService) {
+			buildStubs: func(
+				service *productRecordMockDomain.MockProductRecordService,
+				ctx gomock.Matcher,
+			) {
 				service.
 					EXPECT().
-					Create(newProductRecord).
+					Create(ctx, newProductRecord).
 					Times(ONCE).
 					Return(productRecord, nil)
 			},
@@ -115,7 +122,10 @@ func TestProductRecordController_Create(t *testing.T) {
 		{
 			name:    "Fail",
 			payload: productRecordWithMissingFields,
-			buildStubs: func(service *productRecordMockDomain.MockProductRecordService) {
+			buildStubs: func(
+				service *productRecordMockDomain.MockProductRecordService,
+				ctx gomock.Matcher,
+			) {
 			},
 			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
 				assert.Equal(t, http.StatusUnprocessableEntity, res.Code)
@@ -130,10 +140,13 @@ func TestProductRecordController_Create(t *testing.T) {
 		{
 			name:    "Conflict",
 			payload: newProductRecord,
-			buildStubs: func(service *productRecordMockDomain.MockProductRecordService) {
+			buildStubs: func(
+				service *productRecordMockDomain.MockProductRecordService,
+				ctx gomock.Matcher,
+			) {
 				service.
 					EXPECT().
-					Create(newProductRecord).
+					Create(ctx, newProductRecord).
 					Times(ONCE).
 					Return(emptyProductRecord, someError)
 			},
@@ -151,11 +164,11 @@ func TestProductRecordController_Create(t *testing.T) {
 
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
-			service, handler, api := callProductsMock(t)
+			service, handler, api, ctx := callProductsMock(t)
 
 			api.POST(PRODUCT_RECORDS_PATH, handler.Create())
 
-			testCase.buildStubs(service)
+			testCase.buildStubs(service, ctx)
 
 			payload, _ := json.Marshal(testCase.payload)
 			req := httptest.NewRequest(
@@ -173,18 +186,24 @@ func TestProductRecordController_Create(t *testing.T) {
 
 func TestProductRecordController_GetByProductId(t *testing.T) {
 	testCases := []struct {
-		name        string
-		productId   any
-		buildStubs  func(service *productRecordMockDomain.MockProductRecordService)
+		name       string
+		productId  any
+		buildStubs func(
+			service *productRecordMockDomain.MockProductRecordService,
+			ctx gomock.Matcher,
+		)
 		checkResult func(t *testing.T, res *httptest.ResponseRecorder)
 	}{
 		{
 			name:      "OK_GetAll",
 			productId: GET_ALL_ID,
-			buildStubs: func(service *productRecordMockDomain.MockProductRecordService) {
+			buildStubs: func(
+				service *productRecordMockDomain.MockProductRecordService,
+				ctx gomock.Matcher,
+			) {
 				service.
 					EXPECT().
-					GetByProductId(GET_ALL_ID).
+					GetByProductId(ctx, GET_ALL_ID).
 					Times(ONCE).
 					Return(allProductRecordsCount, nil)
 			},
@@ -201,10 +220,13 @@ func TestProductRecordController_GetByProductId(t *testing.T) {
 		{
 			name:      "OK_GetByProductId",
 			productId: productRecord.ProductId,
-			buildStubs: func(service *productRecordMockDomain.MockProductRecordService) {
+			buildStubs: func(
+				service *productRecordMockDomain.MockProductRecordService,
+				ctx gomock.Matcher,
+			) {
 				service.
 					EXPECT().
-					GetByProductId(productRecord.ProductId).
+					GetByProductId(ctx, productRecord.ProductId).
 					Times(ONCE).
 					Return(someProductRecordsCount, nil)
 			},
@@ -221,7 +243,10 @@ func TestProductRecordController_GetByProductId(t *testing.T) {
 		{
 			name:      "Bad Request",
 			productId: INVALID_ID,
-			buildStubs: func(service *productRecordMockDomain.MockProductRecordService) {
+			buildStubs: func(
+				service *productRecordMockDomain.MockProductRecordService,
+				ctx gomock.Matcher,
+			) {
 			},
 			checkResult: func(t *testing.T, res *httptest.ResponseRecorder) {
 				assert.Equal(t, http.StatusBadRequest, res.Code)
@@ -236,10 +261,13 @@ func TestProductRecordController_GetByProductId(t *testing.T) {
 		{
 			name:      "Not Found",
 			productId: INVALID_PRODUCT_ID,
-			buildStubs: func(service *productRecordMockDomain.MockProductRecordService) {
+			buildStubs: func(
+				service *productRecordMockDomain.MockProductRecordService,
+				ctx gomock.Matcher,
+			) {
 				service.
 					EXPECT().
-					GetByProductId(INVALID_PRODUCT_ID).
+					GetByProductId(ctx, INVALID_PRODUCT_ID).
 					Times(ONCE).
 					Return(nilProductRecordsCount, someError)
 			},
@@ -257,11 +285,11 @@ func TestProductRecordController_GetByProductId(t *testing.T) {
 
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
-			service, handler, api := callProductsMock(t)
+			service, handler, api, ctx := callProductsMock(t)
 
 			api.GET(PRODUCT_REPORT_RECORDS_PATH, handler.GetByProductId())
 
-			testCase.buildStubs(service)
+			testCase.buildStubs(service, ctx)
 
 			var req *http.Request
 			if testCase.productId != GET_ALL_ID {

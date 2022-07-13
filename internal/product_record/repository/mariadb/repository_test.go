@@ -1,6 +1,7 @@
 package mariadb
 
 import (
+	"context"
 	"database/sql"
 	"database/sql/driver"
 	"regexp"
@@ -34,6 +35,7 @@ var (
 		SalePrice:      49.99,
 	}
 	emptyProductRecord = domain.ProductRecord{}
+	ctx                = context.Background()
 )
 
 func TestMariaDB_GetByProductId(t *testing.T) {
@@ -159,7 +161,7 @@ func TestMariaDB_GetByProductId(t *testing.T) {
 
 			repository := NewRepository(db)
 
-			result, err := repository.GetByProductId(testCase.productId)
+			result, err := repository.GetByProductId(ctx, testCase.productId)
 
 			testCase.checkResult(t, result, err)
 		})
@@ -242,7 +244,7 @@ func TestMariaDB_Create(t *testing.T) {
 
 			repository := NewRepository(db)
 
-			result, err := repository.Create(testCase.product)
+			result, err := repository.Create(ctx, testCase.product)
 
 			testCase.checkResult(t, result, err)
 		})
