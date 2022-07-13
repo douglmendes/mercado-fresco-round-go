@@ -54,7 +54,7 @@ func Debug(ctx context.Context, caller, message string) {
 	timeString = timeString[:len(timeString)-32]
 
 	l := logger{
-		level:     "info",
+		level:     "debug",
 		timestamp: timeString,
 		caller:    caller,
 		message:   message,
