@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/douglmendes/mercado-fresco-round-go/internal/carriers/domain"
 	"github.com/stretchr/testify/assert"
@@ -96,4 +97,20 @@ func TestRepository_GetAll(t *testing.T) {
 	assert.Equal(t, result[0].Cid, "ABC")
 	assert.Equal(t, len(result), 2)
 
+}
+
+func TestRepository_GetAll_NOK(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	assert.NoError(t, err)
+	defer db.Close()
+
+	carriersMock := []domain.Carrier{}
+
+	mock.ExpectQuery(sqlGetAllCarriers).WillReturnError(errors.New("erro"))
+
+	carriersRepo := NewRepository(db)
+
+	result, err := carriersRepo.GetAll(context.TODO())
+	assert.Error(t, err)
+	assert.Equal(t, carriersMock, result)
 }

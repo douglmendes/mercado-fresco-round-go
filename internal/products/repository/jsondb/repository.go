@@ -1,6 +1,7 @@
 package jsondb
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/douglmendes/mercado-fresco-round-go/internal/products/domain"
@@ -15,7 +16,7 @@ func NewRepository(db store.Store) domain.ProductRepository {
 	return &repository{db}
 }
 
-func (r *repository) GetAll() ([]domain.Product, error) {
+func (r *repository) GetAll(ctx context.Context) ([]domain.Product, error) {
 	var products []domain.Product
 
 	err := r.db.Read(&products)
@@ -26,7 +27,7 @@ func (r *repository) GetAll() ([]domain.Product, error) {
 	return products, nil
 }
 
-func (r *repository) GetById(id int) (domain.Product, error) {
+func (r *repository) GetById(ctx context.Context, id int) (domain.Product, error) {
 	var products []domain.Product
 
 	err := r.db.Read(&products)
@@ -43,7 +44,7 @@ func (r *repository) GetById(id int) (domain.Product, error) {
 	return domain.Product{}, fmt.Errorf("product (%d) not found", id)
 }
 
-func (r *repository) Create(arg domain.Product) (domain.Product, error) {
+func (r *repository) Create(ctx context.Context, arg domain.Product) (domain.Product, error) {
 	var products []domain.Product
 
 	if err := r.db.Read(&products); err != nil {
@@ -80,7 +81,7 @@ func (r *repository) lastID() (int, error) {
 	return products[len(products)-1].Id, nil
 }
 
-func (r *repository) Update(arg domain.Product) (domain.Product, error) {
+func (r *repository) Update(ctx context.Context, arg domain.Product) (domain.Product, error) {
 	var products []domain.Product
 	updated := false
 
@@ -104,7 +105,7 @@ func (r *repository) Update(arg domain.Product) (domain.Product, error) {
 	return arg, nil
 }
 
-func (r *repository) Delete(id int) error {
+func (r *repository) Delete(ctx context.Context, id int) error {
 	deleted := false
 	foundIndex := 0
 	var products []domain.Product
