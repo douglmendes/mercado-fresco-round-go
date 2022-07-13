@@ -13,7 +13,7 @@ const (
 			warehouse_id,
 			product_type_id
 		FROM
-			sections`
+			section`
 	GetByIdQuery = `
 		SELECT
 			id,
@@ -26,11 +26,11 @@ const (
 			warehouse_id,
 			product_type_id
 		FROM
-			sections
+			section
 		WHERE
 			id = ?`
 	CreateQuery = `
-		INSERT INTO sections (
+		INSERT INTO section (
 			section_number,
 			current_temperature,
 			minimum_temperature,
@@ -39,9 +39,9 @@ const (
 			maximum_capacity,
 			warehouse_id,
 			product_type_id
-		) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+		) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
 	UpdateQuery = `
-		UPDATE sections
+		UPDATE section
 		SET
 			section_number = ?,
 			current_temperature = ?,
@@ -55,7 +55,7 @@ const (
 	DeleteQuery = `
 		DELETE
 		FROM
-			sections
+			section
 		WHERE
 			id = ?`
 )
