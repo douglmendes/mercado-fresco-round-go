@@ -82,3 +82,42 @@ func TestController_Create_Conflict(t *testing.T) {
 
 	assert.Equal(t, http.StatusConflict, resp.Code)
 }
+
+func TestController_Get_By_Section_Id_OK(t *testing.T) {
+	service, handler, api := callMock(t)
+	api.GET(getPath, handler.GetBySectionId())
+
+	service.EXPECT().GetBySectionId(gomock.Any(), 1).Return([]domain.SectionRecords{}, nil)
+
+	req := httptest.NewRequest(http.MethodGet, getPath+"?id=1", nil)
+	resp := httptest.NewRecorder()
+	api.ServeHTTP(resp, req)
+
+	assert.Equal(t, http.StatusOK, resp.Code)
+}
+
+func TestController_Get_By_Section_Id_Bad_Request(t *testing.T) {
+	_, handler, api := callMock(t)
+	api.GET(getPath, handler.GetBySectionId())
+
+	// service.EXPECT().GetBySectionId(gomock.Any(), 1).Return([]domain.SectionRecords{}, nil)
+
+	req := httptest.NewRequest(http.MethodGet, getPath+"?id=a", nil)
+	resp := httptest.NewRecorder()
+	api.ServeHTTP(resp, req)
+
+	assert.Equal(t, http.StatusBadRequest, resp.Code)
+}
+
+func TestController_Get_By_Section_Id_Not_Found(t *testing.T) {
+	service, handler, api := callMock(t)
+	api.GET(getPath, handler.GetBySectionId())
+
+	service.EXPECT().GetBySectionId(gomock.Any(), 1).Return(nil, errors.New("not found"))
+
+	req := httptest.NewRequest(http.MethodGet, getPath+"?id=1", nil)
+	resp := httptest.NewRecorder()
+	api.ServeHTTP(resp, req)
+
+	assert.Equal(t, http.StatusNotFound, resp.Code)
+}
