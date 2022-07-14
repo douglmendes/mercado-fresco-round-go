@@ -5,7 +5,9 @@ import (
 	"strconv"
 
 	"github.com/douglmendes/mercado-fresco-round-go/internal/product_batches/domain"
+	"github.com/douglmendes/mercado-fresco-round-go/pkg/logger"
 	"github.com/douglmendes/mercado-fresco-round-go/pkg/response"
+	"github.com/douglmendes/mercado-fresco-round-go/pkg/store"
 
 	"github.com/gin-gonic/gin"
 )
@@ -35,6 +37,7 @@ func (c *ProductBatchesController) Create() gin.HandlerFunc {
 		var request createRequest
 
 		if err := ctx.ShouldBindJSON(&request); err != nil {
+			logger.Error(ctx, store.GetPathWithLine(), err.Error())
 			ctx.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
 			return
 		}
@@ -54,6 +57,7 @@ func (c *ProductBatchesController) Create() gin.HandlerFunc {
 		)
 
 		if err != nil {
+			logger.Error(ctx, store.GetPathWithLine(), err.Error())
 			ctx.JSON(http.StatusConflict, gin.H{"error": err.Error()})
 			return
 		}
@@ -70,6 +74,7 @@ func (c *ProductBatchesController) GetBySectionId() gin.HandlerFunc {
 		if stringId, exists := ctx.GetQuery("id"); exists {
 			id, err = strconv.ParseInt(stringId, 10, 64)
 			if err != nil {
+				logger.Error(ctx, store.GetPathWithLine(), err.Error())
 				ctx.JSON(http.StatusBadRequest, response.DecodeError(err.Error()))
 				return
 			}
@@ -77,6 +82,7 @@ func (c *ProductBatchesController) GetBySectionId() gin.HandlerFunc {
 
 		records, err := c.service.GetBySectionId(ctx, int(id))
 		if err != nil {
+			logger.Error(ctx, store.GetPathWithLine(), err.Error())
 			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 			return
 		}
