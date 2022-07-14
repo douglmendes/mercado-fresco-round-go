@@ -5,6 +5,8 @@ import (
 	"fmt"
 	carrierRepo "github.com/douglmendes/mercado-fresco-round-go/internal/carriers/domain"
 	localityRepo "github.com/douglmendes/mercado-fresco-round-go/internal/localities/domain"
+	"github.com/douglmendes/mercado-fresco-round-go/pkg/logger"
+	"github.com/douglmendes/mercado-fresco-round-go/pkg/store"
 )
 
 type service struct {
@@ -30,6 +32,7 @@ func (s *service) CreateCarrier(
 
 	carrierList, err := s.carrierRepository.GetAll(ctx)
 	if err != nil {
+		logger.Error(ctx, store.GetPathWithLine(), err.Error())
 		return carrierRepo.Carrier{}, err
 	}
 
@@ -46,6 +49,7 @@ func (s *service) CreateCarrier(
 
 	carrier, err := s.carrierRepository.Create(ctx, cid, companyName, address, telephone, localityId)
 	if err != nil {
+		logger.Error(ctx, store.GetPathWithLine(), err.Error())
 		return carrierRepo.Carrier{}, err
 	}
 	return carrier, nil
