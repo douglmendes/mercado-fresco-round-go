@@ -5,6 +5,8 @@ import (
 	"database/sql"
 
 	"github.com/douglmendes/mercado-fresco-round-go/internal/products/domain"
+	"github.com/douglmendes/mercado-fresco-round-go/pkg/logger"
+	"github.com/douglmendes/mercado-fresco-round-go/pkg/store"
 )
 
 type repository struct {
@@ -20,6 +22,8 @@ func (r *repository) GetAll(ctx context.Context) ([]domain.Product, error) {
 
 	rows, err := r.db.QueryContext(ctx, GetAllQuery)
 	if err != nil {
+		logger.Error(ctx, store.GetPathWithLine(), err.Error())
+
 		return products, err
 	}
 
@@ -41,6 +45,8 @@ func (r *repository) GetAll(ctx context.Context) ([]domain.Product, error) {
 			&product.SellerId,
 		)
 		if err != nil {
+			logger.Error(ctx, store.GetPathWithLine(), err.Error())
+
 			return []domain.Product{}, err
 		}
 
@@ -70,6 +76,8 @@ func (r *repository) GetById(ctx context.Context, id int) (domain.Product, error
 		&product.SellerId,
 	)
 	if err != nil {
+		logger.Error(ctx, store.GetPathWithLine(), err.Error())
+
 		return domain.Product{}, err
 	}
 
@@ -93,11 +101,15 @@ func (r *repository) Create(ctx context.Context, arg domain.Product) (domain.Pro
 		arg.SellerId,
 	)
 	if err != nil {
+		logger.Error(ctx, store.GetPathWithLine(), err.Error())
+
 		return domain.Product{}, err
 	}
 
 	id, err := result.LastInsertId()
 	if err != nil {
+		logger.Error(ctx, store.GetPathWithLine(), err.Error())
+
 		return domain.Product{}, err
 	}
 
@@ -125,6 +137,8 @@ func (r *repository) Update(ctx context.Context, arg domain.Product) (domain.Pro
 		arg.Id,
 	)
 	if err != nil {
+		logger.Error(ctx, store.GetPathWithLine(), err.Error())
+
 		return domain.Product{}, err
 	}
 
@@ -133,6 +147,9 @@ func (r *repository) Update(ctx context.Context, arg domain.Product) (domain.Pro
 
 func (r *repository) Delete(ctx context.Context, id int) error {
 	_, err := r.db.ExecContext(ctx, DeleteQuery, id)
+	if err != nil {
+		logger.Error(ctx, store.GetPathWithLine(), err.Error())
+	}
 
 	return err
 }
