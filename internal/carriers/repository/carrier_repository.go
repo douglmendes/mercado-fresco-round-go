@@ -8,11 +8,6 @@ import (
 	"github.com/douglmendes/mercado-fresco-round-go/pkg/store"
 )
 
-const (
-	sqlCreateCarrier  = "INSERT INTO carries (cid, company_name, address, telephone, locality_id) VALUES (?, ?, ?, ?, ?)"
-	sqlGetAllCarriers = "SELECT id, cid, company_name, address, telephone, locality_id FROM carries"
-)
-
 type repository struct {
 	db *sql.DB
 }
