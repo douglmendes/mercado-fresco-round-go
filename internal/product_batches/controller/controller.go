@@ -86,14 +86,14 @@ func (c *ProductBatchesController) GetBySectionId() gin.HandlerFunc {
 }
 
 type createRequest struct {
-	BatchNumber        int    `json:"batch_number,omitempty"`
-	CurrentQuantity    int    `json:"current_quantity,omitempty"`
-	CurrentTemperature int    `json:"current_temperature,omitempty"`
-	DueDate            string `json:"due_date,omitempty"`
-	InitialQuantity    int    `json:"initial_quantity,omitempty"`
-	ManufacturingDate  string `json:"manufacturing_date,omitempty"`
-	ManufacturingHour  int    `json:"manufacturing_hour,omitempty"`
-	MinimumTemperature int    `json:"minimum_temperature,omitempty"`
-	ProductId          int    `json:"product_id,omitempty"`
-	SectionId          int    `json:"section_id,omitempty"`
+	BatchNumber        int    `json:"batch_number" binding:"required"`
+	CurrentQuantity    int    `json:"current_quantity" binding:"required"`
+	CurrentTemperature int    `json:"current_temperature" binding:"required"`
+	DueDate            string `json:"due_date" binding:"required"`
+	InitialQuantity    int    `json:"initial_quantity" binding:"required"`
+	ManufacturingDate  string `json:"manufacturing_date" binding:"required"`
+	ManufacturingHour  int    `json:"manufacturing_hour" binding:"required"`
+	MinimumTemperature int    `json:"minimum_temperature" binding:"required"`
+	ProductId          int    `json:"product_id" binding:"required"`
+	SectionId          int    `json:"section_id" binding:"required"`
 }
