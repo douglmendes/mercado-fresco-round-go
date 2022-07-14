@@ -31,7 +31,7 @@ var (
 		SectionId:          8,
 	}
 	sampleRecord = domain.SectionRecords{
-		SectionId:     1,
+		SectionId:     8,
 		SectionNumber: 3,
 		ProductsCount: 5,
 	}
@@ -127,5 +127,36 @@ func TestService_Create_Section_Not_Found(t *testing.T) {
 	api.EXPECT().Create(context.TODO(), 1, 2, 3, "2020-01-01", 4, "2020-01-01", 5, 6, 7, 8).Return(nil, errors.New("section not found"))
 
 	_, err := service.Create(context.TODO(), 1, 2, 3, "2020-01-01", 4, "2020-01-01", 5, 6, 7, 8)
+	assert.NotNil(t, err)
+}
+
+func TestService_Get_By_Section_Id_OK(t *testing.T) {
+	api, _, scMock, service := callMock(t)
+
+	scMock.EXPECT().GetById(sampleBatch.SectionId).Return(&sampleSection, nil)
+	api.EXPECT().GetBySectionId(context.TODO(), sampleBatch.SectionId).Return([]domain.SectionRecords{sampleRecord}, nil)
+
+	result, err := service.GetBySectionId(context.TODO(), sampleBatch.SectionId)
+	assert.Equal(t, sampleBatch.SectionId, result[0].SectionId)
+	assert.Nil(t, err)
+}
+
+func TestService_Get_By_Section_Id_Section_Not_Found(t *testing.T) {
+	_, _, scMock, service := callMock(t)
+
+	scMock.EXPECT().GetById(sampleBatch.SectionId).Return(nil, errors.New("not found"))
+	// api.EXPECT().GetBySectionId(context.TODO(), sampleBatch.SectionId).Return([]domain.SectionRecords{sampleRecord}, nil)
+
+	_, err := service.GetBySectionId(context.TODO(), sampleBatch.SectionId)
+	assert.NotNil(t, err)
+}
+
+func TestService_Get_By_Section_Id_Products_Not_Found(t *testing.T) {
+	api, _, scMock, service := callMock(t)
+
+	scMock.EXPECT().GetById(sampleBatch.SectionId).Return(&sampleSection, nil)
+	api.EXPECT().GetBySectionId(context.TODO(), sampleBatch.SectionId).Return(nil, errors.New("error"))
+
+	_, err := service.GetBySectionId(context.TODO(), sampleBatch.SectionId)
 	assert.NotNil(t, err)
 }
