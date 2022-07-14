@@ -46,6 +46,29 @@ func TestRepository_Create_OK(t *testing.T) {
 	assert.Equal(t, result.Cid, "1010")
 }
 
+func TestRepository_Create_NOK(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	assert.NoError(t, err)
+	defer db.Close()
+
+	mock.ExpectExec(regexp.QuoteMeta(sqlCreateCarrier)).
+		WithArgs(0, 0, 0, 0).
+		WillReturnResult(sqlmock.NewResult(1, 1))
+
+	carrierRepo := NewRepository(db)
+
+	_, err = carrierRepo.Create(
+		context.TODO(),
+		"1010",
+		"Kato Canecas LTDA",
+		"Wall Street, 20",
+		"55111444111",
+		25,
+	)
+
+	assert.Error(t, err)
+}
+
 func TestRepository_GetAll(t *testing.T) {
 	db, mock, err := sqlmock.New()
 	assert.NoError(t, err)
