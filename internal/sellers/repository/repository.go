@@ -8,6 +8,8 @@ import (
 	"log"
 
 	"github.com/douglmendes/mercado-fresco-round-go/internal/sellers/domain"
+	"github.com/douglmendes/mercado-fresco-round-go/pkg/logger"
+	"github.com/douglmendes/mercado-fresco-round-go/pkg/store"
 )
 
 type repository struct {
@@ -18,6 +20,7 @@ func (r *repository) GetAll(ctx context.Context) ([]domain.Seller, error) {
 	var sellers []domain.Seller
 	rows, err := r.db.QueryContext(ctx, queryGetAll)
 	if err != nil {
+		logger.Error(ctx, store.GetPathWithLine(), err.Error())
 		return []domain.Seller{}, err
 	}
 
@@ -34,6 +37,7 @@ func (r *repository) GetAll(ctx context.Context) ([]domain.Seller, error) {
 			&seller.Telephone,
 			&seller.LocalityId,
 		); err != nil {
+			logger.Error(ctx, store.GetPathWithLine(), err.Error())
 			return sellers, err
 		}
 
@@ -58,10 +62,12 @@ func (r *repository) GetById(ctx context.Context, id int) (domain.Seller, error)
 	)
 
 	if errors.Is(err, sql.ErrNoRows) {
+		logger.Error(ctx, store.GetPathWithLine(), err.Error())
 		return seller, fmt.Errorf("seller %d not found", id)
 	}
 
 	if err != nil {
+		logger.Error(ctx, store.GetPathWithLine(), err.Error())
 		return seller, err
 	}
 
@@ -89,11 +95,13 @@ func (r *repository) Create(ctx context.Context, cid int, commpanyName, address,
 	)
 
 	if err != nil {
+		logger.Error(ctx, store.GetPathWithLine(), err.Error())
 		return domain.Seller{}, err
 	}
 
 	lastID, err := result.LastInsertId()
 	if err != nil {
+		logger.Error(ctx, store.GetPathWithLine(), err.Error())
 		return domain.Seller{}, err
 	}
 
@@ -106,6 +114,7 @@ func (r *repository) Update(ctx context.Context, id, cid int, commpanyName, addr
 
 	seller, err := r.GetById(ctx, id)
 	if err != nil {
+		logger.Error(ctx, store.GetPathWithLine(), err.Error())
 		return domain.Seller{}, fmt.Errorf("seller %d not found", id)
 	}
 
@@ -136,11 +145,13 @@ func (r *repository) Update(ctx context.Context, id, cid int, commpanyName, addr
 		id,
 	)
 	if err != nil {
+		logger.Error(ctx, store.GetPathWithLine(), err.Error())
 		return domain.Seller{}, err
 	}
 
 	affectedRows, err := result.RowsAffected()
 	if err != nil {
+		logger.Error(ctx, store.GetPathWithLine(), err.Error())
 		return domain.Seller{}, err
 	}
 	log.Println(affectedRows)
@@ -152,12 +163,14 @@ func (r *repository) Delete(ctx context.Context, id int) error {
 
 	result, err := r.db.ExecContext(ctx, queryDelete, id)
 	if err != nil {
+		logger.Error(ctx, store.GetPathWithLine(), err.Error())
 		return err
 	}
 
 	affectedRows, err := result.RowsAffected()
 
 	if affectedRows == 0 {
+		logger.Error(ctx, store.GetPathWithLine(), "seller not found")
 		return fmt.Errorf("seller %d not found", id)
 	}
 

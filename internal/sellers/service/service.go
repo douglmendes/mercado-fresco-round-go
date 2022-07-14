@@ -4,8 +4,10 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/douglmendes/mercado-fresco-round-go/internal/sellers/domain"
 	localityD "github.com/douglmendes/mercado-fresco-round-go/internal/localities/domain"
+	"github.com/douglmendes/mercado-fresco-round-go/internal/sellers/domain"
+	"github.com/douglmendes/mercado-fresco-round-go/pkg/logger"
+	"github.com/douglmendes/mercado-fresco-round-go/pkg/store"
 )
 
 type service struct {
@@ -23,6 +25,7 @@ func NewService(r domain.Repository, rL localityD.LocalityRepository) domain.Ser
 func (s service) GetAll(ctx context.Context) ([]domain.Seller, error) {
 	sl, err := s.repository.GetAll(ctx)
 	if err != nil {
+		logger.Error(ctx, store.GetPathWithLine(), err.Error())
 		return []domain.Seller{}, err
 	}
 	return sl, nil
@@ -32,6 +35,7 @@ func (s service) GetAll(ctx context.Context) ([]domain.Seller, error) {
 func (s service) GetById(ctx context.Context, id int) (domain.Seller, error) {
 	sl, err := s.repository.GetById(ctx, id)
 	if err != nil {
+		logger.Error(ctx, store.GetPathWithLine(), err.Error())
 		return domain.Seller{}, err
 	}
 	return sl, nil
@@ -42,6 +46,7 @@ func (s service) Create(ctx context.Context, cid int, companyName, address, tele
 
 	sl, err := s.repository.GetAll(ctx)
 	if err != nil {
+		logger.Error(ctx, store.GetPathWithLine(), err.Error())
 		return domain.Seller{}, err
 	}
 
@@ -68,6 +73,7 @@ func (s service) Create(ctx context.Context, cid int, companyName, address, tele
 func (s service) Update(ctx context.Context, id, cid int, companyName, address, telephone string, localityId int) (domain.Seller, error) {
 	sl, err := s.repository.GetAll(ctx)
 	if err != nil {
+		logger.Error(ctx, store.GetPathWithLine(), err.Error())
 		return domain.Seller{}, err
 	}
 
@@ -79,6 +85,7 @@ func (s service) Update(ctx context.Context, id, cid int, companyName, address, 
 
 	seller, err := s.repository.Update(ctx, id, cid, companyName, address, telephone, localityId)
 	if err != nil {
+		logger.Error(ctx, store.GetPathWithLine(), err.Error())
 		return domain.Seller{}, err
 	}
 
@@ -88,6 +95,7 @@ func (s service) Update(ctx context.Context, id, cid int, companyName, address, 
 func (s service) Delete(ctx context.Context, id int) error {
 	err := s.repository.Delete(ctx, id)
 	if err != nil {
+		logger.Error(ctx, store.GetPathWithLine(), err.Error())
 		return err
 	}
 	return nil
