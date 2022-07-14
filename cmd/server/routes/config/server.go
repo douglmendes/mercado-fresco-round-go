@@ -20,4 +20,5 @@ func NewServer() ConfigurationServer {
 func (s *ConfigurationServer) Run() {
 	router := ConfigurationRoutes(s.server)
 	log.Fatal(router.Run(":" + s.port))
+
 }

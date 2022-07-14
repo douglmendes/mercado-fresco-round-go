@@ -6,7 +6,9 @@ import (
 	"strconv"
 
 	"github.com/douglmendes/mercado-fresco-round-go/internal/sellers/domain"
+	"github.com/douglmendes/mercado-fresco-round-go/pkg/logger"
 	"github.com/douglmendes/mercado-fresco-round-go/pkg/response"
+	"github.com/douglmendes/mercado-fresco-round-go/pkg/store"
 	"github.com/gin-gonic/gin"
 )
 
@@ -49,6 +51,7 @@ func (c *SellerController) GetAll() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		s, err := c.service.GetAll(ctx)
 		if err != nil {
+			logger.Error(ctx, store.GetPathWithLine(), err.Error())
 			ctx.JSON(http.StatusNotFound, gin.H{
 				"error": err.Error(),
 			})
@@ -81,6 +84,7 @@ func (c *SellerController) GetById() gin.HandlerFunc {
 
 		s, err := c.service.GetById(ctx, id)
 		if err != nil {
+			logger.Error(ctx, store.GetPathWithLine(), err.Error())
 			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 			return
 		}
@@ -136,6 +140,7 @@ func (c *SellerController) Create() gin.HandlerFunc {
 
 		s, err := c.service.Create(ctx, req.Cid, req.CompanyName, req.Address, req.Telephone, req.LocalityId)
 		if err != nil {
+			logger.Error(ctx, store.GetPathWithLine(), err.Error())
 			ctx.JSON(http.StatusConflict, gin.H{"error": err.Error()})
 			return
 		}
@@ -173,6 +178,7 @@ func (s *SellerController) Update() gin.HandlerFunc {
 
 		s, err := s.service.Update(ctx, id, req.Cid, req.CompanyName, req.Address, req.Telephone, req.LocalityId)
 		if err != nil {
+			logger.Error(ctx, store.GetPathWithLine(), err.Error())
 			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 			return
 		}
@@ -199,6 +205,7 @@ func (c *SellerController) Delete() gin.HandlerFunc {
 
 		err = c.service.Delete(ctx, id)
 		if err != nil {
+			logger.Error(ctx, store.GetPathWithLine(), err.Error())
 			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 			return
 		}

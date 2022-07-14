@@ -5,6 +5,8 @@ import (
 	"database/sql"
 
 	"github.com/douglmendes/mercado-fresco-round-go/internal/product_record/domain"
+	"github.com/douglmendes/mercado-fresco-round-go/pkg/logger"
+	"github.com/douglmendes/mercado-fresco-round-go/pkg/store"
 )
 
 type repository struct {
@@ -29,6 +31,8 @@ func (r repository) GetByProductId(ctx context.Context, productId int) ([]domain
 			&productRecordCount.RecordsCount,
 		)
 		if err != nil {
+			logger.Error(ctx, store.GetPathWithLine(), err.Error())
+
 			return productRecords, err
 		}
 
@@ -36,6 +40,8 @@ func (r repository) GetByProductId(ctx context.Context, productId int) ([]domain
 	} else {
 		rows, err := r.db.Query(GetAllGroupByProductIdQuery)
 		if err != nil {
+			logger.Error(ctx, store.GetPathWithLine(), err.Error())
+
 			return productRecords, err
 		}
 
@@ -48,6 +54,8 @@ func (r repository) GetByProductId(ctx context.Context, productId int) ([]domain
 				&productRecordCount.RecordsCount,
 			)
 			if err != nil {
+				logger.Error(ctx, store.GetPathWithLine(), err.Error())
+
 				return productRecords, err
 			}
 
@@ -68,11 +76,15 @@ func (r repository) Create(ctx context.Context, arg domain.ProductRecord) (domai
 		arg.ProductId,
 	)
 	if err != nil {
+		logger.Error(ctx, store.GetPathWithLine(), err.Error())
+
 		return domain.ProductRecord{}, err
 	}
 
 	id, err := result.LastInsertId()
 	if err != nil {
+		logger.Error(ctx, store.GetPathWithLine(), err.Error())
+
 		return domain.ProductRecord{}, err
 	}
 

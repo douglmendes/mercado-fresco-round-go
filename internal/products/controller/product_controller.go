@@ -8,7 +8,9 @@ import (
 	"strings"
 
 	"github.com/douglmendes/mercado-fresco-round-go/internal/products/domain"
+	"github.com/douglmendes/mercado-fresco-round-go/pkg/logger"
 	"github.com/douglmendes/mercado-fresco-round-go/pkg/response"
+	"github.com/douglmendes/mercado-fresco-round-go/pkg/store"
 	"github.com/gin-gonic/gin"
 )
 
@@ -34,7 +36,10 @@ func (c *ProductController) GetAll() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		products, err := c.service.GetAll(ctx)
 		if err != nil {
-			ctx.JSON(http.StatusInternalServerError, response.DecodeError(err.Error()))
+			message := err.Error()
+			logger.Error(ctx, store.GetPathWithLine(), message)
+
+			ctx.JSON(http.StatusInternalServerError, response.DecodeError(message))
 			return
 		}
 
@@ -62,13 +67,19 @@ func (c *ProductController) GetById() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
-			ctx.JSON(http.StatusBadRequest, response.DecodeError(err.Error()))
+			message := err.Error()
+			logger.Error(ctx, store.GetPathWithLine(), message)
+
+			ctx.JSON(http.StatusBadRequest, response.DecodeError(message))
 			return
 		}
 
 		products, err := c.service.GetById(ctx, int(id))
 		if err != nil {
-			ctx.JSON(http.StatusNotFound, response.DecodeError(err.Error()))
+			message := err.Error()
+			logger.Error(ctx, store.GetPathWithLine(), message)
+
+			ctx.JSON(http.StatusNotFound, response.DecodeError(message))
 			return
 		}
 
@@ -106,7 +117,10 @@ func (c *ProductController) Create() gin.HandlerFunc {
 		var req productsRequest
 
 		if err := ctx.ShouldBindJSON(&req); err != nil {
-			ctx.AbortWithStatusJSON(http.StatusUnprocessableEntity, response.DecodeError(err.Error()))
+			message := err.Error()
+			logger.Error(ctx, store.GetPathWithLine(), message)
+
+			ctx.AbortWithStatusJSON(http.StatusUnprocessableEntity, response.DecodeError(message))
 			return
 		}
 
@@ -126,7 +140,10 @@ func (c *ProductController) Create() gin.HandlerFunc {
 
 		product, err := c.service.Create(ctx, arg)
 		if err != nil {
-			ctx.JSON(http.StatusConflict, response.DecodeError(err.Error()))
+			message := err.Error()
+			logger.Error(ctx, store.GetPathWithLine(), message)
+
+			ctx.JSON(http.StatusConflict, response.DecodeError(message))
 			return
 		}
 
@@ -166,14 +183,20 @@ func (c *ProductController) Update() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
-			ctx.JSON(http.StatusBadRequest, response.DecodeError(err.Error()))
+			message := err.Error()
+			logger.Error(ctx, store.GetPathWithLine(), message)
+
+			ctx.JSON(http.StatusBadRequest, response.DecodeError(message))
 			return
 		}
 
 		var req updateProductsRequest
 
 		if err := ctx.ShouldBindJSON(&req); err != nil {
-			ctx.AbortWithStatusJSON(http.StatusUnprocessableEntity, response.DecodeError(err.Error()))
+			message := err.Error()
+			logger.Error(ctx, store.GetPathWithLine(), message)
+
+			ctx.AbortWithStatusJSON(http.StatusUnprocessableEntity, response.DecodeError(message))
 			return
 		}
 
@@ -194,12 +217,15 @@ func (c *ProductController) Update() gin.HandlerFunc {
 
 		product, err := c.service.Update(ctx, arg)
 		if err != nil {
-			if strings.Contains(err.Error(), "not found") || errors.Is(err, sql.ErrNoRows) {
-				ctx.JSON(http.StatusNotFound, response.DecodeError(err.Error()))
+			message := err.Error()
+			logger.Error(ctx, store.GetPathWithLine(), message)
+
+			if strings.Contains(message, "not found") || errors.Is(err, sql.ErrNoRows) {
+				ctx.JSON(http.StatusNotFound, response.DecodeError(message))
 				return
 			}
 
-			ctx.JSON(http.StatusInternalServerError, response.DecodeError(err.Error()))
+			ctx.JSON(http.StatusInternalServerError, response.DecodeError(message))
 			return
 		}
 
@@ -222,13 +248,19 @@ func (c *ProductController) Delete() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
-			ctx.JSON(http.StatusBadRequest, response.DecodeError(err.Error()))
+			message := err.Error()
+			logger.Error(ctx, store.GetPathWithLine(), message)
+
+			ctx.JSON(http.StatusBadRequest, response.DecodeError(message))
 			return
 		}
 
 		err = c.service.Delete(ctx, int(id))
 		if err != nil {
-			ctx.JSON(http.StatusNotFound, response.DecodeError(err.Error()))
+			message := err.Error()
+			logger.Error(ctx, store.GetPathWithLine(), message)
+
+			ctx.JSON(http.StatusNotFound, response.DecodeError(message))
 			return
 		}
 
