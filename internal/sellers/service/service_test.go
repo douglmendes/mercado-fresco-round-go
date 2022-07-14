@@ -167,6 +167,16 @@ func TestCreate_NOk(t *testing.T) {
 	assert.NotNil(t, err)
 }
 
+func TestCreate_GetAll_NOk(t *testing.T) {
+
+	apiMock, _, service := callMock(t)
+
+	apiMock.EXPECT().GetAll(context.TODO()).Return([]domain.Seller{}, errors.New("error"))
+
+	_, err := service.Create(context.TODO(), 22, "Mercado Livre", "Melicidade", "98787687", 1)
+	assert.NotNil(t, err)
+}
+
 func TestCreate_Locality_NOk(t *testing.T) {
 
 	slList := []domain.Seller{
@@ -297,6 +307,19 @@ func TestService_Update_ExistentCid_NOk(t *testing.T) {
 	apiMock.EXPECT().GetAll(context.TODO()).Return(slList, nil)
 
 	result, err := service.Update(context.TODO(), 10, 22, "Mercado Livre", "Melicidade", "98787687", 1)
+	assert.NotNil(t, err)
+	assert.Equal(t, result, sl)
+}
+
+func TestService_Update_GetAll_NOk(t *testing.T) {
+
+	sl := domain.Seller{}
+
+	apiMock, _, service := callMock(t)
+
+	apiMock.EXPECT().GetAll(context.TODO()).Return([]domain.Seller{}, errors.New("seller 10 not found"))
+
+	result, err := service.Update(context.TODO(), 10, 20, "Mercado Livre", "Melicidade", "98787687", 1)
 	assert.NotNil(t, err)
 	assert.Equal(t, result, sl)
 }
