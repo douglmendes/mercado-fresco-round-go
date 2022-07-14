@@ -5,15 +5,9 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/douglmendes/mercado-fresco-round-go/internal/warehouses/domain"
+	"github.com/douglmendes/mercado-fresco-round-go/pkg/logger"
+	"github.com/douglmendes/mercado-fresco-round-go/pkg/store"
 	"log"
-)
-
-const (
-	sqlCreate  = "INSERT INTO warehouse (address, telephone, warehouse_code, locality_id) VALUES (?, ?, ?, ?)"
-	sqlGetAll  = "SELECT id, address, telephone, warehouse_code, locality_id FROM warehouse"
-	sqlGetById = "SELECT id, address, telephone, warehouse_code, locality_id FROM warehouse WHERE id = ?"
-	sqlDelete  = "DELETE FROM warehouse WHERE id = ?"
-	sqlUpdate  = "UPDATE warehouse SET address = ?, telephone = ?, warehouse_code = ?, locality_id = ? WHERE id = ?"
 )
 
 type repository struct {
@@ -35,6 +29,7 @@ func (r *repository) GetById(ctx context.Context, id int) (warehouse domain.Ware
 		&warehouse.WarehouseCode,
 		&warehouse.LocalityId,
 	); err != nil {
+		logger.Error(ctx, store.GetPathWithLine(), err.Error())
 		return domain.Warehouse{}, fmt.Errorf("warehouse not found")
 	}
 	return
@@ -46,6 +41,7 @@ func (r *repository) GetAll(ctx context.Context) ([]domain.Warehouse, error) {
 
 	rows, err := r.db.QueryContext(ctx, sqlGetAll)
 	if err != nil {
+		logger.Error(ctx, store.GetPathWithLine(), err.Error())
 		return []domain.Warehouse{}, err
 	}
 
@@ -60,6 +56,7 @@ func (r *repository) GetAll(ctx context.Context) ([]domain.Warehouse, error) {
 			&warehouse.WarehouseCode,
 			&warehouse.LocalityId,
 		); err != nil {
+			logger.Error(ctx, store.GetPathWithLine(), err.Error())
 			return warehouses, err
 		}
 		warehouses = append(warehouses, warehouse)
@@ -77,11 +74,13 @@ func (r *repository) Create(ctx context.Context, address, telephone, warehouseCo
 
 	result, err := r.db.ExecContext(ctx, sqlCreate, &address, &telephone, &warehouseCode, &localityId)
 	if err != nil {
-		return domain.Warehouse{}, nil
+		logger.Error(ctx, store.GetPathWithLine(), err.Error())
+		return domain.Warehouse{}, err
 	}
 
 	incrementId, err := result.LastInsertId()
 	if err != nil {
+		logger.Error(ctx, store.GetPathWithLine(), err.Error())
 		return domain.Warehouse{}, err
 	}
 
@@ -101,6 +100,7 @@ func (r *repository) Update(
 
 	warehouse, err := r.GetById(ctx, id)
 	if err != nil {
+		logger.Error(ctx, store.GetPathWithLine(), err.Error())
 		return domain.Warehouse{}, fmt.Errorf("warehouse not found")
 	}
 
@@ -132,6 +132,7 @@ func (r *repository) Update(
 
 	affected, err := result.RowsAffected()
 	if err != nil {
+		logger.Error(ctx, store.GetPathWithLine(), err.Error())
 		return domain.Warehouse{}, err
 	}
 	log.Println(affected)
@@ -142,6 +143,7 @@ func (r *repository) Update(
 func (r *repository) Delete(ctx context.Context, id int) (err error) {
 	_, err = r.db.ExecContext(ctx, sqlDelete, id)
 	if err != nil {
+		logger.Error(ctx, store.GetPathWithLine(), "warehouse not found")
 		return fmt.Errorf("warehouse with id %d not found", id)
 	}
 	return

@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"github.com/douglmendes/mercado-fresco-round-go/internal/warehouses/domain"
+	"github.com/douglmendes/mercado-fresco-round-go/pkg/logger"
+	"github.com/douglmendes/mercado-fresco-round-go/pkg/store"
 )
 
 type service struct {
@@ -19,6 +21,7 @@ func NewService(r domain.WarehouseRepository) domain.WarehouseService {
 func (s *service) GetById(ctx context.Context, id int) (domain.Warehouse, error) {
 	warehouse, err := s.repository.GetById(ctx, id)
 	if err != nil {
+		logger.Error(ctx, store.GetPathWithLine(), err.Error())
 		return domain.Warehouse{}, err
 	}
 
@@ -28,6 +31,7 @@ func (s *service) GetById(ctx context.Context, id int) (domain.Warehouse, error)
 func (s *service) GetAll(ctx context.Context) ([]domain.Warehouse, error) {
 	warehouses, err := s.repository.GetAll(ctx)
 	if err != nil {
+		logger.Error(ctx, store.GetPathWithLine(), err.Error())
 		return []domain.Warehouse{}, err
 	}
 	return warehouses, nil
@@ -43,6 +47,7 @@ func (s *service) Create(
 
 	whList, err := s.repository.GetAll(ctx)
 	if err != nil {
+		logger.Error(ctx, store.GetPathWithLine(), err.Error())
 		return nil, err
 	}
 
@@ -72,6 +77,7 @@ func (s *service) Update(
 
 	warehouse, err := s.repository.GetById(ctx, id)
 	if err != nil {
+		logger.Error(ctx, store.GetPathWithLine(), err.Error())
 		return domain.Warehouse{}, err
 	}
 
@@ -81,6 +87,7 @@ func (s *service) Update(
 
 	whList, err := s.repository.GetAll(ctx)
 	if err != nil {
+		logger.Error(ctx, store.GetPathWithLine(), err.Error())
 		return domain.Warehouse{}, err
 	}
 
@@ -96,6 +103,7 @@ func (s *service) Update(
 func (s *service) Delete(ctx context.Context, id int) error {
 	err := s.repository.Delete(ctx, id)
 	if err != nil {
+		logger.Error(ctx, store.GetPathWithLine(), err.Error())
 		return err
 	}
 	return nil
