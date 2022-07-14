@@ -41,7 +41,7 @@ func (s *service) Create(ctx context.Context, batchNumber, currentQuantity, curr
 	}
 
 	section, err := s.sectionRepo.GetById(sectionId)
-	if section.Id == 0 || section == nil || err != nil {
+	if section == nil || section.Id == 0 || err != nil {
 		return nil, fmt.Errorf("section %d not found", productId)
 	}
 
