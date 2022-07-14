@@ -5,7 +5,9 @@ import (
 	"strconv"
 
 	"github.com/douglmendes/mercado-fresco-round-go/internal/product_record/domain"
+	"github.com/douglmendes/mercado-fresco-round-go/pkg/logger"
 	"github.com/douglmendes/mercado-fresco-round-go/pkg/response"
+	"github.com/douglmendes/mercado-fresco-round-go/pkg/store"
 	"github.com/gin-gonic/gin"
 )
 
@@ -36,14 +38,20 @@ func (c *ProductRecordController) GetByProductId() gin.HandlerFunc {
 		if stringId, exists := ctx.GetQuery("id"); exists {
 			id, err = strconv.ParseInt(stringId, 10, 64)
 			if err != nil {
-				ctx.JSON(http.StatusBadRequest, response.DecodeError(err.Error()))
+				message := err.Error()
+				logger.Error(ctx, store.GetPathWithLine(), message)
+
+				ctx.JSON(http.StatusBadRequest, response.DecodeError(message))
 				return
 			}
 		}
 
 		productRecords, err := c.service.GetByProductId(ctx, int(id))
 		if err != nil {
-			ctx.JSON(http.StatusNotFound, response.DecodeError(err.Error()))
+			message := err.Error()
+			logger.Error(ctx, store.GetPathWithLine(), message)
+
+			ctx.JSON(http.StatusNotFound, response.DecodeError(message))
 			return
 		}
 
@@ -74,7 +82,10 @@ func (c *ProductRecordController) Create() gin.HandlerFunc {
 		var req productRecordsRequest
 
 		if err := ctx.ShouldBindJSON(&req); err != nil {
-			ctx.AbortWithStatusJSON(http.StatusUnprocessableEntity, response.DecodeError(err.Error()))
+			message := err.Error()
+			logger.Error(ctx, store.GetPathWithLine(), message)
+
+			ctx.AbortWithStatusJSON(http.StatusUnprocessableEntity, response.DecodeError(message))
 			return
 		}
 
@@ -87,7 +98,10 @@ func (c *ProductRecordController) Create() gin.HandlerFunc {
 
 		product, err := c.service.Create(ctx, arg)
 		if err != nil {
-			ctx.JSON(http.StatusConflict, response.DecodeError(err.Error()))
+			message := err.Error()
+			logger.Error(ctx, store.GetPathWithLine(), message)
+
+			ctx.JSON(http.StatusConflict, response.DecodeError(message))
 			return
 		}
 
