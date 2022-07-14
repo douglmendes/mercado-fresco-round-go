@@ -5,7 +5,9 @@ import (
 	"strconv"
 
 	"github.com/douglmendes/mercado-fresco-round-go/internal/localities/domain"
+	"github.com/douglmendes/mercado-fresco-round-go/pkg/logger"
 	"github.com/douglmendes/mercado-fresco-round-go/pkg/response"
+	"github.com/douglmendes/mercado-fresco-round-go/pkg/store"
 	"github.com/gin-gonic/gin"
 )
 
@@ -32,6 +34,7 @@ func (c *LocalityController) GetBySellers() gin.HandlerFunc {
 		id, err := strconv.Atoi(localityId)
 		if byId == true {
 			if err != nil {
+				logger.Error(ctx, store.GetPathWithLine(), err.Error())
 				ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid Id"})
 				return
 			}
@@ -39,6 +42,7 @@ func (c *LocalityController) GetBySellers() gin.HandlerFunc {
 
 		l, err := c.service.GetBySellers(ctx, id)
 		if err != nil {
+			logger.Error(ctx, store.GetPathWithLine(), err.Error())
 			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 			return
 		}
@@ -53,6 +57,7 @@ func (c *LocalityController) GetByCarriers() gin.HandlerFunc {
 		id, err := strconv.Atoi(localityId)
 		if byId == true {
 			if err != nil {
+				logger.Error(ctx, store.GetPathWithLine(), err.Error())
 				ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid Id"})
 				return
 			}
@@ -60,6 +65,7 @@ func (c *LocalityController) GetByCarriers() gin.HandlerFunc {
 
 		l, err := c.service.GetByCarriers(ctx, id)
 		if err != nil {
+			logger.Error(ctx, store.GetPathWithLine(), err.Error())
 			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 			return
 		}
@@ -72,12 +78,14 @@ func (c *LocalityController) Create() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var req sqlCreateRequest
 		if err := ctx.ShouldBindJSON(&req); err != nil {
+			logger.Error(ctx, store.GetPathWithLine(), err.Error())
 			ctx.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
 			return
 		}
 
 		l, err := c.service.Create(ctx, req.ZipCode, req.LocalityName, req.ProvinceName, req.CountryName)
 		if err != nil {
+			logger.Error(ctx, store.GetPathWithLine(), err.Error())
 			ctx.JSON(http.StatusConflict, gin.H{"error": err.Error()})
 			return
 		}

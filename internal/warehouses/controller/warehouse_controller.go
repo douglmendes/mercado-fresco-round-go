@@ -3,6 +3,8 @@ package controller
 import (
 	"fmt"
 	"github.com/douglmendes/mercado-fresco-round-go/internal/warehouses/domain"
+	"github.com/douglmendes/mercado-fresco-round-go/pkg/logger"
+	"github.com/douglmendes/mercado-fresco-round-go/pkg/store"
 	"net/http"
 	"strconv"
 
@@ -41,6 +43,7 @@ func (w *WarehousesController) Create() gin.HandlerFunc {
 			whRequest.LocalityId,
 		)
 		if err != nil {
+			logger.Error(ctx, store.GetPathWithLine(), err.Error())
 			ctx.JSON(http.StatusConflict, gin.H{"error": err.Error()})
 			return
 		}
@@ -62,6 +65,7 @@ func (w *WarehousesController) GetAll() gin.HandlerFunc {
 
 		warehousesList, err := w.service.GetAll(ctx)
 		if err != nil {
+			logger.Error(ctx, store.GetPathWithLine(), err.Error())
 			ctx.JSON(http.StatusNotFound, response.DecodeError(err.Error()))
 			return
 		}
@@ -83,7 +87,6 @@ func (w *WarehousesController) GetAll() gin.HandlerFunc {
 func (w *WarehousesController) GetById() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 
-		//id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		id, err := strconv.Atoi(ctx.Param("id"))
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, response.DecodeError("id is not valid"))
@@ -92,6 +95,7 @@ func (w *WarehousesController) GetById() gin.HandlerFunc {
 
 		warehouse, err := w.service.GetById(ctx, id)
 		if err != nil {
+			logger.Error(ctx, store.GetPathWithLine(), err.Error())
 			ctx.JSON(http.StatusNotFound, response.DecodeError(err.Error()))
 			return
 		}
@@ -135,6 +139,7 @@ func (w *WarehousesController) Update() gin.HandlerFunc {
 			whRequest.LocalityId,
 		)
 		if err != nil {
+			logger.Error(ctx, store.GetPathWithLine(), err.Error())
 			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 			return
 		}
@@ -162,6 +167,7 @@ func (w *WarehousesController) Delete() gin.HandlerFunc {
 
 		err = w.service.Delete(ctx, id)
 		if err != nil {
+			logger.Error(ctx, store.GetPathWithLine(), err.Error())
 			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 			return
 		}

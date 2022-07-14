@@ -4,11 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"github.com/douglmendes/mercado-fresco-round-go/internal/carriers/domain"
-)
-
-const (
-	sqlCreateCarrier  = "INSERT INTO carries (cid, company_name, address, telephone, locality_id) VALUES (?, ?, ?, ?, ?)"
-	sqlGetAllCarriers = "SELECT id, cid, company_name, address, telephone, locality_id FROM carries"
+	"github.com/douglmendes/mercado-fresco-round-go/pkg/logger"
+	"github.com/douglmendes/mercado-fresco-round-go/pkg/store"
 )
 
 type repository struct {
@@ -59,11 +56,13 @@ func (r repository) Create(ctx context.Context, cid, companyName, address, telep
 
 	result, err := r.db.ExecContext(ctx, sqlCreateCarrier, &cid, &companyName, &address, &telephone, &localityId)
 	if err != nil {
+		logger.Error(ctx, store.GetPathWithLine(), err.Error())
 		return domain.Carrier{}, err
 	}
 
 	incrementId, err := result.LastInsertId()
 	if err != nil {
+		logger.Error(ctx, store.GetPathWithLine(), err.Error())
 		return domain.Carrier{}, err
 	}
 

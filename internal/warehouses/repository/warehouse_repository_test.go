@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/douglmendes/mercado-fresco-round-go/internal/warehouses/domain"
 	"github.com/stretchr/testify/assert"
@@ -56,6 +57,23 @@ func TestRepository_GetAll(t *testing.T) {
 	assert.Equal(t, result[0].WarehouseCode, "AAA")
 	assert.Equal(t, len(result), 2)
 }
+
+func TestRepository_GetAll_NOK(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	assert.NoError(t, err)
+	defer db.Close()
+
+	whMock := []domain.Warehouse{}
+
+	mock.ExpectQuery(sqlGetAll).WillReturnError(errors.New("error"))
+	whRepo := NewRepository(db)
+
+	result, err := whRepo.GetAll(context.Background())
+	assert.Error(t, err)
+	assert.Equal(t, whMock, result)
+
+}
+
 func TestRepository_GetById(t *testing.T) {
 	db, mock, err := sqlmock.New()
 	assert.NoError(t, err)
@@ -80,6 +98,20 @@ func TestRepository_GetById(t *testing.T) {
 	result, err := whRepo.GetById(context.Background(), 1)
 	assert.NoError(t, err)
 	assert.Equal(t, wh.WarehouseCode, result.WarehouseCode)
+}
+
+func TestRepository_GetById_NOK(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	assert.NoError(t, err)
+	defer db.Close()
+
+	mock.ExpectQuery(sqlGetById).WillReturnError(errors.New("error"))
+	whRepo := NewRepository(db)
+
+	result, err := whRepo.GetById(context.Background(), 1)
+	assert.Error(t, err)
+	assert.Equal(t, domain.Warehouse{}, result)
+
 }
 
 func TestRepository_Create(t *testing.T) {
@@ -113,6 +145,28 @@ func TestRepository_Create(t *testing.T) {
 
 	assert.NoError(t, err)
 	assert.Equal(t, result.WarehouseCode, whMock.WarehouseCode)
+}
+
+func TestRepository_Create_NOK(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	assert.NoError(t, err)
+	defer db.Close()
+
+	mock.ExpectExec(regexp.QuoteMeta(sqlCreate)).
+		WithArgs(0, 0, 0, 0).
+		WillReturnResult(sqlmock.NewResult(1, 1))
+
+	whRepo := NewRepository(db)
+
+	_, err = whRepo.Create(
+		context.Background(),
+		"Rua do Teste",
+		"9888100000",
+		"TEST",
+		1,
+	)
+
+	assert.Error(t, err)
 }
 
 func TestRepository_Update(t *testing.T) {
@@ -184,4 +238,17 @@ func TestRepository_Delete(t *testing.T) {
 
 	err = warehouseRepo.Delete(context.Background(), 1)
 	assert.NoError(t, err)
+}
+
+func TestRepository_Delete_NOk(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	assert.NoError(t, err)
+	defer db.Close()
+
+	mock.ExpectQuery(sqlDelete).WillReturnError(errors.New("error"))
+
+	slRepo := NewRepository(db)
+
+	err = slRepo.Delete(context.TODO(), 1)
+	assert.Error(t, err)
 }

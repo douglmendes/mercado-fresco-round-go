@@ -2,6 +2,8 @@ package controller
 
 import (
 	"github.com/douglmendes/mercado-fresco-round-go/internal/carriers/domain"
+	"github.com/douglmendes/mercado-fresco-round-go/pkg/logger"
+	"github.com/douglmendes/mercado-fresco-round-go/pkg/store"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -45,6 +47,7 @@ func (c *CarrierController) Create() gin.HandlerFunc {
 			request.LocalityId,
 		)
 		if err != nil {
+			logger.Error(ctx, store.GetPathWithLine(), err.Error())
 			ctx.JSON(http.StatusConflict, gin.H{"error": err.Error()})
 			return
 		}
