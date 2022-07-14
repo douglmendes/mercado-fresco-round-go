@@ -5,6 +5,8 @@ import (
 	"database/sql"
 
 	"github.com/douglmendes/mercado-fresco-round-go/internal/product_batches/domain"
+	"github.com/douglmendes/mercado-fresco-round-go/pkg/logger"
+	"github.com/douglmendes/mercado-fresco-round-go/pkg/store"
 )
 
 type repository struct {
@@ -22,6 +24,7 @@ func (r repository) GetAll(ctx context.Context) ([]domain.ProductBatch, error) {
 
 	rows, err := r.db.QueryContext(ctx, getQuery)
 	if err != nil {
+		logger.Error(ctx, store.GetPathWithLine(), err.Error())
 		return nil, err
 	}
 
@@ -43,6 +46,7 @@ func (r repository) GetAll(ctx context.Context) ([]domain.ProductBatch, error) {
 			&product_batch.ProductId,
 			&product_batch.SectionId,
 		); err != nil {
+			logger.Error(ctx, store.GetPathWithLine(), err.Error())
 			return productBatches, err
 		}
 
@@ -68,11 +72,13 @@ func (r repository) Create(ctx context.Context, batchNumber, currentQuantity, cu
 
 	result, err := r.db.ExecContext(ctx, createQuery, &batchNumber, &currentQuantity, &currentTemperature, &dueDate, &initialQuantity, &manufacturingDate, &manufacturingHour, &minimumTemperature, &productId, &sectionId)
 	if err != nil {
+		logger.Error(ctx, store.GetPathWithLine(), err.Error())
 		return nil, err
 	}
 
 	incrementId, err := result.LastInsertId()
 	if err != nil {
+		logger.Error(ctx, store.GetPathWithLine(), err.Error())
 		return nil, err
 	}
 
@@ -88,6 +94,7 @@ func (r repository) GetBySectionId(ctx context.Context, sectionId int) ([]domain
 
 		rows, err := r.db.QueryContext(ctx, allSectionsReportQuery)
 		if err != nil {
+			logger.Error(ctx, store.GetPathWithLine(), err.Error())
 			return nil, err
 		}
 
@@ -103,6 +110,7 @@ func (r repository) GetBySectionId(ctx context.Context, sectionId int) ([]domain
 				&section_id,
 				&section_number,
 			); err != nil {
+				logger.Error(ctx, store.GetPathWithLine(), err.Error())
 				return nil, err
 			}
 
@@ -128,6 +136,7 @@ func (r repository) GetBySectionId(ctx context.Context, sectionId int) ([]domain
 
 	rows, err := r.db.QueryContext(ctx, singleSectionReportQuery, sectionId)
 	if err != nil {
+		logger.Error(ctx, store.GetPathWithLine(), err.Error())
 		return nil, err
 	}
 
@@ -139,6 +148,7 @@ func (r repository) GetBySectionId(ctx context.Context, sectionId int) ([]domain
 		var record domain.SectionRecords
 		err := rows.Scan(&record.ProductsCount, &record.SectionId, &record.SectionNumber)
 		if err != nil {
+			logger.Error(ctx, store.GetPathWithLine(), err.Error())
 			return nil, err
 		}
 

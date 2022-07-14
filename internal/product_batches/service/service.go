@@ -7,6 +7,8 @@ import (
 	pbRepo "github.com/douglmendes/mercado-fresco-round-go/internal/product_batches/domain"
 	productRepo "github.com/douglmendes/mercado-fresco-round-go/internal/products/domain"
 	sectionRepo "github.com/douglmendes/mercado-fresco-round-go/internal/sections/domain"
+	"github.com/douglmendes/mercado-fresco-round-go/pkg/logger"
+	"github.com/douglmendes/mercado-fresco-round-go/pkg/store"
 )
 
 type service struct {
@@ -26,6 +28,7 @@ func NewService(pbr pbRepo.ProductBatchesRepository, pr productRepo.ProductRepos
 func (s *service) Create(ctx context.Context, batchNumber, currentQuantity, currentTemperature int, dueDate string, initialQuantity int, manufacturingDate string, manufacturingHour, minimumTemperature, productId, sectionId int) (*pbRepo.ProductBatch, error) {
 	productBatches, err := s.productBatchesRepository.GetAll(ctx)
 	if err != nil {
+		logger.Error(ctx, store.GetPathWithLine(), err.Error())
 		return nil, err
 	}
 
@@ -37,11 +40,19 @@ func (s *service) Create(ctx context.Context, batchNumber, currentQuantity, curr
 
 	product, err := s.productRepo.GetById(ctx, productId)
 	if product.Id == 0 || err != nil {
+		if err != nil {
+			logger.Error(ctx, store.GetPathWithLine(), err.Error())
+		}
+
 		return nil, fmt.Errorf("product %d not found", productId)
 	}
 
 	section, err := s.sectionRepo.GetById(sectionId)
 	if section == nil || section.Id == 0 || err != nil {
+		if err != nil {
+			logger.Error(ctx, store.GetPathWithLine(), err.Error())
+		}
+
 		return nil, fmt.Errorf("section %d not found", productId)
 	}
 
@@ -52,12 +63,14 @@ func (s *service) GetBySectionId(ctx context.Context, sectionId int) ([]pbRepo.S
 	if sectionId != 0 {
 		_, err := s.sectionRepo.GetById(sectionId)
 		if err != nil {
+			logger.Error(ctx, store.GetPathWithLine(), err.Error())
 			return nil, err
 		}
 	}
 
 	records, err := s.productBatchesRepository.GetBySectionId(ctx, sectionId)
 	if err != nil {
+		logger.Error(ctx, store.GetPathWithLine(), err.Error())
 		return nil, err
 	}
 
