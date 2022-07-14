@@ -5,6 +5,8 @@ import (
 	"fmt"
 
 	"github.com/douglmendes/mercado-fresco-round-go/internal/localities/domain"
+	"github.com/douglmendes/mercado-fresco-round-go/pkg/logger"
+	"github.com/douglmendes/mercado-fresco-round-go/pkg/store"
 )
 
 type service struct {
@@ -20,6 +22,7 @@ func NewService(r domain.LocalityRepository) domain.LocalityService {
 func (s service) GetBySellers(ctx context.Context, id int) ([]domain.SellersByLocality, error) {
 	lc, err := s.repository.GetBySellers(ctx, id)
 	if err != nil {
+		logger.Error(ctx, store.GetPathWithLine(), err.Error())
 		return []domain.SellersByLocality{}, err
 	}
 	return lc, nil
@@ -28,6 +31,7 @@ func (s service) GetBySellers(ctx context.Context, id int) ([]domain.SellersByLo
 func (s service) GetByCarriers(ctx context.Context, id int) ([]domain.CarriersByLocality, error) {
 	carrier, err := s.repository.GetByCarriers(ctx, id)
 	if err != nil {
+		logger.Error(ctx, store.GetPathWithLine(), err.Error())
 		return []domain.CarriersByLocality{}, err
 	}
 
@@ -38,6 +42,7 @@ func (s service) Create(ctx context.Context, zipCode, localityname, provinceName
 
 	sl, err := s.repository.GetAll(ctx)
 	if err != nil {
+		logger.Error(ctx, store.GetPathWithLine(), err.Error())
 		return domain.Locality{}, err
 	}
 
@@ -50,6 +55,7 @@ func (s service) Create(ctx context.Context, zipCode, localityname, provinceName
 	locality, err := s.repository.Create(ctx, zipCode, localityname, provinceName, countryName)
 
 	if err != nil {
+		logger.Error(ctx, store.GetPathWithLine(), err.Error())
 		return domain.Locality{}, err
 	}
 

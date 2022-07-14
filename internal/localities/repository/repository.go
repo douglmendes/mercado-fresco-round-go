@@ -5,7 +5,10 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+
 	"github.com/douglmendes/mercado-fresco-round-go/internal/localities/domain"
+	"github.com/douglmendes/mercado-fresco-round-go/pkg/logger"
+	"github.com/douglmendes/mercado-fresco-round-go/pkg/store"
 )
 
 type repository struct {
@@ -16,6 +19,7 @@ func (r *repository) GetAll(ctx context.Context) ([]domain.Locality, error) {
 	var localities []domain.Locality
 	rows, err := r.db.QueryContext(ctx, queryGetAll)
 	if err != nil {
+		logger.Error(ctx, store.GetPathWithLine(), err.Error())
 		return []domain.Locality{}, err
 	}
 
@@ -58,6 +62,7 @@ func (r *repository) GetById(ctx context.Context, id int) (domain.Locality, erro
 	}
 
 	if err != nil {
+		logger.Error(ctx, store.GetPathWithLine(), err.Error())
 		return locality, err
 	}
 
@@ -84,6 +89,7 @@ func (r *repository) GetBySellers(ctx context.Context, id int) ([]domain.Sellers
 		}
 
 		if err != nil {
+			logger.Error(ctx, store.GetPathWithLine(), err.Error())
 			return sellersByLocality, err
 		}
 
@@ -130,6 +136,7 @@ func (r *repository) Create(ctx context.Context, zipCode, localityName, province
 	)
 
 	if err != nil {
+		logger.Error(ctx, store.GetPathWithLine(), err.Error())
 		return domain.Locality{}, err
 	}
 
