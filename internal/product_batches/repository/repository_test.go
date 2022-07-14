@@ -24,6 +24,11 @@ var (
 		ProductId:          7,
 		SectionId:          8,
 	}
+	sampleRecord = domain.SectionRecords{
+		SectionId:     1,
+		SectionNumber: 2,
+		ProductsCount: 5,
+	}
 )
 
 func TestRepository_Create_OK(t *testing.T) {
@@ -116,4 +121,44 @@ func TestRepository_Get_All(t *testing.T) {
 
 	assert.NoError(t, err)
 	assert.Equal(t, []domain.ProductBatch{sampleBatch}, batches)
+}
+
+func TestRepository_Get_By_Single_Section_Id(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	assert.NoError(t, err)
+	defer db.Close()
+
+	result := sqlmock.NewRows([]string{"current_quantity", "section_id", "section_number"}).AddRow(
+		sampleRecord.ProductsCount,
+		sampleRecord.SectionId,
+		sampleRecord.SectionNumber,
+	)
+
+	mock.ExpectQuery(regexp.QuoteMeta(singleSectionReportQuery)).WillReturnRows(result)
+
+	repository := NewRepository(db)
+	records, err := repository.GetBySectionId(context.TODO(), 1)
+
+	assert.NoError(t, err)
+	assert.Equal(t, []domain.SectionRecords{sampleRecord}, records)
+}
+
+func TestRepository_Get_By_All_Sections(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	assert.NoError(t, err)
+	defer db.Close()
+
+	result := sqlmock.NewRows([]string{"current_quantity", "section_id", "section_number"}).AddRow(
+		sampleRecord.ProductsCount,
+		sampleRecord.SectionId,
+		sampleRecord.SectionNumber,
+	)
+
+	mock.ExpectQuery(regexp.QuoteMeta(allSectionsReportQuery)).WillReturnRows(result)
+
+	repository := NewRepository(db)
+	records, err := repository.GetBySectionId(context.TODO(), 0)
+
+	assert.NoError(t, err)
+	assert.Equal(t, []domain.SectionRecords{sampleRecord}, records)
 }
